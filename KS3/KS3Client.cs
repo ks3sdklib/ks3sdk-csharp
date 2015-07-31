@@ -703,11 +703,6 @@ namespace KS3
         /// <returns></returns>
         public string generatePresignedUrl(string bucketName, string key,DateTime expiration, ResponseHeaderOverrides overrides)
         {
-            
-            AccessControlList acl=getObjectAcl(bucketName, key);
-            var allUserPermission = acl.getGrants()
-                .Where(w => w.getGrantee().ToString().Contains(GroupGrantee.ALL_USERS))
-                .Where(w => w.getPermission() == "READ");
             string url = "";
             string param = "";
             overrides = overrides == null ? new ResponseHeaderOverrides() : overrides;
@@ -724,30 +719,22 @@ namespace KS3
             if (!string.IsNullOrEmpty(overrides.ContentEncoding))
                 param += "&response-content-encoding=" + overrides.ContentEncoding;
 
-            if (allUserPermission.Count()==0)
+            var baselineTime = new DateTime(1970, 1, 1);
+            var expires = Convert.ToInt64((expiration.ToUniversalTime() - baselineTime).TotalSeconds);
+            try
             {
-                var baselineTime = new DateTime(1970, 1, 1);
-                var expires = Convert.ToInt64((expiration.ToUniversalTime() - baselineTime).TotalSeconds);
-                try
-                {
-                    KS3Signer<NoneKS3Request> ks3Signer = createSigner<NoneKS3Request>(HttpMethod.GET.ToString(), bucketName, key);
-                    string signer = ks3Signer.getSignature(this.ks3Credentials, expires.ToString());
-                    url += @"http://" + bucketName + "." + Constants.KS3_CDN_END_POINT
-                                 +"/" + key + "?AccessKeyId="
-                                 + UrlEncoder.encode(this.ks3Credentials.getKS3AccessKeyId(), Constants.DEFAULT_ENCODING)
-                                 + "&Expires=" + expires + "&Signature="
-                                 + UrlEncoder.encode(signer, Constants.DEFAULT_ENCODING)+"&"+ param;
-                    
-                }
-                catch (Exception e)
-                {
-                    throw e;
-                }
+                KS3Signer<NoneKS3Request> ks3Signer = createSigner<NoneKS3Request>(HttpMethod.GET.ToString(), bucketName, key);
+                string signer = ks3Signer.getSignature(this.ks3Credentials, expires.ToString());
+                url += @"http://" + bucketName + "." + Constants.KS3_CDN_END_POINT
+                             + "/" + key + "?AccessKeyId="
+                             + UrlEncoder.encode(this.ks3Credentials.getKS3AccessKeyId(), Constants.DEFAULT_ENCODING)
+                             + "&Expires=" + expires + "&Signature="
+                             + UrlEncoder.encode(signer, Constants.DEFAULT_ENCODING) + "&" + param;
+
             }
-            else
+            catch (Exception e)
             {
-                url+= "http://" + bucketName + "." + Constants.KS3_CDN_END_POINT + "/"
-                    + key + "?"+ param;
+                throw e;
             }
 
             return url;
