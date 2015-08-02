@@ -703,6 +703,8 @@ namespace KS3
         /// <returns></returns>
         public string generatePresignedUrl(string bucketName, string key,DateTime expiration, ResponseHeaderOverrides overrides)
         {
+	    key = key.Replace("//", "/");
+		
             string url = "";
             string param = "";
             overrides = overrides == null ? new ResponseHeaderOverrides() : overrides;
@@ -758,7 +760,8 @@ namespace KS3
             request.setEndpoint(endpoint);
 
             String resourcePath = "/" + (bucketName != null ? bucketName + "/" : "") + (key != null ? key : "");
-            resourcePath = UrlEncoder.encode(resourcePath, Constants.DEFAULT_ENCODING);
+            resourcePath = resourcePath.Replace("//", "/");
+	    resourcePath = UrlEncoder.encode(resourcePath, Constants.DEFAULT_ENCODING);
 
             request.setResourcePath(resourcePath);
 
