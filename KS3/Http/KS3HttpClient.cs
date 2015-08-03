@@ -12,6 +12,7 @@ using KS3.Model;
 using KS3.Internal;
 using KS3.Transform;
 using KS3.KS3Exception;
+using System.Threading;
 
 namespace KS3.Http
 {
@@ -81,7 +82,7 @@ namespace KS3.Http
                     httpRequest = HttpRequestFactory.createHttpRequest(request, this.config);
                     httpResponse = (HttpWebResponse)httpRequest.GetResponse();
 
-                    result = responseHandler.handle(httpResponse);
+                    result= responseHandler.handle(httpResponse);
                     break;
                 }
                 catch (WebException we)
@@ -98,11 +99,11 @@ namespace KS3.Http
                     }
                     throw serviceException;
                 }
-                catch (IOException ex) {
-                    if (i == Constants.RETRY_TIMES-1)
-                    {
+                catch (IOException ex){
+                    if(i==Constants.RETRY_TIMES-1){
                         throw ex;
                     }
+                    Thread.Sleep(1000);
                 }
                 finally
                 {

@@ -68,5 +68,12 @@ namespace KS3
 
         /** Header for the WRITE_ACP permission */
         public static String PERMISSION_WRITE_ACP = "x-kss-grant-write-acp";
+        /** Header for the copy object*/
+        public static String XKssCopySource = "x-kss-copy-source";
+
+        /**callback */
+        public static String AsynchronousProcessingList = "kss-async-process";
+        public static String NotifyURL = "kss-notifyurl";
+        public static String TaskId = "TaskID";
     }
 }

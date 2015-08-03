@@ -188,6 +188,71 @@ namespace KS3
 
             return new Bucket(bucketName);
         }
+        /// <summary>
+        /// This operation is useful to determine if a bucket exists and you have permission to access it
+        /// </summary>
+        /// <param name="bucketName"></param>
+        /// <returns></returns>
+        public HeadBucketResult headBucket(String bucketName) {
+            return headBucket(new HeadBucketRequest(bucketName));
+        }
+        public HeadBucketResult headBucket(HeadBucketRequest headBucketRequest) {
+            String bucketname = headBucketRequest.BucketName;
+            Request<HeadBucketRequest> request = this.createRequest(bucketname, null, headBucketRequest, HttpMethod.HEAD);
+            return this.invoke(request, new HeadBucketResponseHandler(), bucketname, null);
+        }
+        /// <summary>
+        /// Returns the cors configuration information set for the bucket.
+        /// To use this operation, you must have permission to perform the s3:GetBucketCORS action. By default, the bucket owner has this permission and can grant it to others.
+        /// </summary>
+        /// <param name="bucketName"></param>
+        /// <returns></returns>
+        public BucketCorsConfigurationResult getBucketCors(String bucketName) {
+            return this.getBucketCors(new GetBucketCorsRequest(bucketName));
+        }
+        public BucketCorsConfigurationResult getBucketCors(GetBucketCorsRequest getBucketCorsRequest)
+        {
+            BucketCorsConfigurationResult result = new BucketCorsConfigurationResult();
+            String bucketname = getBucketCorsRequest.BucketName;
+            Request<GetBucketCorsRequest> request = this.createRequest(bucketname, null, getBucketCorsRequest, HttpMethod.GET);
+            request.getParameters().Add("cors", null);
+            result = this.invoke(request, new BucketCorsConfigurationResultUnmarshaller(), bucketname, null);
+            return result;
+        }
+        /// <summary>
+        /// This implementation of the GET operation uses the location subresource to return a bucket's region. You set the bucket's region using the LocationConstraint request parameter in a PUT Bucket request. 
+        /// </summary>
+        /// <param name="bucketName"></param>
+        /// <returns></returns>
+        public GetBucketLocationResult getBucketLocation(String bucketName)
+        {
+            return getBucketLocation(new GetBucketLocationRequest(bucketName));
+        }
+        public GetBucketLocationResult getBucketLocation(GetBucketLocationRequest getBucketLocationRequest)
+        {
+            GetBucketLocationResult result = new GetBucketLocationResult();
+            Request<GetBucketLocationRequest> request = this.createRequest(getBucketLocationRequest.BucketName, null, getBucketLocationRequest, HttpMethod.GET);
+            request.getParameters().Add("location", null);
+            result=this.invoke(request, new GetBucketLocationResultUnmarshaller(), getBucketLocationRequest.BucketName, null);
+            return result;
+        }
+        /// <summary>
+        /// This implementation of the GET operation uses the logging subresource to return the logging status of a bucket and the permissions users have to view and modify that status. To use GET, you must be the bucket owner. 
+        /// </summary>
+        /// <param name="bucketName"></param>
+        /// <returns></returns>
+        public GetBucketLoggingResult getBucketLogging(String bucketName)
+        {
+            return getBucketLogging(new GetBucketLoggingRequest(bucketName));
+        }
+        public GetBucketLoggingResult getBucketLogging(GetBucketLoggingRequest getBucketLoggingRequest)
+        {
+            GetBucketLoggingResult result = new GetBucketLoggingResult();
+            Request<GetBucketLoggingRequest> request = this.createRequest(getBucketLoggingRequest.BucketName, null, getBucketLoggingRequest, HttpMethod.GET);
+            request.getParameters().Add("logging",null);
+            result=this.invoke(request, new GetBucketLoggingResultUnmarshaller(), getBucketLoggingRequest.BucketName, null);
+            return result;
+        }
 
         /**
          * Sets the AccessControlList for the specified KS3 bucket.
@@ -234,7 +299,61 @@ namespace KS3
 
             this.invoke(request, this.voidResponseHandler, bucketName, null);
         }
-
+        /// <summary>
+        /// Sets the cors configuration for your bucket. If the configuration exists, Amazon S3 replaces it. 
+        /// </summary>
+        /// <param name="putBucketCorsRequest"></param>
+        public void setBucketCors(PutBucketCorsRequest putBucketCorsRequest)
+        {
+            Request<PutBucketCorsRequest> request = this.createRequest(putBucketCorsRequest.BucketName, null, putBucketCorsRequest, HttpMethod.PUT);
+            request.getParameters().Add("cors", null);
+            request.setHeader(Headers.CONTENT_LENGTH, putBucketCorsRequest.toXmlAdapter().Length.ToString());
+            request.setHeader(Headers.CONTENT_TYPE, "application/xml");
+            request.setHeader(Headers.CONTENT_MD5,putBucketCorsRequest.getMd5());
+            request.setContent(putBucketCorsRequest.toXmlAdapter());
+            this.invoke(request, this.voidResponseHandler, putBucketCorsRequest.BucketName, null);
+        }
+        /// <summary>
+        /// This implementation of the PUT operation uses the logging subresource to set the logging parameters for a bucket and to specify permissions for who can view and modify the logging parameters. To set the logging status of a bucket, you must be the bucket owner.
+        /// </summary>
+        /// <param name="putBucketLoggingRequest"></param>
+        public void setBucketLogging(PutBucketLoggingRequest putBucketLoggingRequest)
+        {
+            Request<PutBucketLoggingRequest> request = this.createRequest(putBucketLoggingRequest.BucketName, null, putBucketLoggingRequest, HttpMethod.PUT);
+            request.getParameters().Add("logging",null);
+            request.setHeader(Headers.CONTENT_LENGTH, putBucketLoggingRequest.toXmlAdapter().Length.ToString());
+            request.setHeader(Headers.CONTENT_TYPE, "application/xml");
+            request.setContent(putBucketLoggingRequest.toXmlAdapter());
+            this.invoke(request, this.voidResponseHandler, putBucketLoggingRequest.BucketName, null);
+        }
+        /// <summary>
+        /// Deletes the cors configuration information set for the bucket.
+        /// </summary>
+        /// <param name="bucketName"></param>
+        public void deleteBucketCors(String bucketName) {
+            deleteBucketCors(new DeleteBucketCorsRequest(bucketName));
+        }
+        public void deleteBucketCors(DeleteBucketCorsRequest deleteBucketCorsRequest)
+        {
+            Request<DeleteBucketCorsRequest> request = this.createRequest(deleteBucketCorsRequest.BucketName, null, deleteBucketCorsRequest, HttpMethod.DELETE);
+            request.getParameters().Add("cors",null);
+            this.invoke(request, this.voidResponseHandler, deleteBucketCorsRequest.BucketName, null);
+        }
+        /// <summary>
+        /// The Multi-Object Delete operation enables you to delete multiple objects from a bucket using a single HTTP request.
+        /// </summary>
+        /// <param name="deleteMultipleObjectsRequest"></param>
+        /// <returns></returns>
+        public DeleteMultipleObjectsResult deleteMultiObjects(DeleteMultipleObjectsRequest deleteMultipleObjectsRequest)
+        {
+            Request<DeleteMultipleObjectsRequest> request = this.createRequest(deleteMultipleObjectsRequest.BucketName, null, deleteMultipleObjectsRequest, HttpMethod.POST);
+            request.getParameters().Add("delete",null);
+            request.setHeader(Headers.CONTENT_LENGTH, deleteMultipleObjectsRequest.toXmlAdapter().Length.ToString());
+            request.setHeader(Headers.CONTENT_TYPE, "application/xml");
+            request.setHeader(Headers.CONTENT_MD5, deleteMultipleObjectsRequest.getMd5());
+            request.setContent(deleteMultipleObjectsRequest.toXmlAdapter());
+            return this.invoke(request, new DeleteMultipleObjectsResultUnmarshaller(), deleteMultipleObjectsRequest.BucketName, null);
+        }
         /**
          * Returns a list of summary information about the objects in the specified bucket.
          */
@@ -404,7 +523,6 @@ namespace KS3
             ObjectMetadata metadata = putObjectRequest.getMetadata();
             Stream input = putObjectRequest.getInputStream();
             ProgressListener progressListener = putObjectRequest.getProgressListener();
-
             if (metadata == null)
                 metadata = new ObjectMetadata();
 
@@ -495,6 +613,77 @@ namespace KS3
             result.setContentMD5(metadata.getContentMD5());
 
             return result;
+        }
+        /// <summary>
+        /// This implementation of the PUT operation creates a copy of an object that is already stored in S3. A PUT copy operation is the same as performing a GET and then a PUT. Adding the request header, x-amz-copy-source, makes the PUT operation copy the source object into the destination bucket.
+        /// </summary>
+        /// <param name="copyObjectRequest"></param>
+        /// <returns></returns>
+        public CopyObjectResult copyObject(CopyObjectRequest copyObjectRequest)
+        {
+            Request<CopyObjectRequest> request = this.createRequest(copyObjectRequest.DestinationBucket, copyObjectRequest.DestinationObject, copyObjectRequest, HttpMethod.PUT);
+            request.getHeaders().Add(Headers.XKssCopySource, "/" + copyObjectRequest.SourceBucket + "/" + UrlEncoder.encode(copyObjectRequest.SourceObject, Encoding.UTF8));
+            if (copyObjectRequest.AccessControlList != null)
+                addAclHeaders(request, copyObjectRequest.AccessControlList);
+            else if (copyObjectRequest.CannedAcl != null)
+                request.setHeader(Headers.KS3_CANNED_ACL, copyObjectRequest.CannedAcl.getCannedAclHeader());
+            request.getHeaders()[Headers.CONTENT_LENGTH] = "0";
+            return this.invoke(request, new CopyObjectResultUnmarshaller(), copyObjectRequest.DestinationBucket, copyObjectRequest.DestinationObject);
+        }
+        /// <summary>
+        /// The HEAD operation retrieves metadata from an object without returning the object itself. This operation is useful if you are interested only in an object's metadata. To use HEAD, you must have READ access to the object.
+        /// </summary>
+        /// <param name="bucketName"></param>
+        /// <param name="objectKey"></param>
+        /// <returns></returns>
+        public HeadObjectResult headObject(String bucketName, String objectKey)
+        {
+            return headObject(bucketName,objectKey);
+        }
+        public HeadObjectResult headObject(HeadObjectRequest headObjectRequest)
+        {
+            Request<HeadObjectRequest> request = this.createRequest(headObjectRequest.BucketName, headObjectRequest.ObjectKey, headObjectRequest, HttpMethod.HEAD);
+            headObjectRequest.validate();
+            if (headObjectRequest.MatchingETagConstraints.Count>0)
+            {
+                StringBuilder Etags = new StringBuilder();
+                foreach(String Etag in headObjectRequest.MatchingETagConstraints){
+                    Etags.Append(Etag);
+                    Etags.Append(",");
+                }
+                request.getHeaders().Add(Headers.GET_OBJECT_IF_MATCH, Etags.ToString().TrimEnd(','));
+            }
+            if(headObjectRequest.NonmatchingEtagConstraints.Count>0){
+                StringBuilder noEtags = new StringBuilder();
+                foreach(String etag in headObjectRequest.NonmatchingEtagConstraints){
+                    noEtags.Append(etag);
+                    noEtags.Append(",");
+                }
+                request.getHeaders().Add(Headers.GET_OBJECT_IF_NONE_MATCH, noEtags.ToString().TrimEnd(','));
+            }
+            if (!headObjectRequest.ModifiedSinceConstraint.Equals(DateTime.MinValue))
+            {
+                request.getHeaders().Add(Headers.GET_OBJECT_IF_MODIFIED_SINCE,headObjectRequest.ModifiedSinceConstraint.ToUniversalTime().ToString("r"));
+            }
+            if (!headObjectRequest.UnmodifiedSinceConstraint.Equals(DateTime.MinValue))
+            {
+                request.getHeaders().Add(Headers.GET_OBJECT_IF_UNMODIFIED_SINCE, headObjectRequest.UnmodifiedSinceConstraint.ToUniversalTime().ToString("r"));
+            }
+
+            if (!string.IsNullOrEmpty(headObjectRequest.Overrides.CacheControl))
+                request.getParameters().Add("response-cache-control", headObjectRequest.Overrides.CacheControl);
+            if (!string.IsNullOrEmpty(headObjectRequest.Overrides.ContentType))
+                request.getParameters().Add("&response-content-type" , headObjectRequest.Overrides.ContentType);
+            if (!string.IsNullOrEmpty(headObjectRequest.Overrides.ContentLanguage))
+                request.getParameters().Add("&response-content-language" , headObjectRequest.Overrides.ContentLanguage);
+            if (!string.IsNullOrEmpty(headObjectRequest.Overrides.Expires))
+                request.getParameters().Add("&response-expires" , headObjectRequest.Overrides.Expires);
+            if (!string.IsNullOrEmpty(headObjectRequest.Overrides.ContentDisposition))
+                request.getParameters().Add("&response-content-disposition" , headObjectRequest.Overrides.ContentDisposition);
+            if (!string.IsNullOrEmpty(headObjectRequest.Overrides.ContentEncoding))
+                request.getParameters().Add("&response-content-encoding" , headObjectRequest.Overrides.ContentEncoding);
+
+            return this.invoke(request, new HeadObjectResultHandler(), headObjectRequest.BucketName, headObjectRequest.ObjectKey);
         }
         /**
          * init multi upload big file
@@ -688,7 +877,13 @@ namespace KS3
 
             this.invoke(request, this.voidResponseHandler, bucketName, key);
         }
-
+        /// <summary>
+        /// generate presignerd url for private object with in limit times
+        /// </summary>
+        /// <param name="bucketName">bucketname</param>
+        /// <param name="key">objectkey</param>
+        /// <param name="expiration">expire time</param>
+        /// <returns>url</returns>
         public string generatePresignedUrl(string bucketName, string key, DateTime expiration)
         {
             return this.generatePresignedUrl(bucketName, key, expiration, null);
@@ -703,10 +898,11 @@ namespace KS3
         /// <returns></returns>
         public string generatePresignedUrl(string bucketName, string key,DateTime expiration, ResponseHeaderOverrides overrides)
         {
-	    key = key.Replace("//", "/");
-		
             string url = "";
             string param = "";
+
+            key = filterSpecial(key);
+            
             overrides = overrides == null ? new ResponseHeaderOverrides() : overrides;
             if (!string.IsNullOrEmpty(overrides.CacheControl))
                 param += "response-cache-control=" + overrides.CacheControl;
@@ -741,8 +937,26 @@ namespace KS3
 
             return url;
         }
-
-
+        /// <summary>
+        /// add Asynchronous Data Processing 可以通过adp执行图片缩略图处理、执行转码操作等
+        /// </summary>
+        /// <param name="putAdpRequest"></param>
+        /// <returns></returns>
+        public String putAdpTask(PutAdpRequest putAdpRequest)
+        {
+            Request<PutAdpRequest> request = this.createRequest(putAdpRequest.BucketName, putAdpRequest.ObjectKey, putAdpRequest, HttpMethod.PUT);
+            request.getHeaders().Add(Headers.AsynchronousProcessingList, putAdpRequest.convertAdpsToString());
+            request.getHeaders().Add(Headers.NotifyURL,putAdpRequest.NotifyURL);
+            request.setHeader(Headers.CONTENT_LENGTH, "0");
+            PutAdpResult result= this.invoke(request, new PutAdpResponseHandler(), putAdpRequest.BucketName, putAdpRequest.ObjectKey);
+            return result.TaskId;
+        }
+        public GetAdpResult getAdpTask(GetAdpRequest getAdpRequest)
+        {
+            Request<GetAdpRequest> request = this.createRequest(getAdpRequest.TaskId, null, getAdpRequest, HttpMethod.GET);
+            request.getParameters().Add("queryadp",null);
+            return this.invoke(request, new GetAdpResultUnmarshaller(), null, null);
+        }
         ////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -758,10 +972,9 @@ namespace KS3
             Request<X> request = new DefaultRequest<X>(originalRequest);
             request.setHttpMethod(httpMethod);
             request.setEndpoint(endpoint);
-
+            key = filterSpecial(key);
             String resourcePath = "/" + (bucketName != null ? bucketName + "/" : "") + (key != null ? key : "");
-            resourcePath = resourcePath.Replace("//", "/");
-	    resourcePath = UrlEncoder.encode(resourcePath, Constants.DEFAULT_ENCODING);
+            resourcePath = UrlEncoder.encode(resourcePath, Constants.DEFAULT_ENCODING);
 
             request.setResourcePath(resourcePath);
 
@@ -815,13 +1028,11 @@ namespace KS3
 
         private KS3Signer<T> createSigner<T>(Request<T> request, String bucketName, String key) where T : KS3Request
         {
-            String resourcePath = "/" + (bucketName != null ? bucketName + "/" : "") + (key != null ? key : "");
-            resourcePath = UrlEncoder.encode(resourcePath, Constants.DEFAULT_ENCODING);
-            
-            return new KS3Signer<T>(request.getHttpMethod().ToString(), resourcePath);
+            return createSigner<T>(request.getHttpMethod().ToString(), bucketName, key);
         }
         private KS3Signer<T> createSigner<T>(String httpMethod, String bucketName, String key) where T : KS3Request
         {
+            key = filterSpecial(key);
             String resourcePath = "/" + (bucketName != null ? bucketName + "/" : "") + (key != null ? key : "");
             resourcePath = UrlEncoder.encode(resourcePath, Constants.DEFAULT_ENCODING);
             return new KS3Signer<T>(httpMethod, resourcePath);
@@ -880,7 +1091,12 @@ namespace KS3
             if (values != null && values.Count > 0)
                 request.setHeader(header, String.Join(", ", values));
         }
-
+        private static string filterSpecial(string key) {
+            if(!String.IsNullOrEmpty(key)){
+                key = key.Replace("//", "/").Replace(" ", "");
+            }
+            return key;
+        }
         /**
          * Sets the acccess control headers for the request given.
          */

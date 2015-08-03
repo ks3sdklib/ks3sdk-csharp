@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KS3FormSample", "..\KS3Form
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KS3Sample", "..\KS3Sample\KS3Sample.csproj", "{94E1EC0F-7243-47D9-B6DA-FC972DE7C4E7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTestKs3", "..\UnitTestKs3\UnitTestKs3.csproj", "{D9C5F220-BE5B-4F91-99FB-B40C6A17B332}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +49,16 @@ Global
 		{94E1EC0F-7243-47D9-B6DA-FC972DE7C4E7}.Release|Mixed Platforms.Build.0 = Release|x86
 		{94E1EC0F-7243-47D9-B6DA-FC972DE7C4E7}.Release|x86.ActiveCfg = Release|x86
 		{94E1EC0F-7243-47D9-B6DA-FC972DE7C4E7}.Release|x86.Build.0 = Release|x86
+		{D9C5F220-BE5B-4F91-99FB-B40C6A17B332}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9C5F220-BE5B-4F91-99FB-B40C6A17B332}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9C5F220-BE5B-4F91-99FB-B40C6A17B332}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{D9C5F220-BE5B-4F91-99FB-B40C6A17B332}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{D9C5F220-BE5B-4F91-99FB-B40C6A17B332}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D9C5F220-BE5B-4F91-99FB-B40C6A17B332}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9C5F220-BE5B-4F91-99FB-B40C6A17B332}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D9C5F220-BE5B-4F91-99FB-B40C6A17B332}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{D9C5F220-BE5B-4F91-99FB-B40C6A17B332}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{D9C5F220-BE5B-4F91-99FB-B40C6A17B332}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

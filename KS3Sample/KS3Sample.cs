@@ -16,15 +16,15 @@ namespace KS3Sample
 {
     class KS3Sample
     {
-        static String accessKey = "YOUR ACCESS KEY";
-        static String secretKey = "YOUR SECRET KEY";
+        static String accessKey = "lMQTr0hNlMpB0iOk/i+x";
+        static String secretKey = "D4CsYLs75JcWEjbiI22zR3P7kJ/+5B1qdEje7A7I";
 
 		// KS3 Operation class 
 		static KS3Client ks3Client = null;
 
-        static String bucketName = "test-bucketname";
+        static String bucketName = "test2-zzy-jr";
 		static String objKeyNameMemoryData	= "short-content";
-		static String objKeyNameFileData	= "file-data";
+        static String objKeyNameFileData = "~a//a bc+n*.txt";
 
         static String inFilePath = "E:\\tool\\abc.rar";
 		static String outFilePath = "D:/test.out.data";
@@ -36,11 +36,25 @@ namespace KS3Sample
                 return;		// init failed 
 
             Console.WriteLine("========== Begin ==========\n");
+
+            //headBucket();
+            //getBucketCorsConfig();
+            //getBucketLocation();
+            //getBucketLogging();
+            //setBucketCors();
+            //setBucketLogging();
+            //deleteBucketCors();
+            //deleteMultiObjects();
+            //copyObject();
+            //headObject();
+            //putAdpTask();
+            //getAdpTask();
+
             //createBucket();
             //listBuckets();
             //getBucketACL();
             //setBucketACL();
-            //putObject();
+            putObject();
             //listObjects();
             //getObjectACL();
             //setObjectACL();
@@ -52,7 +66,7 @@ namespace KS3Sample
             //uploadPart();
             //listMultipartUploads(bucketName, objKeyNameFileData, "uploadid");
             //AbortMultipartUpload(bucketName, objKeyNameFileData, "uploadid");
-            generatePresignedUrl();
+            //generatePresignedUrl();
             Console.WriteLine("\n==========  End  ==========");
 		}
 
@@ -87,9 +101,182 @@ namespace KS3Sample
 				}
             }
 
-            bucketName = "test-ks3-bucket-" + new Random().Next();
+            //bucketName = "test-ks3-bucket-" + new Random().Next();
 			return true;
 		}
+        private static bool headBucket() {
+            // Head Bucket
+            try
+            {
+                Console.WriteLine("--- Head Bucket: ---");
+                Console.WriteLine("Bucket Name: " + bucketName);
+
+                HeadBucketResult bucket = ks3Client.headBucket(bucketName);
+
+                Console.WriteLine("Success.");
+                Console.WriteLine("----------------------\n");
+            }
+            catch (System.Exception e)
+            {
+                Console.WriteLine("Head Bucket Fail! " + e.ToString());
+                return false;
+            }
+            return true;
+        }
+        private static bool getBucketCorsConfig() {
+            try
+            {
+                Console.WriteLine("--- getBucketCorsConfig: ---");
+                Console.WriteLine("Bucket Name: " + bucketName);
+
+                BucketCorsConfigurationResult bucketcors = ks3Client.getBucketCors(bucketName);
+
+                Console.WriteLine("Success.");
+                Console.WriteLine("----------------------\n");
+            }
+            catch (System.Exception e)
+            {
+                Console.WriteLine("getBucketCorsConfig Fail! " + e.ToString());
+                return false;
+            }
+            return true;
+        }
+        private static bool getBucketLocation() {
+            try
+            {
+                Console.WriteLine("--- getBucketLocation: ---");
+                Console.WriteLine("Bucket Name: " + bucketName);
+
+                GetBucketLocationResult bucketLocation = ks3Client.getBucketLocation(bucketName);
+
+                Console.WriteLine("Success.");
+                Console.WriteLine("----------------------\n");
+            }
+            catch (System.Exception e)
+            {
+                Console.WriteLine("getBucketLocation Fail! " + e.ToString());
+                return false;
+            }
+            return true;
+        }
+        private static bool getBucketLogging() {
+            try
+            {
+                Console.WriteLine("--- getBucketLogging: ---");
+                Console.WriteLine("Bucket Name: " + bucketName);
+
+                GetBucketLoggingResult bucketlogging = ks3Client.getBucketLogging(bucketName);
+
+                Console.WriteLine("Success.");
+                Console.WriteLine("----------------------\n");
+            }
+            catch (System.Exception e)
+            {
+                Console.WriteLine("getBucketLogging Fail! " + e.ToString());
+                return false;
+            }
+            return true;
+        }
+        public static bool setBucketCors() {
+            try
+            {
+                Console.WriteLine("--- setBucketCors: ---");
+                Console.WriteLine("Bucket Name: " + bucketName);
+                PutBucketCorsRequest putBucketCorsRequest = new PutBucketCorsRequest();
+                putBucketCorsRequest.BucketName = bucketName;
+                BucketCorsConfigurationResult bucketCorsConfiguration = new BucketCorsConfigurationResult();
+                IList<CorsRule> corsRule = new List<CorsRule>();
+                CorsRule rule = new CorsRule();
+                rule.AllowedMethods.Add(HttpMethod.PUT);
+                rule.AllowedHeaders.Add("*");
+                rule.AllowedOrigins.Add("http://www.example.com");
+                rule.AllowedOrigins.Add("http://www.example.a.com");
+                rule.ExposedHeaders.Add("*");
+                rule.MaxAgeSeconds = 200;
+                corsRule.Add(rule);
+                bucketCorsConfiguration.Rules = corsRule;
+                putBucketCorsRequest.BucketCorsConfiguration = bucketCorsConfiguration;
+
+                ks3Client.setBucketCors(putBucketCorsRequest);
+
+                Console.WriteLine("Success.");
+                Console.WriteLine("----------------------\n");
+            }
+            catch (System.Exception e)
+            {
+                Console.WriteLine("setBucketCors Fail! " + e.ToString());
+                return false;
+            }
+            return true;
+        }
+        public static bool setBucketLogging() {
+            try
+            {
+                Console.WriteLine("--- setBucketLogging: ---");
+                Console.WriteLine("Bucket Name: " + bucketName);
+                PutBucketLoggingRequest putBucketLoggingRequest = new PutBucketLoggingRequest();
+                putBucketLoggingRequest.BucketName = bucketName;
+                GetBucketLoggingResult bucketLogging = new GetBucketLoggingResult();
+                //bucketLogging.Enable = true;
+                //bucketLogging.TargetBucket = "test1-zzy-jr";
+                //bucketLogging.TargetPrefix = "test";
+
+                /*BucketLogging.Enable 为false 则为关闭日志设置*/
+                putBucketLoggingRequest.BucketLogging = bucketLogging;
+
+                ks3Client.setBucketLogging(putBucketLoggingRequest);
+
+                Console.WriteLine("Success.");
+                Console.WriteLine("----------------------\n");
+            }
+            catch (System.Exception e)
+            {
+                Console.WriteLine("setBucketLogging Fail! " + e.ToString());
+                return false;
+            }
+            return true;
+        }
+        public static bool deleteBucketCors() {
+            try
+            {
+                Console.WriteLine("--- deleteBucketCors: ---");
+                Console.WriteLine("Bucket Name: " + bucketName);
+                DeleteBucketCorsRequest deleteBucketCorsRequest = new DeleteBucketCorsRequest();
+                deleteBucketCorsRequest.BucketName = bucketName;
+
+                ks3Client.deleteBucketCors(deleteBucketCorsRequest);
+
+                Console.WriteLine("Success.");
+                Console.WriteLine("----------------------\n");
+            }
+            catch (System.Exception e)
+            {
+                Console.WriteLine("deleteBucketCors Fail! " + e.ToString());
+                return false;
+            }
+            return true;
+        }
+        private static bool deleteMultiObjects() {
+            try
+            {
+                Console.WriteLine("--- deleteMultiObjects: ---");
+                Console.WriteLine("Bucket Name: " + bucketName);
+                DeleteMultipleObjectsRequest deleteMultipleObjectsRequest = new DeleteMultipleObjectsRequest();
+                deleteMultipleObjectsRequest.BucketName = bucketName;
+                deleteMultipleObjectsRequest.ObjectKeys = new String[] { "过滤条件.txt" };
+                DeleteMultipleObjectsResult result=ks3Client.deleteMultiObjects(deleteMultipleObjectsRequest);
+
+                Console.WriteLine("Success.");
+                Console.WriteLine("----------------------\n");
+            }
+            catch (System.Exception e)
+            {
+                Console.WriteLine("deleteMultiObjects Fail! " + e.ToString());
+                return false;
+            }
+            return true;
+        }
+
 
 		private static bool createBucket()
 		{
@@ -186,27 +373,34 @@ namespace KS3Sample
 		{
 			try
             {
-                 //Put Object(upload a short content)
-                Console.WriteLine("--- Upload a Short Content: ---");
+                //Console.WriteLine("--- create a folder: ---");
+                //Stream streamNull = new MemoryStream();
+                //PutObjectResult createFolder = ks3Client.putObject("bucketcors", "jrtest", streamNull, null);
+                //Console.WriteLine("---------------------\n");
 
-                String sampleContent = "This is a sample content.(25 characters before, included the 4 spaces)";
-                Stream stream = new MemoryStream(Encoding.UTF8.GetBytes(sampleContent));
-                PutObjectResult shortContentResult = ks3Client.putObject(bucketName, objKeyNameMemoryData, stream, null);
-	
-                Console.WriteLine("Upload Completed. eTag=" + shortContentResult.getETag() + ", MD5=" + shortContentResult.getContentMD5());
-                Console.WriteLine("-------------------------------\n");
+                //// Put Object(upload a short content)
+                //Console.WriteLine("--- Upload a Short Content: ---");
+                //String sampleContent = "This is a sample content.(25 characters before, included the 4 spaces)";
+                //Stream stream = new MemoryStream(Encoding.UTF8.GetBytes(sampleContent));
+                //PutObjectResult shortContentResult = ks3Client.putObject("bucketcors", "jrtest/aa", stream, null);
 
-                 //Put Object(upload a file)
-				Console.WriteLine("--- Upload a File ---");
+                //Console.WriteLine("Upload Completed. eTag=" + shortContentResult.getETag() + ", MD5=" + shortContentResult.getContentMD5());
+                //Console.WriteLine("-------------------------------\n");
 
-				FileInfo file = new FileInfo("E:\\tool\\eclipse.rar");
-				PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, objKeyNameFileData, file);
-				SampleListener sampleListener = new SampleListener(file.Length);
-				putObjectRequest.setProgressListener(sampleListener);
-				PutObjectResult putObjectResult = ks3Client.putObject(putObjectRequest);
-				
-				Console.WriteLine("Upload Completed. eTag=" + putObjectResult.getETag() + ", MD5=" + putObjectResult.getContentMD5());
-				Console.WriteLine("---------------------\n");
+                //Put Object(upload a file)
+                Console.WriteLine("--- Upload a File ---");
+
+                FileInfo file = new FileInfo("e:/apache-maven-3.2.3-bin.zip");
+                PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, objKeyNameFileData, file);
+                CannedAccessControlList cannedAcl = new CannedAccessControlList(CannedAccessControlList.PRIVATE);
+                putObjectRequest.setCannedAcl(cannedAcl);
+
+                SampleListener sampleListener = new SampleListener(file.Length);
+                putObjectRequest.setProgressListener(sampleListener);
+                PutObjectResult putObjectResult = ks3Client.putObject(putObjectRequest);
+
+                Console.WriteLine("Upload Completed. eTag=" + putObjectResult.getETag() + ", MD5=" + putObjectResult.getContentMD5());
+                Console.WriteLine("---------------------\n");
 			}
 			catch (System.Exception e) 
 			{
@@ -216,6 +410,47 @@ namespace KS3Sample
 
 			return true;
 		}
+        public static bool copyObject() {
+            try
+            {
+                Console.WriteLine("--- copyObject: ---");
+                CopyObjectRequest copyObjectRequest = new CopyObjectRequest();
+                copyObjectRequest.SourceObject = objKeyNameFileData;
+                copyObjectRequest.SourceBucket = bucketName;
+                copyObjectRequest.DestinationBucket = "test2-zzy-jr";
+                copyObjectRequest.DestinationObject = objKeyNameFileData;
+                //CannedAccessControlList cannedAcl=new CannedAccessControlList(CannedAccessControlList.PUBLICK_READ_WRITE);
+                //copyObjectRequest.CannedAcl = cannedAcl;
+
+                CopyObjectResult result = ks3Client.copyObject(copyObjectRequest);
+                Console.WriteLine("---------------------\n");
+            }
+            catch (System.Exception e)
+            {
+                Console.WriteLine(e.ToString());
+                return false;
+            }
+
+            return true;
+        }
+        public static bool headObject() {
+            try
+            {
+                Console.WriteLine("--- headObject: ---");
+                HeadObjectRequest headObjectRequest = new HeadObjectRequest();
+                headObjectRequest.BucketName = bucketName;
+                headObjectRequest.ObjectKey = objKeyNameFileData;
+                HeadObjectResult result = ks3Client.headObject(headObjectRequest);
+                Console.WriteLine("---------------------\n");
+            }
+            catch (System.Exception e)
+            {
+                Console.WriteLine(e.ToString());
+                return false;
+            }
+
+            return true;
+        }
         /**
          * 初始化分块上传，服务端会返回一个全局唯一的uploadid
          * **/
@@ -294,18 +529,23 @@ namespace KS3Sample
 				// List Objects
 				Console.WriteLine("--- List Objects: ---");
 
-				ObjectListing objects = ks3Client.listObjects(bucketName);
+                //ObjectListing objects = ks3Client.listObjects(bucketName);
+                //ListObjectsRequest request = new ListObjectsRequest();
+                //request.setBucketName(bucketName);
+                //request.setMarker("PersistenceServiceImpl.java");
+                //ObjectListing objects = ks3Client.listObjects(request);
 
-				Console.WriteLine(objects.ToString());
+
+                //Console.WriteLine(objects.ToString());
 				Console.WriteLine("---------------------\n");
 
 				// Get Object Metadata
 				Console.WriteLine("--- Get Object Metadata ---");
 
-				ObjectMetadata objMeta = ks3Client.getObjectMetadata(bucketName, objKeyNameMemoryData); 
-				Console.WriteLine(objMeta.ToString());
-                Console.WriteLine();
-				objMeta = ks3Client.getObjectMetadata(bucketName, objKeyNameFileData);
+                //ObjectMetadata objMeta = ks3Client.getObjectMetadata(bucketName, objKeyNameMemoryData); 
+                //Console.WriteLine(objMeta.ToString());
+                //Console.WriteLine();
+                ObjectMetadata objMeta = ks3Client.getObjectMetadata(bucketName, objKeyNameFileData);
 				Console.WriteLine(objMeta.ToString());
 				
 				Console.WriteLine("---------------------------\n");
@@ -490,6 +730,50 @@ namespace KS3Sample
             string url=ks3Client.generatePresignedUrl(bucketName, objKeyNameFileData, DateTime.Now.AddMinutes(5));
             Console.WriteLine("success generate presigned url:"+url);
             Console.WriteLine("-------------------------------\n");
+            return true;
+        }
+        private static bool getAdpTask() {
+            try
+            {
+                Console.WriteLine("--- getAdpTask begin: ---");
+                GetAdpRequest getAdpRequest = new GetAdpRequest();
+                getAdpRequest.TaskId = "00P99HHVuHlS";
+                GetAdpResult result= ks3Client.getAdpTask(getAdpRequest);
+
+                Console.WriteLine("---------getAdpTask end;--------\n");
+            }
+            catch (System.Exception e)
+            {
+                Console.WriteLine(e.ToString());
+                return false;
+            }
+
+            return true;
+        }
+        private static bool putAdpTask() {
+            try
+            {
+                Console.WriteLine("--- putAdpTask begin: ---");
+                PutAdpRequest putAdpRequest = new PutAdpRequest();
+                putAdpRequest.BucketName = bucketName;
+                putAdpRequest.ObjectKey = objKeyNameFileData;
+                IList<Adp> fops=new List<Adp>();
+                Adp fop12 = new Adp();
+                fop12.Command="tag=avm3u8&segtime=10&abr=128k&vbr=1000k&&res=1280x720";
+                fop12.Key="野生动物-hls切片.m3u8";
+                fops.Add(fop12);
+                putAdpRequest.Adps = fops;
+                putAdpRequest.NotifyURL = "http://10.4.2.38:19090/";
+                String taskid=ks3Client.putAdpTask(putAdpRequest);
+
+                Console.WriteLine("---------putAdpTask end; taskid:" + taskid + "---------\n");
+            }
+            catch (System.Exception e)
+            {
+                Console.WriteLine(e.ToString());
+                return false;
+            }
+
             return true;
         }
     }
