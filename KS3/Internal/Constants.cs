@@ -27,5 +27,9 @@ namespace KS3.Internal
          * intervention.
          */
         public static int DEFAULT_STREAM_BUFFER_SIZE = 128 * KB;
+        /**
+         *http request fail retry times 
+         */
+        public static const int RETRY_TIMES = 3;
     }
 }

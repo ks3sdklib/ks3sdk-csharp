@@ -69,37 +69,49 @@ namespace KS3.Http
 
             HttpWebRequest httpRequest = null;
             HttpWebResponse httpResponse = null;
-
-            try
+            X result=default(X);
+            for (int i = 0; i < Constants.RETRY_TIMES;i++ )
             {
-                // Sign the request if a signer was provided
-                if (ks3Signer != null && request.getOriginalRequest().getRequestCredentials() != null)
-                    ks3Signer.sign(request, request.getOriginalRequest().getRequestCredentials());
-
-                httpRequest = HttpRequestFactory.createHttpRequest(request, this.config);
-                httpResponse = (HttpWebResponse)httpRequest.GetResponse();
-
-                return responseHandler.handle(httpResponse);
-            }
-            catch (WebException we)
-            {
-                HttpWebResponse errorResponse = (HttpWebResponse)we.Response;
-                ServiceException serviceException = null;
                 try
                 {
-                    serviceException = errorResponseHandler.handle(errorResponse);
+                    // Sign the request if a signer was provided
+                    if (ks3Signer != null && request.getOriginalRequest().getRequestCredentials() != null)
+                        ks3Signer.sign(request, request.getOriginalRequest().getRequestCredentials());
+
+                    httpRequest = HttpRequestFactory.createHttpRequest(request, this.config);
+                    httpResponse = (HttpWebResponse)httpRequest.GetResponse();
+
+                    result = responseHandler.handle(httpResponse);
+                    break;
                 }
-                catch
+                catch (WebException we)
                 {
-                    throw we;
+                    HttpWebResponse errorResponse = (HttpWebResponse)we.Response;
+                    ServiceException serviceException = null;
+                    try
+                    {
+                        serviceException = errorResponseHandler.handle(errorResponse);
+                    }
+                    catch
+                    {
+                        throw we;
+                    }
+                    throw serviceException;
                 }
-                throw serviceException;
+                catch (IOException ex) {
+                    if (i == Constants.RETRY_TIMES-1)
+                    {
+                        throw ex;
+                    }
+                }
+                finally
+                {
+                    if (httpResponse != null)
+                        httpResponse.Close();
+                }
             }
-            finally
-            {
-                if(httpResponse != null)
-                    httpResponse.Close();
-            }
+            return result;
+            
         }
 
         /**
