@@ -80,6 +80,8 @@ namespace KS3.Internal
             }
 
             // Add all the interesting parameters
+            resource = resource.Replace("%5C", "/").Replace("//", "/%2F");
+            resource = resource.EndsWith("%2F") ? resource.Substring(0, resource.Length - 3) : resource;
             buf.Append(resource);
             String[] parameterNames = request.getParameters().Keys.ToArray();
             Array.Sort(parameterNames);

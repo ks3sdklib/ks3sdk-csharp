@@ -78,7 +78,10 @@ namespace KS3.Http
                     // Sign the request if a signer was provided
                     if (ks3Signer != null && request.getOriginalRequest().getRequestCredentials() != null)
                         ks3Signer.sign(request, request.getOriginalRequest().getRequestCredentials());
-
+                    request.setResourcePath(request.getResourcePath().Replace("%5C", "/").Replace("//", "/%2F"));
+                    if(request.getResourcePath().EndsWith("%2F")){
+                        request.setResourcePath(request.getResourcePath().Substring(0, request.getResourcePath().Length-3));
+                    }
                     httpRequest = HttpRequestFactory.createHttpRequest(request, this.config);
                     httpResponse = (HttpWebResponse)httpRequest.GetResponse();
 

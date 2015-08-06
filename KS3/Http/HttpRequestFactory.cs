@@ -45,7 +45,6 @@ namespace KS3.Http
 
             if (request.getHttpMethod() == HttpMethod.POST && encodedParams != null && !putParamsInUri && !encodedParams.Contains("upload"))
                 request.setContent(new MemoryStream(Constants.DEFAULT_ENCODING.GetBytes(encodedParams)));
-
             HttpWebRequest httpRequest = (HttpWebRequest)WebRequest.Create(uri);
             httpRequest.Method = request.getHttpMethod().ToString();
             

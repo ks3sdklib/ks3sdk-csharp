@@ -900,8 +900,6 @@ namespace KS3
         {
             string url = "";
             string param = "";
-
-            key = filterSpecial(key);
             
             overrides = overrides == null ? new ResponseHeaderOverrides() : overrides;
             if (!string.IsNullOrEmpty(overrides.CacheControl))
@@ -924,7 +922,7 @@ namespace KS3
                 KS3Signer<NoneKS3Request> ks3Signer = createSigner<NoneKS3Request>(HttpMethod.GET.ToString(), bucketName, key);
                 string signer = ks3Signer.getSignature(this.ks3Credentials, expires.ToString());
                 url += @"http://" + bucketName + "." + Constants.KS3_CDN_END_POINT
-                             + "/" + key + "?AccessKeyId="
+                             + "/" + filterSpecial(UrlEncoder.encode(key, Constants.DEFAULT_ENCODING)) + "?AccessKeyId="
                              + UrlEncoder.encode(this.ks3Credentials.getKS3AccessKeyId(), Constants.DEFAULT_ENCODING)
                              + "&Expires=" + expires + "&Signature="
                              + UrlEncoder.encode(signer, Constants.DEFAULT_ENCODING) + "&" + param;
@@ -972,10 +970,11 @@ namespace KS3
             Request<X> request = new DefaultRequest<X>(originalRequest);
             request.setHttpMethod(httpMethod);
             request.setEndpoint(endpoint);
-            key = filterSpecial(key);
+            
             String resourcePath = "/" + (bucketName != null ? bucketName + "/" : "") + (key != null ? key : "");
             resourcePath = UrlEncoder.encode(resourcePath, Constants.DEFAULT_ENCODING);
-
+            //resourcePath = filterSpecial(resourcePath);
+            
             request.setResourcePath(resourcePath);
 
             return request;
@@ -1032,7 +1031,6 @@ namespace KS3
         }
         private KS3Signer<T> createSigner<T>(String httpMethod, String bucketName, String key) where T : KS3Request
         {
-            key = filterSpecial(key);
             String resourcePath = "/" + (bucketName != null ? bucketName + "/" : "") + (key != null ? key : "");
             resourcePath = UrlEncoder.encode(resourcePath, Constants.DEFAULT_ENCODING);
             return new KS3Signer<T>(httpMethod, resourcePath);
@@ -1093,7 +1091,7 @@ namespace KS3
         }
         private static string filterSpecial(string key) {
             if(!String.IsNullOrEmpty(key)){
-                key = key.Replace("//", "/").Replace(" ", "");
+                key = key.Replace("%5C","/").Replace("//", "/%2F");
             }
             return key;
         }
