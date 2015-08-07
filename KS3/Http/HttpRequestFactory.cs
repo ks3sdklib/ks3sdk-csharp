@@ -58,6 +58,10 @@ namespace KS3.Http
             if (request.getContent() != null)
             {
                 Stream inputStream = request.getContent();
+                if (inputStream.CanSeek)
+                {
+                    inputStream.Seek(0, SeekOrigin.Begin);
+                }
                 Stream requestStream = httpRequest.GetRequestStream();
                 int SIZE = Constants.DEFAULT_STREAM_BUFFER_SIZE;
                 byte[] buf = new byte[SIZE];
