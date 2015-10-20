@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Xml;
 using System.Xml.Linq;
 
 namespace KS3.Transform
@@ -13,7 +14,7 @@ namespace KS3.Transform
         public GetAdpResult unmarshall(Stream input)
         {
             GetAdpResult result = new GetAdpResult();
-            XDocument doc = XDocument.Load(input);
+            XDocument doc = XDocument.Load(XmlReader.Create(input));
             result.Doc = doc;
             return result;
         }

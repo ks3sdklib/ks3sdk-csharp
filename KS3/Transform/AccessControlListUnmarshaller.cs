@@ -74,7 +74,7 @@ namespace KS3.Transform
                         insideGrant = false;
                     }
 
-                    currText.Clear();
+                    currText.Remove(0, currText.Length);
                 }
                 else if (xr.NodeType.Equals(XmlNodeType.Text))
                 {

@@ -87,7 +87,8 @@ namespace KS3.KS3Exception
          */
         public override string ToString()
         {
-            return String.Join("\n", new List<String> {
+            
+            return String.Join("\n", new String[] {
                    "ServiceException:",
                    "Status Code: " + this.statusCode,
                    "Request ID: " + this.requestId,

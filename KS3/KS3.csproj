@@ -10,8 +10,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>KS3</RootNamespace>
     <AssemblyName>KS3</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -52,6 +53,7 @@
     <Compile Include="Auth\Signer.cs" />
     <Compile Include="Auth\SignerUtils.cs" />
     <Compile Include="ClientConfiguration.cs" />
+    <Compile Include="Http\HttpWebRequestExtensions.cs" />
     <Compile Include="Http\Region.cs" />
     <Compile Include="Http\UrlEncoder.cs" />
     <Compile Include="Internal\HeadBucketResponseHandler.cs" />

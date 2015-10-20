@@ -30,7 +30,7 @@ namespace KS3.Transform
             return "<Owner><DisplayName>" + owner.getDisplayName() + "</DisplayName><ID>" + owner.getId() + "</ID></Owner>";
         }
 
-        private static String convertGrants(ISet<Grant> grants)
+        private static String convertGrants(HashSet<Grant> grants)
         {
             StringBuilder builder = new StringBuilder();
             builder.Append("<AccessControlList>");

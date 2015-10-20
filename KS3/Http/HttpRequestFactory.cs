@@ -116,11 +116,10 @@ namespace KS3.Http
                 if (name.Equals(Headers.CONTENT_TYPE)) httpRequest.ContentType = value;
                 else if (name.Equals(Headers.CONTENT_LENGTH)) httpRequest.ContentLength = long.Parse(value);
                 else if (name.Equals(Headers.USER_AGENT)) httpRequest.UserAgent = value;
-                else if (name.Equals(Headers.DATE)) httpRequest.Date = DateTime.Parse(value);
-                else if (name.Equals(Headers.RANGE))
-                {
+                else if (name.Equals(Headers.DATE)) httpRequest.SetRawHeader("Date", DateTime.Parse(value));
+                else if (name.Equals(Headers.RANGE)){
                     String[] range = value.Split('-');
-                    httpRequest.AddRange(long.Parse(range[0]), long.Parse(range[1]));
+                    httpRequest.AddRange(Convert.ToInt32(range[0]), Convert.ToInt32(range[1]));
                 }
                 else if (name.Equals(Headers.GET_OBJECT_IF_MODIFIED_SINCE)) httpRequest.IfModifiedSince = DateTime.Parse(value);
                 else httpRequest.Headers[name] = value;

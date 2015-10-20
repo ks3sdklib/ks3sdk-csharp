@@ -11,7 +11,7 @@ namespace KS3.Model
      */
     public class AccessControlList
     {
-        private ISet<Grant> grants = new HashSet<Grant>();
+        private HashSet<Grant> grants = new HashSet<Grant>();
         private Owner owner = null;
 
         /**
@@ -69,7 +69,7 @@ namespace KS3.Model
         /**
          * Gets the set of Grant objects in this access control list (ACL).
          */
-        public ISet<Grant> getGrants()
+        public HashSet<Grant> getGrants()
         {
             return grants;
         }

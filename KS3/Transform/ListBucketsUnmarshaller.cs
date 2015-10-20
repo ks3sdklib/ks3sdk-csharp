@@ -38,7 +38,7 @@ namespace KS3.Transform
                         curBucket.setOwner(bucketsOwner);
                         buckets.Add(curBucket);
                     }
-                    currText.Clear();
+                    currText.Remove(0, currText.Length);
                 }
                 else if (xr.NodeType.Equals(XmlNodeType.Text))
                 {

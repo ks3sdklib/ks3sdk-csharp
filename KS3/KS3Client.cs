@@ -1087,7 +1087,7 @@ namespace KS3
         private static void addStringListHeader<X>(Request<X> request, String header, IList<String> values)
         {
             if (values != null && values.Count > 0)
-                request.setHeader(header, String.Join(", ", values));
+                request.setHeader(header, String.Join(", ", values.ToArray()));
         }
         private static string filterSpecial(string key) {
             if(!String.IsNullOrEmpty(key)){
@@ -1100,7 +1100,7 @@ namespace KS3
          */
         private static void addAclHeaders<X>(Request<X> request, AccessControlList acl) where X : KS3Request
         {
-            ISet<Grant> grants = acl.getGrants();
+            HashSet<Grant> grants = acl.getGrants();
             IDictionary<String, IList<Grantee>> grantsByPermission = new Dictionary<String, IList<Grantee>>();
             foreach (Grant grant in grants)
             {

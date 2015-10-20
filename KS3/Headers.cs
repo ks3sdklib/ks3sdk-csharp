@@ -17,7 +17,7 @@ namespace KS3
         public static String ETAG = "ETag";
         public static String LAST_MODIFIED = "Last-Modified";
         public static String SERVER = "Server";
-        public static String USER_AGENT = "User-Agent";
+        public static String USER_AGENT = "C#-SDK";
         public static String HOST = "Host";
         public static String CONNECTION = "Connection";
 

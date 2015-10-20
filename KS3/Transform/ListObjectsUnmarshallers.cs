@@ -103,7 +103,7 @@ namespace KS3.Transform
                     else if (xr.Name.Equals("Size"))
                         currObject.setSize(long.Parse(currText.ToString()));
 
-                    currText.Clear();
+                    currText.Remove(0, currText.Length);
                 }
                 else if (xr.NodeType.Equals(XmlNodeType.Text))
                 {

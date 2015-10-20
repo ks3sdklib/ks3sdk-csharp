@@ -14,7 +14,7 @@ namespace KS3.Transform
         public ListMultipartUploadsResult unmarshall(Stream input)
         {
             ListMultipartUploadsResult re = new ListMultipartUploadsResult();
-            XDocument doc = XDocument.Load(input);
+            XDocument doc = XDocument.Load(XmlReader.Create(input));
             var xml=doc.Elements().First().Elements();
 
             re.setBucketname(xml.Where(w => w.Name.LocalName == "Bucket").ToList()[0].Value);

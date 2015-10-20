@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Xml;
 using System.Xml.Linq;
 
 namespace KS3.Transform
@@ -13,7 +14,7 @@ namespace KS3.Transform
         public DeleteMultipleObjectsResult unmarshall(Stream input)
         {
             DeleteMultipleObjectsResult reuslt = new DeleteMultipleObjectsResult();
-            XDocument doc = XDocument.Load(input);
+            XDocument doc = XDocument.Load(XmlReader.Create(input));
             var xml = doc.Elements();
             return reuslt;
         }

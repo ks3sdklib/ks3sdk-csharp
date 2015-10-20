@@ -28,7 +28,7 @@ namespace KS3.Transform
                     else if (xr.Name.Equals("Code")) errorCode = currText.ToString();
                     else if (xr.Name.Equals("RequestId")) requestId = currText.ToString();
 
-                    currText.Clear();
+                    currText.Remove(0, currText.Length);
                 }
                 else if (xr.NodeType.Equals(XmlNodeType.Text))
                 {

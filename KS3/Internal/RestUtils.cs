@@ -104,7 +104,7 @@ namespace KS3.Internal
 
         public static void populateObjectMetadata(HttpWebResponse response, ObjectMetadata metadata)
         {
-            ISet<String> ignoredHeaders = new HashSet<String>{ Headers.DATE, Headers.SERVER, Headers.REQUEST_ID, Headers.CONNECTION };
+            HashSet<String> ignoredHeaders = new HashSet<String> { Headers.DATE, Headers.SERVER, Headers.REQUEST_ID, Headers.CONNECTION };
             foreach (String name in response.Headers.AllKeys)
             {
                 if (name.StartsWith(Headers.KS3_USER_METADATA_PREFIX))

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Xml;
 using System.Xml.Linq;
 
 namespace KS3.Transform
@@ -15,7 +16,7 @@ namespace KS3.Transform
         {
             BucketCorsConfigurationResult result = new BucketCorsConfigurationResult();
             CorsRule corsRule = null;
-            XDocument doc = XDocument.Load(input);
+            XDocument doc = XDocument.Load(XmlReader.Create(input));
             var xml = doc.Elements();
             var rules=xml.First().Elements().Where(w => w.Name == "CORSRule").ToList();
             foreach(var rule in rules){
