@@ -7,6 +7,7 @@ using System.IO;
 
 using KS3.Model;
 using KS3.Internal;
+using System.Reflection;
 
 namespace KS3.Http
 {
@@ -116,7 +117,10 @@ namespace KS3.Http
                 if (name.Equals(Headers.CONTENT_TYPE)) httpRequest.ContentType = value;
                 else if (name.Equals(Headers.CONTENT_LENGTH)) httpRequest.ContentLength = long.Parse(value);
                 else if (name.Equals(Headers.USER_AGENT)) httpRequest.UserAgent = value;
-                else if (name.Equals(Headers.DATE)) httpRequest.SetRawHeader("Date", DateTime.Parse(value));
+                else if (name.Equals(Headers.DATE)){
+                    MethodInfo priMethod = httpRequest.Headers.GetType().GetMethod("AddWithoutValidate", BindingFlags.Instance | BindingFlags.NonPublic);
+                    priMethod.Invoke(httpRequest.Headers, new String[] { "Date", value });
+                }
                 else if (name.Equals(Headers.RANGE)){
                     String[] range = value.Split('-');
                     httpRequest.AddRange(Convert.ToInt32(range[0]), Convert.ToInt32(range[1]));

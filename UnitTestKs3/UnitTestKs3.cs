@@ -13,8 +13,8 @@ namespace UnitTestKs3
     [TestClass]
     public class UnitTestKs3
     {
-        static String accessKey = "your access key";
-        static String secretKey = "your secret key";
+        static String accessKey = "lMQTr0hNlMpB0iOk/i+x";
+        static String secretKey = "D4CsYLs75JcWEjbiI22zR3P7kJ/+5B1qdEje7A7I";
 
         // KS3 Operation class 
         static KS3Client ks3Client = null;
