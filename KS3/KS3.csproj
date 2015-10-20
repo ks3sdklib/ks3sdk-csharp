@@ -53,7 +53,6 @@
     <Compile Include="Auth\Signer.cs" />
     <Compile Include="Auth\SignerUtils.cs" />
     <Compile Include="ClientConfiguration.cs" />
-    <Compile Include="Http\HttpWebRequestExtensions.cs" />
     <Compile Include="Http\Region.cs" />
     <Compile Include="Http\UrlEncoder.cs" />
     <Compile Include="Internal\HeadBucketResponseHandler.cs" />
