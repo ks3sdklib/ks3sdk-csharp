@@ -30,8 +30,8 @@ namespace KS3Sample
 
         static String inFilePath = "E:\\tool\\abc.rar";
 		static String outFilePath = "D:/test.out.data";
-        static String sk = "2IDjaPOpFfkq5Zf9K4tKu8k5AKApY8S8eKV1zsRl";
-        static String ak = "1GL02rRYQxK8s7FQh8dV";
+        static String sk = "sk";
+        static String ak = "ak";
 
 
         static void Main(string[] args)
@@ -57,14 +57,14 @@ namespace KS3Sample
             //deleteMultiObjects();
             //copyObject();
             //headObject();
-            putAdpTask();
+            //putAdpTask();
             //getAdpTask();
 
             //createBucket();
             //listBuckets();
             //getBucketACL();
             //setBucketACL();
-           //putObject();
+           putObject();
             //listObjects();
             //listObjectsPage();
             //getObjectACL();
@@ -88,8 +88,8 @@ namespace KS3Sample
             config.setReadWriteTimeout(5 * 1000);
             config.setMaxConnections(20);
 
-            String accessKey = "Vc7A7P4Z6wABPrpcp9O+";
-            String secretKey = "PTPRPeY8WHEcDH1nt23vX0+gr2SPMB/0mwXc5OUS";
+            String accessKey = "ak";
+            String secretKey = "sk";
 
             String bucketName = "YOUR BUCKET NAME";
             String objKeyName = "YOUR OBJECT KEY";
@@ -434,7 +434,7 @@ namespace KS3Sample
                 //Put Object(upload a file)
                 Console.WriteLine("--- Upload a File ---");
                 bucketName = "kingsoft.test.ml";
-                objKeyNameFileData = "test.mp4";
+                objKeyNameFileData = "testPut2.mp4";
                 FileInfo file = new FileInfo("d:/hengping.mp4");
                 PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, objKeyNameFileData, file);
                 CannedAccessControlList cannedAcl = new CannedAccessControlList(CannedAccessControlList.PRIVATE);
@@ -848,11 +848,12 @@ namespace KS3Sample
                 Console.WriteLine("--- putAdpTask begin: ---");
                 PutAdpRequest putAdpRequest = new PutAdpRequest();
                 putAdpRequest.BucketName = "kingsoft.test.ml";
-                putAdpRequest.ObjectKey = "test.mp4";
+                putAdpRequest.ObjectKey = "testPut.mp4";
                 IList<Adp> fops=new List<Adp>();
                 Adp fop12 = new Adp();
-                fop12.Command="tag=avm3u8&segtime=10&abr=128k&vbr=1000k&&res=1280x720";
-                fop12.Key= "test-m3u8.m3u8";
+                fop12.Command= "tag=avscrnshot&ss=5";
+                fop12.Bucket = "kingsoft.test.ml";
+                fop12.Key= "testAdp.jpg";
                 fops.Add(fop12);
                 putAdpRequest.Adps = fops;
                 putAdpRequest.NotifyURL = "http://10.4.2.38:19090/";
