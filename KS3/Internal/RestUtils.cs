@@ -11,7 +11,7 @@ namespace KS3.Internal
     public static class RestUtils
     {
         private static IList<String> SIGNED_PARAMETERS = new List<String> {
-            "acl", "torrent", "logging", "location", "policy", "requestPayment", "versioning",
+            "acl","adp","torrent", "logging", "location", "policy", "requestPayment", "versioning",
             "versions", "versionId", "notification", "uploadId", "uploads", "partNumber", "website",
             "delete", "lifecycle", "tagging", "cors", "restore",
             "response-cache-contro", "response-content-disposition", "response-content-encoding",

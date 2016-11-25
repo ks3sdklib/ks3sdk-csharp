@@ -11,6 +11,7 @@ using KS3.Model;
 using KS3.Internal;
 using KS3.KS3Exception;
 using System.Xml.Linq;
+using System.Web;
 
 namespace KS3Sample
 {
@@ -22,20 +23,29 @@ namespace KS3Sample
 		// KS3 Operation class 
 		static KS3Client ks3Client = null;
 
-        static String bucketName = "test2-zzy-jr";
-		static String objKeyNameMemoryData	= "short-content";
-        static String objKeyNameFileData = "~a//a bc+n*.txt";
+        static String bucketName = "copy.des.ksc.shanghai";
+        static String endPoint = "ks3-cn-shanghai.ksyun.com";
+        static String objKeyNameMemoryData	= "short-content";
+        static String objKeyNameFileData = "100kb/texthtml";
 
         static String inFilePath = "E:\\tool\\abc.rar";
 		static String outFilePath = "D:/test.out.data";
+        static String sk = "2IDjaPOpFfkq5Zf9K4tKu8k5AKApY8S8eKV1zsRl";
+        static String ak = "1GL02rRYQxK8s7FQh8dV";
 
 
-		static void Main(string[] args)
+        static void Main(string[] args)
         {
+            initClient();
+
+            //getObjUrl();
+
+            /*
             if (!init())
                 return;		// init failed 
 
             Console.WriteLine("========== Begin ==========\n");
+            */
 
             //headBucket();
             //getBucketCorsConfig();
@@ -47,15 +57,16 @@ namespace KS3Sample
             //deleteMultiObjects();
             //copyObject();
             //headObject();
-            //putAdpTask();
+            putAdpTask();
             //getAdpTask();
 
             //createBucket();
             //listBuckets();
             //getBucketACL();
             //setBucketACL();
-            putObject();
+           //putObject();
             //listObjects();
+            //listObjectsPage();
             //getObjectACL();
             //setObjectACL();
             //getObject();
@@ -69,6 +80,39 @@ namespace KS3Sample
             //generatePresignedUrl();
             Console.WriteLine("\n==========  End  ==========");
 		}
+
+
+        private static void initClient() {
+            ClientConfiguration config = new ClientConfiguration();
+            config.setTimeout(5*1000);
+            config.setReadWriteTimeout(5 * 1000);
+            config.setMaxConnections(20);
+
+            String accessKey = "Vc7A7P4Z6wABPrpcp9O+";
+            String secretKey = "PTPRPeY8WHEcDH1nt23vX0+gr2SPMB/0mwXc5OUS";
+
+            String bucketName = "YOUR BUCKET NAME";
+            String objKeyName = "YOUR OBJECT KEY";
+
+            /**
+             * 设置服务地址</br>
+             * 中国（北京）| ks3-cn-beijing.ksyun.com
+             * 中国（上海）| ks3-cn-shanghai.ksyun.com
+             * 中国（香港）| ks3-cn-hk-1.ksyun.com
+             */
+            String endPoint = "kss.ksyun.com";    //此处以北京region为例
+
+            ks3Client = new KS3Client(accessKey, secretKey);
+            ks3Client.setEndpoint(endPoint);
+
+        }
+
+        private static void getObjUrl() {
+            DateTime date = DateTime.Now;
+            date=date.AddMinutes(5);
+            String url = ks3Client.generatePresignedUrl("ksc.harry", "14.jpg", date);
+            Console.WriteLine("url:"+url);
+        }
 
 		private static bool init()
 		{
@@ -389,8 +433,9 @@ namespace KS3Sample
 
                 //Put Object(upload a file)
                 Console.WriteLine("--- Upload a File ---");
-
-                FileInfo file = new FileInfo("e:/apache-maven-3.2.3-bin.zip");
+                bucketName = "kingsoft.test.ml";
+                objKeyNameFileData = "test.mp4";
+                FileInfo file = new FileInfo("d:/hengping.mp4");
                 PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, objKeyNameFileData, file);
                 CannedAccessControlList cannedAcl = new CannedAccessControlList(CannedAccessControlList.PRIVATE);
                 putObjectRequest.setCannedAcl(cannedAcl);
@@ -441,6 +486,7 @@ namespace KS3Sample
                 headObjectRequest.BucketName = bucketName;
                 headObjectRequest.ObjectKey = objKeyNameFileData;
                 HeadObjectResult result = ks3Client.headObject(headObjectRequest);
+                long length=result.ObjectMetadata.getContentLength();
                 Console.WriteLine("---------------------\n");
             }
             catch (System.Exception e)
@@ -530,14 +576,20 @@ namespace KS3Sample
 				Console.WriteLine("--- List Objects: ---");
 
                 //ObjectListing objects = ks3Client.listObjects(bucketName);
-                //ListObjectsRequest request = new ListObjectsRequest();
-                //request.setBucketName(bucketName);
+
+                KS3Client ks3Client = new KS3Client("ak", "sk");
+                ks3Client.setEndpoint("kss.ksyun.com");
+
+                ListObjectsRequest request = new ListObjectsRequest();
+                request.setBucketName("haofenshu");
                 //request.setMarker("PersistenceServiceImpl.java");
-                //ObjectListing objects = ks3Client.listObjects(request);
+                request.setPrefix("file/s/167206/1082/ClipedRecord.xml");
+                request.setDelimiter("/");
+                ObjectListing objects = ks3Client.listObjects(request);
 
 
                 //Console.WriteLine(objects.ToString());
-				Console.WriteLine("---------------------\n");
+                Console.WriteLine("---------------------\n");
 
 				// Get Object Metadata
 				Console.WriteLine("--- Get Object Metadata ---");
@@ -558,6 +610,45 @@ namespace KS3Sample
 
 			return true;
 		}
+
+
+
+        private static bool listObjectsPage()
+        {
+            try
+            {
+
+                KS3Client ks3Client = new KS3Client(ak, sk);
+                ks3Client.setEndpoint("kss.ksyun.com");
+
+                ListObjectsRequest request = new ListObjectsRequest();
+                request.setBucketName("ksc.harry");
+                request.setMaxKeys(20);
+                request.setDelimiter("/");
+                ObjectListing objects = ks3Client.listObjects(request);
+
+                Console.WriteLine(objects);
+                Console.WriteLine(objects.isTruncated());
+                Console.WriteLine(objects.getNextMarker());
+
+                request.setMarker(objects.getNextMarker());
+
+                objects = ks3Client.listObjects(request);
+
+                Console.WriteLine(objects);
+                Console.WriteLine(objects.isTruncated());
+                Console.WriteLine(objects.getNextMarker());
+
+                Console.WriteLine("---------------------------\n");
+            }
+            catch (System.Exception e)
+            {
+                Console.WriteLine(e.ToString());
+                return false;
+            }
+
+            return true;
+        }
 
         private static bool getObjectACL()
         {
@@ -607,6 +698,7 @@ namespace KS3Sample
 
 		private static bool getObject()
 		{
+            /*
 			try
 			{
                 // Get Object(download and store in memory)
@@ -628,15 +720,15 @@ namespace KS3Sample
 				Console.WriteLine(e.ToString());
 				return false;
 			}
+            */
 
-
-			try
-			{
+            try
+            {
                 // Get Object(download and save as a file)
 				Console.WriteLine("--- Download a File ---");
 
-				// I need to get the Content-Length to set the listener.
-				ObjectMetadata objectMetadata = ks3Client.getObjectMetadata(bucketName, objKeyNameFileData); 
+                // I need to get the Content-Length to set the listener.
+                ObjectMetadata objectMetadata = ks3Client.getObjectMetadata(bucketName, objKeyNameFileData); 
 				
 				SampleListener downloadListener = new SampleListener(objectMetadata.getContentLength());
 				GetObjectRequest getObjectRequest = new GetObjectRequest(bucketName, objKeyNameFileData, new FileInfo(outFilePath));
@@ -755,12 +847,12 @@ namespace KS3Sample
             {
                 Console.WriteLine("--- putAdpTask begin: ---");
                 PutAdpRequest putAdpRequest = new PutAdpRequest();
-                putAdpRequest.BucketName = bucketName;
-                putAdpRequest.ObjectKey = objKeyNameFileData;
+                putAdpRequest.BucketName = "kingsoft.test.ml";
+                putAdpRequest.ObjectKey = "test.mp4";
                 IList<Adp> fops=new List<Adp>();
                 Adp fop12 = new Adp();
                 fop12.Command="tag=avm3u8&segtime=10&abr=128k&vbr=1000k&&res=1280x720";
-                fop12.Key="野生动物-hls切片.m3u8";
+                fop12.Key= "test-m3u8.m3u8";
                 fops.Add(fop12);
                 putAdpRequest.Adps = fops;
                 putAdpRequest.NotifyURL = "http://10.4.2.38:19090/";

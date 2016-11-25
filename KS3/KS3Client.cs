@@ -943,6 +943,8 @@ namespace KS3
         public String putAdpTask(PutAdpRequest putAdpRequest)
         {
             Request<PutAdpRequest> request = this.createRequest(putAdpRequest.BucketName, putAdpRequest.ObjectKey, putAdpRequest, HttpMethod.PUT);
+            request.getParameters().Add("adp", null);
+
             request.getHeaders().Add(Headers.AsynchronousProcessingList, putAdpRequest.convertAdpsToString());
             request.getHeaders().Add(Headers.NotifyURL,putAdpRequest.NotifyURL);
             request.setHeader(Headers.CONTENT_LENGTH, "0");
