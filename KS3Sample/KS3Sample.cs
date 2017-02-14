@@ -100,7 +100,7 @@ namespace KS3Sample
              * 中国（上海）| ks3-cn-shanghai.ksyun.com
              * 中国（香港）| ks3-cn-hk-1.ksyun.com
              */
-            String endPoint = "kss.ksyun.com";    //此处以北京region为例
+            String endPoint = "ks3-cn-beijing.ksyun.com";    //此处以北京region为例
 
             ks3Client = new KS3Client(accessKey, secretKey);
             ks3Client.setEndpoint(endPoint);
