@@ -921,7 +921,7 @@ namespace KS3
             {
                 KS3Signer<NoneKS3Request> ks3Signer = createSigner<NoneKS3Request>(HttpMethod.GET.ToString(), bucketName, key);
                 string signer = ks3Signer.getSignature(this.ks3Credentials, expires.ToString());
-                url += @"http://" + bucketName + "." + Constants.KS3_CDN_END_POINT
+                url += @"http://" + bucketName + "." + Constants.KS3_HOSTNAME
                              + "/" + filterSpecial(UrlEncoder.encode(key, Constants.DEFAULT_ENCODING)) + "?AccessKeyId="
                              + UrlEncoder.encode(this.ks3Credentials.getKS3AccessKeyId(), Constants.DEFAULT_ENCODING)
                              + "&Expires=" + expires + "&Signature="

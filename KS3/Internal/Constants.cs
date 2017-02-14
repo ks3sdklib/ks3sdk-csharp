@@ -9,8 +9,7 @@ namespace KS3.Internal
     public static class Constants
     {
         /** Default hostname for the KS3 service endpoint */
-        public static String KS3_HOSTNAME = "kssws.ks-cdn.com";
-        public static String KS3_CDN_END_POINT = "kssws.ks-cdn.com";
+        public static String KS3_HOSTNAME = "ks3-cn-beijing.ksyun.com";
 
         /** Default encoding used for text data */
         public static Encoding DEFAULT_ENCODING = Encoding.UTF8;
