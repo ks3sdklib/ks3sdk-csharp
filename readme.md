@@ -312,6 +312,7 @@
 			try
             {
                  //Put Object(upload a short content)
+		 //以流方式上传文件到KS3，Content-Type 默认为 application/octet-stream
                 Console.WriteLine("--- Upload a Short Content: ---");
 
                 String sampleContent = "This is a sample content.(25 characters before, included the 4 spaces)";
@@ -322,6 +323,7 @@
                 Console.WriteLine("-------------------------------\n");
 
                  //Put Object(upload a file)
+		 //以文件方式上传到KS3时，Content-Type 会默认匹配上传文件的后缀名
 				Console.WriteLine("--- Upload a File ---");
 
 				FileInfo file = new FileInfo("E:\\tool\\eclipse.rar");
