@@ -431,6 +431,7 @@
             CompleteMultipartUploadResult completeResult = ks3Client.completeMultipartUpload(completeRequest);
             return true;
         }
+	
         /**
          * 放弃本次上传
          * **/
@@ -440,3 +441,89 @@
             ks3Client.AbortMultipartUpload(request);
             return true;
         }
+	
+	/**
+        * 多线程分块上传例子开始
+        * **/
+        static List<ManualResetEvent> manualEvents = new List<ManualResetEvent>();
+        static List<Param> paras = new List<Param>();
+
+        private static bool uploadPartMultithread()
+        {
+            string path = inFilePath;//上传文件路径,例如E:\tool\aa.rar
+            InitiateMultipartUploadResult result = multipartUp();
+            FileInfo file = new FileInfo(path);
+            int part = 5 * 1024 * 1024;
+            int numBytesToRead = (int)file.Length;
+            int i = 0;
+            XElement root = new XElement("CompleteMultipartUpload");//初始化一个xml，以备分块上传完成后调用complete方法提交本次上传的文件以通知服务端合并分块
+            //开始读取文件
+            using (FileStream fs = new FileStream(path, FileMode.Open))
+            {
+                while (numBytesToRead > 0)
+                {
+                    UploadPartRequest request = new UploadPartRequest(
+                            result.getBucket(), result.getKey(), result.getUploadId(),
+                            i + 1);
+                    //每次读取5M文件内容，如果最后一次内容不及5M则按实际大小取值
+                    int count = Convert.ToInt32((i * part + part) > file.Length ? file.Length - i * part : part);
+                    byte[] data = new byte[count];
+                    int n = fs.Read(data, 0, count);
+                    request.setInputStream(new MemoryStream(data));
+
+                    ManualResetEvent mre = new ManualResetEvent(false);
+                    manualEvents.Add(mre);
+
+                    Param pra = new Param();
+                    pra.mrEvent = mre;
+                    pra.praNum = i + 1;
+                    pra.request = request;
+                    paras.Add(pra);
+
+                    ThreadPool.QueueUserWorkItem(new WaitCallback(uploadPartTask), pra);
+                    if (n == 0)
+                        break;
+                    numBytesToRead -= n;
+                    i++;
+                }
+            }
+
+            WaitHandle.WaitAll(manualEvents.ToArray());
+
+            for (int j = 0; j < paras.Count; j++)
+            {
+                XElement partE = new XElement("Part");
+                partE.Add(new XElement("PartNumber", paras[j].praNum));
+                partE.Add(new XElement("ETag", paras[j].etag));
+                Console.WriteLine("==" + paras[j].praNum + ", etag=" + paras[j].etag);
+                root.Add(partE);
+            }
+
+            //所有分块上传完成后发起complete request，通知服务端合并分块
+            CompleteMultipartUploadRequest completeRequest = new CompleteMultipartUploadRequest(result.getBucket(), result.getKey(), result.getUploadId());
+            completeRequest.setContent(new MemoryStream(System.Text.Encoding.Default.GetBytes(root.ToString())));
+            CompleteMultipartUploadResult completeResult = ks3Client.completeMultipartUpload(completeRequest);
+            return true;
+        }
+
+        private static void uploadPartTask(Object obj) {
+            Param pra = (Param)obj;
+            UploadPartRequest request = pra.request;
+            PartETag tag = ks3Client.uploadPart(request);//上传本次分块内容
+            if (tag.geteTag() != null) {
+                pra.etag = tag.geteTag();                
+                pra.mrEvent.Set();
+                Console.WriteLine(tag.ToString());
+            }
+        }
+
+        public class Param
+        {
+            public ManualResetEvent mrEvent;
+            public UploadPartRequest request;
+            public int praNum;
+            public string etag;
+        }
+        /**
+        * 多线程分块上传例子结束
+        * */
