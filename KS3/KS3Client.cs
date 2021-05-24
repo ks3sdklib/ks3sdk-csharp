@@ -775,7 +775,7 @@ namespace KS3
             result.setPartNumber(param.getPartNumber());
 
             return result;
-	    }
+        }
         /**
          * getlist had uploaded part list
          * **/
@@ -972,11 +972,11 @@ namespace KS3
             Request<X> request = new DefaultRequest<X>(originalRequest);
             request.setHttpMethod(httpMethod);
             request.setEndpoint(endpoint);
-            
-            String resourcePath = "/" + (bucketName != null ? bucketName + "/" : "") + (key != null ? key : "");
-            resourcePath = UrlEncoder.encode(resourcePath, Constants.DEFAULT_ENCODING);
-            //resourcePath = filterSpecial(resourcePath);
-            
+            String bucketEncode = UrlEncoder.encode(bucketName != null ? bucketName : "", Constants.DEFAULT_ENCODING);
+            String keyEncode = UrlEncoder.encode(key != null ? key : "",Constants.DEFAULT_ENCODING);
+            String resourcePath = "/" + (bucketEncode != null ? bucketEncode + "/" : "") + (keyEncode != null ? keyEncode : "");
+            resourcePath = filterSpecial(resourcePath);
+
             request.setResourcePath(resourcePath);
 
             return request;
@@ -1033,8 +1033,10 @@ namespace KS3
         }
         private KS3Signer<T> createSigner<T>(String httpMethod, String bucketName, String key) where T : KS3Request
         {
-            String resourcePath = "/" + (bucketName != null ? bucketName + "/" : "") + (key != null ? key : "");
-            resourcePath = UrlEncoder.encode(resourcePath, Constants.DEFAULT_ENCODING);
+            String bucketEncode = UrlEncoder.encode(bucketName != null ? bucketName : "", Constants.DEFAULT_ENCODING);
+            String keyEncode = UrlEncoder.encode(key != null ? key : "", Constants.DEFAULT_ENCODING);
+            String resourcePath = "/" + (bucketEncode != null ? bucketEncode + "/" : "") + (keyEncode != null ? keyEncode : "");
+            resourcePath = filterSpecial(resourcePath);
             return new KS3Signer<T>(httpMethod, resourcePath);
         }
         /**
@@ -1069,11 +1071,11 @@ namespace KS3
             }
         }
 
-	    /**
-	     * Adds the specified date header in RFC 822 date format to the specified
-	     * request. This method will not add a date header if the specified date
-	     * value is <code>null</code>.
-	     */
+        /**
+         * Adds the specified date header in RFC 822 date format to the specified
+         * request. This method will not add a date header if the specified date
+         * value is <code>null</code>.
+         */
         private static void addDateHeader<X>(Request<X> request, String header, DateTime? value)
         {
             if (value != null)
@@ -1093,7 +1095,7 @@ namespace KS3
         }
         private static string filterSpecial(string key) {
             if(!String.IsNullOrEmpty(key)){
-                key = key.Replace("%5C","/").Replace("//", "/%2F");
+                key = key.Replace("%5C","/").Replace("//", "/%2F").Replace("%28", "(").Replace("%29",")");
             }
             return key;
         }
