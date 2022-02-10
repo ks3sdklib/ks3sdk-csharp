@@ -5,80 +5,86 @@ using System.Text;
 
 namespace KS3.Model
 {
-    /**
-     * Represents a grantee identified by their canonical KS3 ID. The canonical KS3
-     * ID can be thought of as an KS3-internal ID specific to a user.
-     */
-    public class CanonicalGrantee : Grantee
+    /// <summary>
+    /// Represents a grantee identified by their canonical KS3 ID. The canonical KS3 ID can be thought of as an KS3-internal ID specific to a user.
+    /// </summary>
+    public class CanonicalGrantee : IGrantee
     {
-        private String id = null;
-        private String displayName = null;
+        private string _id = string.Empty;
+        private string _displayName = string.Empty;
 
-        /**
-         * Constructs a new CanonicalGrantee object with the given canonical ID.
-         */
-        public CanonicalGrantee(String id)
+        /// <summary>
+        /// Constructs a new CanonicalGrantee object with the given canonical ID.
+        /// </summary>
+        /// <param name="id"></param>
+        public CanonicalGrantee(string id)
         {
-            this.id = id;
+            _id = id;
         }
 
-        public CanonicalGrantee(String id, String displayName)
+        public CanonicalGrantee(string id, string displayName)
         {
-            this.id = id;
-            this.displayName = displayName;
+            _id = id;
+            _displayName = displayName;
         }
 
-        public String getTypeIdentifier()
+        public string GetTypeIdentifier()
         {
             return "id";
         }
 
-        /**
-         * Sets the unique identifier for this grantee.
-         */
-        public void setIdentifier(String id)
+        /// <summary>
+        /// Sets the unique identifier for this grantee.
+        /// </summary>
+        /// <param name="id"></param>
+        public void SetIdentifier(string id)
         {
-            this.id = id;
+            _id = id;
         }
 
-        /**
-         * Returns the unique identifier for this grantee.
-         */ 
-        public String getIdentifier()
+        /// <summary>
+        /// Returns the unique identifier for this grantee.
+        /// </summary>
+        /// <returns></returns>
+        public string GetIdentifier()
         {
-            return this.id;
+            return _id;
         }
 
-        /**
-         * Sets the display name for this grantee.
-         */ 
-        public void setDisplayName(String displayName)
+        /// <summary>
+        /// Sets the display name for this grantee.
+        /// </summary>
+        /// <param name="displayName"></param>
+        public void SetDisplayName(string displayName)
         {
-            this.displayName = displayName;
+            _displayName = displayName;
         }
 
-        /**
-         * Returns the display name for this grantee.
-         */ 
-        public String getDisplayName()
+        /// <summary>
+        /// Returns the display name for this grantee.
+        /// </summary>
+        /// <returns></returns>
+        public string GetDisplayName()
         {
-            return this.displayName;
+            return this._displayName;
         }
 
         public override int GetHashCode()
         {
-            return this.id.GetHashCode();
+            return _id.GetHashCode();
         }
 
         public override bool Equals(object obj)
         {
             if (obj == null)
+            {
                 return false;
+            }
 
             if (obj.GetType().Equals(this.GetType()))
             {
                 CanonicalGrantee other = (CanonicalGrantee)obj;
-                return this.id.Equals(other.id);
+                return _id.Equals(other._id);
             }
 
             return false;
@@ -86,7 +92,7 @@ namespace KS3.Model
 
         public override string ToString()
         {
-            return "CanonicalGrantee [id=" + this.id + ", displayName=" + this.displayName + "]";
+            return $"CanonicalGrantee [id={_id}, displayName={_displayName}]";
         }
     }
 }

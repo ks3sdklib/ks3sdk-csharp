@@ -9,81 +9,87 @@ namespace KS3.Transform
 {
     public static class AclXmlFactory
     {
-        private static String xmlns = "http://www.w3.org/2001/XMLSchema-instance";
+        private static readonly string _xmlns = "http://www.w3.org/2001/XMLSchema-instance";
 
-        public static String convertToXmlString(AccessControlList acl)
+        public static string ConvertToXmlString(AccessControlList acl)
         {
             StringBuilder builder = new StringBuilder();
             builder.Append("<AccessControlPolicy>");
-            builder.Append(convertOwner(acl.getOwner()));
-            builder.Append(convertGrants(acl.getGrants()));
+            builder.Append(ConvertOwner(acl.Owner));
+            builder.Append(ConvertGrants(acl.Grants));
             builder.Append("</AccessControlPolicy>");
 
             return builder.ToString();
         }
 
-        private static String convertOwner(Owner owner)
+        private static string ConvertOwner(Owner owner)
         {
             if (owner == null)
-                return null;
-
-            return "<Owner><DisplayName>" + owner.getDisplayName() + "</DisplayName><ID>" + owner.getId() + "</ID></Owner>";
+            {
+                return string.Empty;
+            }
+            return "<Owner><DisplayName>" + owner.DisplayName + "</DisplayName><ID>" + owner.Id + "</ID></Owner>";
         }
 
-        private static String convertGrants(ISet<Grant> grants)
+        private static string ConvertGrants(ISet<Grant> grants)
         {
             StringBuilder builder = new StringBuilder();
             builder.Append("<AccessControlList>");
             foreach (Grant grant in grants)
-                builder.Append(convertGrant(grant));
+            {
+                builder.Append(ConvertGrant(grant));
+            }
             builder.Append("</AccessControlList>");
 
             return builder.ToString();
         }
 
-        private static String convertGrant(Grant grant)
+        private static string ConvertGrant(Grant grant)
         {
             StringBuilder builder = new StringBuilder();
             builder.Append("<Grant>");
-            builder.Append(convertGrantee(grant.getGrantee()));
-            builder.Append(convertPermission(grant.getPermission()));
+            builder.Append(ConvertGrantee(grant.Grantee));
+            builder.Append(ConvertPermission(grant.Permission));
             builder.Append("</Grant>");
 
             return builder.ToString();
         }
 
-        private static String convertGrantee(Grantee grantee)
+        private static string ConvertGrantee(IGrantee grantee)
         {
             if (grantee.GetType().Equals(typeof(CanonicalGrantee)))
-                return convertCanonicalGrantee((CanonicalGrantee)grantee);
+            {
+                return ConvertCanonicalGrantee((CanonicalGrantee)grantee);
+            }
             else if (grantee.GetType().Equals(typeof(GroupGrantee)))
-                return convertGroupGrantee((GroupGrantee)grantee);
-
+            {
+                return ConvertGroupGrantee((GroupGrantee)grantee);
+            }
             return null;
         }
 
-        private static String convertCanonicalGrantee(CanonicalGrantee grantee)
+        private static string ConvertCanonicalGrantee(CanonicalGrantee grantee)
         {
             StringBuilder builder = new StringBuilder();
-            builder.Append("<Grantee xmlns:xsi=\"" + xmlns + "\" xsi:type=\"CanonicalUser\">");
-            builder.Append("<DisplayName>" + grantee.getDisplayName() + "</DisplayName>");
-            builder.Append("<ID>" + grantee.getIdentifier() + "</ID>");
+            builder.Append("<Grantee xmlns:xsi=\"" + _xmlns + "\" xsi:type=\"CanonicalUser\">");
+            builder.Append("<DisplayName>" + grantee.GetDisplayName() + "</DisplayName>");
+            builder.Append("<ID>" + grantee.GetIdentifier() + "</ID>");
             builder.Append("</Grantee>");
 
             return builder.ToString();
         }
 
-        private static String convertGroupGrantee(GroupGrantee grantee)
+        private static string ConvertGroupGrantee(GroupGrantee grantee)
         {
             StringBuilder builder = new StringBuilder();
-            builder.Append("<Grantee xmlns:xsi=\"" + xmlns + "\" xsi:type=\"Group\">");
-            builder.Append("<URI>" + grantee.getIdentifier() + "</URI>");
+            builder.Append("<Grantee xmlns:xsi=\"" + _xmlns + "\" xsi:type=\"Group\">");
+            builder.Append("<URI>" + grantee.GetIdentifier() + "</URI>");
             builder.Append("</Grantee>");
 
             return builder.ToString();
         }
 
-        private static String convertPermission(String permission)
+        private static string ConvertPermission(string permission)
         {
             return "<Permission>" + permission + "</Permission>";
         }

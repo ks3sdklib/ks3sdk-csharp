@@ -1,51 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace KS3.Model
 {
     public class AdpInfo
     {
-        /**
-	 * 数据处理命令
-	 */
-        private String command;
+        /// <summary>
+        /// 数据处理命令
+        /// </summary>
+        public string Command { get; set; }
 
-        public String Command
-        {
-            get { return command; }
-            set { command = value; }
-        }
-        /**
-         * 是否处理成功
-         */
-        private bool success;
+        /// <summary>
+        /// 是否处理成功
+        /// </summary>
+        public bool Success { get; set; }
 
-        public bool Success
-        {
-            get { return success; }
-            set { success = value; }
-        }
-        /**
-         * 处理信息信息
-         */
-        private String desc;
+        /// <summary>
+        /// 处理信息
+        /// </summary>
+        public string Desc { get; set; }
 
-        public String Desc
-        {
-            get { return desc; }
-            set { desc = value; }
-        }
-        /**
-         * 数据处理完成后新的数据的key
-         */
-        private IList<String> keys = new List<String>();
+        /// <summary>
+        /// 数据Keys
+        /// </summary>
+        public IList<string> Keys { get; set; } = new List<string>();
 
-        public IList<String> Keys
-        {
-            get { return keys; }
-            set { keys = value; }
-        }
     }
 }

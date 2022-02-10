@@ -18,7 +18,7 @@ namespace KS3.Transform
             Bucket curBucket = null;
             StringBuilder currText = new StringBuilder();
             IList<Bucket> buckets = new List<Bucket>();
-            
+
             XmlReader xr = XmlReader.Create(new BufferedStream(inputStream));
             while (xr.Read())
             {
@@ -29,13 +29,22 @@ namespace KS3.Transform
                 }
                 else if (xr.NodeType.Equals(XmlNodeType.EndElement))
                 {
-                    if (xr.Name.Equals("DisplayName")) bucketsOwner.setDisplayName(currText.ToString());
-                    else if (xr.Name.Equals("ID")) bucketsOwner.setId(currText.ToString());
-                    else if (xr.Name.Equals("CreationDate")) curBucket.setCreationDate(DateTime.Parse(currText.ToString()));
-                    else if (xr.Name.Equals("Name")) curBucket.setName(currText.ToString());
+                    if (xr.Name.Equals("DisplayName")) bucketsOwner.DisplayName = currText.ToString();
+                    else if (xr.Name.Equals("ID"))
+                    {
+                        bucketsOwner.Id = currText.ToString();
+                    }
+                    else if (xr.Name.Equals("CreationDate"))
+                    {
+                        curBucket.CreationDate = DateTime.Parse(currText.ToString());
+                    }
+                    else if (xr.Name.Equals("Name"))
+                    {
+                        curBucket.Name = currText.ToString();
+                    }
                     else if (xr.Name.Equals("Bucket"))
                     {
-                        curBucket.setOwner(bucketsOwner);
+                        curBucket.Owner = bucketsOwner;
                         buckets.Add(curBucket);
                     }
                     currText.Clear();

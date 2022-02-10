@@ -5,61 +5,61 @@ using System.Text;
 
 namespace KS3.Model
 {
-    /**
-     * Specifies constants defining a group of KS3 users who can be granted
-     * permissions to KS3 buckets and objects.
-     */
-    public class GroupGrantee : Grantee
+    /// <summary>
+    /// Specifies constants defining a group of KS3 users who can be granted permissions to KS3 buckets and objects.
+    /// </summary>
+    public class GroupGrantee : IGrantee
     {
-        /**
-         * Grants anonymous access to any KS3 object or bucket. Any user will
-         * be able to access the object by omitting the KS3 Key ID and Signature
-         * from a request.
-         */
+        /// <summary>
+        /// Grants anonymous access to any KS3 object or bucket. Any user will be able to access the object by omitting the KS3 Key ID and Signature from a request.
+        /// </summary>
         public static string ALL_USERS = "http://acs.ksyun.com/groups/global/AllUsers";
 
-        private String groupUri;
+        private string _groupUri;
 
-        public GroupGrantee(String groupUri)
+        public GroupGrantee(string groupUri)
         {
-            this.groupUri = groupUri;
+            _groupUri = groupUri;
         }
 
-        public String getTypeIdentifier()
+        public string GetTypeIdentifier()
         {
             return "uri";
         }
 
-        /**
-         * Gets the group grantee's URI.
-         */
-        public String getIdentifier()
+        /// <summary>
+        /// Gets the group grantee's URI.
+        /// </summary>
+        /// <returns></returns>
+        public string GetIdentifier()
         {
-            return this.groupUri;
+            return this._groupUri;
         }
 
-        /**
-         * For internal use only. Group grantees have preset identifiers that cannot
-         * be modified.
-         */
-        public void setIdentifier(String id)
+        /// <summary>
+        /// For internal use only. Group grantees have preset identifiers that cannot be modified.
+        /// </summary>
+        /// <param name="id"></param>
+        public void SetIdentifier(string id)
         {
-            this.groupUri = id;
+            _groupUri = id;
         }
 
         public override int GetHashCode()
         {
-            return this.groupUri.GetHashCode();
+            return _groupUri.GetHashCode();
         }
 
         public override bool Equals(object obj)
         {
-            if (obj == null) return false;
-
+            if (obj == null)
+            {
+                return false;
+            }
             if (obj.GetType() == this.GetType())
             {
                 GroupGrantee other = (GroupGrantee)obj;
-                return other.groupUri.Equals(other.groupUri);
+                return _groupUri.Equals(other._groupUri);
             }
 
             return false;
@@ -67,7 +67,7 @@ namespace KS3.Model
 
         public override string ToString()
         {
-            return "GroupGrantee [" + this.groupUri + "]";
+            return $"GroupGrantee [{_groupUri}]";
         }
     }
 }

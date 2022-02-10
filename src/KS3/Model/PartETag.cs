@@ -32,9 +32,10 @@ namespace KS3.Model
             this.partNumber = partNumber;
             this.eTag = eTag;
         }
-        public string ToString() {
-            return "[partNum:"+this.partNumber+"][etag:"+this.eTag+"]";
+        public override string ToString()
+        {
+            return "[partNum:" + this.partNumber + "][etag:" + this.eTag + "]";
         }
-        
+
     }
 }

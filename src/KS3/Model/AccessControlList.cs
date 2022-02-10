@@ -1,88 +1,72 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace KS3.Model
 {
-    /**
-     * Represents an KS3 Access Control List (ACL), including the ACL's set of
-     * grantees and the permissions assigned to each grantee.
-     */
+    /// <summary>
+    /// Represents an KS3 Access Control List (ACL), including the ACL's set of grantees and the permissions assigned to each grantee.
+    /// </summary>
     public class AccessControlList
     {
-        private ISet<Grant> grants = new HashSet<Grant>();
-        private Owner owner = null;
+        public ISet<Grant> Grants { get; set; } = new HashSet<Grant>();
 
-        /**
-         * Gets the owner of the AccessControlList.
-         */
-        public Owner getOwner()
+        public Owner Owner { get; set; }
+
+        /// <summary>
+        /// Adds a grantee to the access control list (ACL) with the given permission.  If this access control list already contains the grantee (i.e. the same grantee object) the permission for the grantee will be updated.
+        /// </summary>
+        /// <param name="grantee"></param>
+        /// <param name="permission"></param>
+        public void GrantPermission(IGrantee grantee, String permission)
         {
-            return owner;
+            Grants.Add(new Grant(grantee, permission));
         }
 
-        /**
-         * For internal use only. Sets the owner on this access control list (ACL).
-         * This method is only intended for internal use by the library.
-         */
-        public void setOwner(Owner owner)
-        {
-            this.owner = owner;
-        }
-
-        /**
-         * Adds a grantee to the access control list (ACL) with the given permission. 
-         * If this access control list already
-         * contains the grantee (i.e. the same grantee object) the permission for the
-         * grantee will be updated.
-         */
-        public void grantPermission(Grantee grantee, String permission)
-        {
-            this.grants.Add(new Grant(grantee, permission));
-        }
-
-        /**
-         * Adds a set of grantee/permission pairs to the access control list (ACL), where each item in the
-         * set is a Gran object.
-         */
-        public void grantAllPermissions(IList<Grant> grantList)
+        /// <summary>
+        ///  Adds a set of grantee/permission pairs to the access control list (ACL), where each item in the set is a Gran object.
+        /// </summary>
+        /// <param name="grantList"></param>
+        public void GrantAllPermissions(IList<Grant> grantList)
         {
             foreach (Grant grant in grantList)
-                this.grantPermission(grant.getGrantee(), grant.getPermission());
+            {
+                GrantPermission(grant.Grantee, grant.Permission);
+            }
         }
 
-        /**
-         * Revokes the permissions of a grantee by removing the grantee from the access control list (ACL).
-         */
-        public void revokeAllPermissions(Grantee grantee)
+        /// <summary>
+        /// Revokes the permissions of a grantee by removing the grantee from the access control list (ACL).
+        /// </summary>
+        /// <param name="grantee"></param>
+        public void RevokeAllPermissions(IGrantee grantee)
         {
-            IList<Grant> grantsToRemove = new List<Grant>();
-            foreach (Grant grant in grants)
-                if (grant.getGrantee().Equals(grantee))
+           var grantsToRemove = new List<Grant>();
+            foreach (Grant grant in Grants)
+            {
+                if (grant.Grantee.Equals(grantee))
+                {
                     grantsToRemove.Add(grant);
+                }
+            }
 
             foreach (Grant grant in grantsToRemove)
-                grants.Remove(grant);
-        }
-
-        /**
-         * Gets the set of Grant objects in this access control list (ACL).
-         */
-        public ISet<Grant> getGrants()
-        {
-            return grants;
+            {
+                Grants.Remove(grant);
+            }
         }
 
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
             builder.Append("AccessControlList:");
-            builder.Append("\nOwner:\n" + this.owner);
+            builder.Append($"\nOwner:\n{Owner}");
             builder.Append("\nGrants:");
 
-            foreach (Grant grant in grants)
+            foreach (Grant grant in Grants)
+            {
                 builder.Append("\n" + grant);
+            }
 
             return builder.ToString();
         }

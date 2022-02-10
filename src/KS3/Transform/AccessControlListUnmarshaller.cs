@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using KS3.Model;
 using System.IO;
+using System.Text;
 using System.Xml;
-
-using KS3.Model;
 
 namespace KS3.Transform
 {
@@ -14,15 +10,14 @@ namespace KS3.Transform
         public AccessControlList Unmarshall(Stream inputStream)
         {
             AccessControlList acl = new AccessControlList();
-            Owner owner = null;
-            String ownerId = null;
-            String ownerDisplayName = null;
-            Grantee grantee = null;
-            String granteeType = null;
-            String userId = null;
-            String userDisplayName = null;
-            String groupUri = null;
-            String permission = null;
+            string ownerId = null;
+            string ownerDisplayName = null;
+            IGrantee grantee = null;
+            string granteeType = null;
+            string userId = null;
+            string userDisplayName = null;
+            string groupUri = null;
+            string permission = null;
             bool insideGrant = false;
             StringBuilder currText = new StringBuilder();
 
@@ -48,29 +43,41 @@ namespace KS3.Transform
                     else if (xr.Name.Equals("ID"))
                     {
                         if (!insideGrant)
+                        {
                             ownerDisplayName = currText.ToString();
+                        }
                         else
+                        {
                             userDisplayName = currText.ToString();
+                        }
                     }
                     else if (xr.Name.Equals("URI"))
+                    {
                         groupUri = currText.ToString();
+                    }
                     else if (xr.Name.Equals("Owner"))
                     {
-                        owner = new Owner(ownerId, ownerDisplayName);
-                        acl.setOwner(owner);
+                        Owner owner = new Owner(ownerId, ownerDisplayName);
+                        acl.Owner = owner;
                     }
                     else if (xr.Name.Equals("Grantee"))
                     {
                         if (granteeType.Equals("CanonicalUser"))
+                        {
                             grantee = new CanonicalGrantee(userId, userDisplayName);
+                        }
                         else if (granteeType.Equals("Group"))
+                        {
                             grantee = new GroupGrantee(groupUri);
+                        }
                     }
                     else if (xr.Name.Equals("Permission"))
+                    {
                         permission = currText.ToString();
+                    }
                     else if (xr.Name.Equals("Grant"))
                     {
-                        acl.grantPermission(grantee, permission);
+                        acl.GrantPermission(grantee, permission);
                         insideGrant = false;
                     }
 

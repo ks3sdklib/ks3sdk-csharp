@@ -1,27 +1,26 @@
-﻿using System;
+﻿using KS3.Model;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
-
-using KS3.Model;
 
 namespace KS3
 {
-    /**
-     * Provides an interface for accessing the KS3.
-     */
+    /// <summary>
+    /// Provides an interface for accessing the KS3.
+    /// </summary>
     public interface IKS3
     {
-        /**
-         * Overrides the default endpoint for this client.
-         */
-        void setEndpoint(String endpoint);
+        /// <summary>
+        /// Overrides the default endpoint for this client.
+        /// </summary>
+        /// <param name="endpoint"></param>
+        void SetEndpoint(string endpoint);
 
-        /**
-         * Returns a list of all KS3 buckets that the authenticated sender of the request owns. 
-         */
-        IList<Bucket> listBuckets();
+        /// <summary>
+        /// Returns a list of all KS3 buckets that the authenticated sender of the request owns. 
+        /// </summary>
+        /// <returns></returns>
+        IList<Bucket> ListBuckets();
 
         /**
          * Returns a list of all KS3 buckets that the authenticated sender of the request owns. 

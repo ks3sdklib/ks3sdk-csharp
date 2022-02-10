@@ -1,21 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace KS3.Model
 {
     public class BucketCorsConfigurationResult
     {
-        private IList<CorsRule> rules = new List<CorsRule>();
+        public IList<CorsRule> Rules { get; set; } = new List<CorsRule>();
 
-        public IList<CorsRule> Rules
+        public void AddCorsRule(CorsRule corsRule)
         {
-            get { return rules; }
-            set { rules = value; }
-        }
-        public void addCorsRule(CorsRule corsRule) {
-            this.rules.Add(corsRule);
+            Rules.Add(corsRule);
         }
 
     }

@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using KS3.Model;
+using System;
 using System.IO;
+using System.Text;
 using System.Xml;
-
-using KS3.Model;
 
 namespace KS3.Transform
 {
@@ -24,7 +21,7 @@ namespace KS3.Transform
             String lastKey = null;
             Boolean truncated = false;
             String nextMarker = null;
-            
+
             XmlReader xr = XmlReader.Create(new BufferedStream(inputStream));
             while (xr.Read())
             {
@@ -36,7 +33,7 @@ namespace KS3.Transform
                         insideCommonPrefixes = true;
                     else if (xr.Name.Equals("Owner"))
                         currOwner = new Owner();
-                    
+
                 }
                 else if (xr.NodeType.Equals(XmlNodeType.EndElement))
                 {
@@ -84,25 +81,38 @@ namespace KS3.Transform
                         objectListing.getObjectSummaries().Add(currObject);
                     }
                     else if (xr.Name.Equals("Owner"))
+                    {
                         currObject.setOwner(currOwner);
+                    }
                     else if (xr.Name.Equals("DisplayName"))
-                        currOwner.setDisplayName(currText.ToString());
+                    {
+                        currOwner.DisplayName = currText.ToString();
+                    }
                     else if (xr.Name.Equals("ID"))
-                        currOwner.setId(currText.ToString());
+                    {
+                        currOwner.Id = currText.ToString();
+                    }
                     else if (xr.Name.Equals("LastModified"))
+                    {
                         currObject.setLastModified(DateTime.Parse(currText.ToString()));
+                    }
                     else if (xr.Name.Equals("ETag"))
+                    {
                         currObject.setETag(currText.ToString());
+                    }
                     else if (xr.Name.Equals("CommonPrefixes"))
+                    {
                         insideCommonPrefixes = false;
+                    }
                     else if (xr.Name.Equals("Key"))
                     {
                         lastKey = currText.ToString();
                         currObject.setKey(lastKey);
                     }
                     else if (xr.Name.Equals("Size"))
+                    {
                         currObject.setSize(long.Parse(currText.ToString()));
-
+                    }
                     currText.Clear();
                 }
                 else if (xr.NodeType.Equals(XmlNodeType.Text))
@@ -110,7 +120,7 @@ namespace KS3.Transform
                     currText.Append(xr.Value);
                 }
             }
-            
+
             objectListing.setBucketName(bucketName);
 
             if (truncated)
@@ -119,8 +129,8 @@ namespace KS3.Transform
                     nextMarker = lastKey;
                 objectListing.setNextMarker(nextMarker);
             }
-            
+
             return objectListing;
-        } // end of unmarshall
+        }  
     }
 }

@@ -37,8 +37,9 @@ namespace KS3.Model
         {
             this.uploadId = uploadId;
         }
-        public String ToString() {
-            return "[bucket:"+bucket+"][key:"+key+"][uploadid:"+uploadId+"]";
+        public override string ToString()
+        {
+            return "[bucket:" + bucket + "][key:" + key + "][uploadid:" + uploadId + "]";
         }
     }
 }

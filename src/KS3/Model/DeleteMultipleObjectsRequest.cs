@@ -8,7 +8,7 @@ using System.Xml.Linq;
 
 namespace KS3.Model
 {
-    public class DeleteMultipleObjectsRequest:KS3Request,CalculatorMd5
+    public class DeleteMultipleObjectsRequest:KS3Request,ICalculatorMd5
     {
         private String bucketName;
 
@@ -44,7 +44,7 @@ namespace KS3.Model
         /// get the md5 digest byte and convert to base64 string
         /// </summary>
         /// <returns></returns>
-        public String getMd5()
+        public String GetMd5()
         {
             byte[] md5 = Md5Util.Md5Digest(getXmlContent());
             return Convert.ToBase64String(md5);
