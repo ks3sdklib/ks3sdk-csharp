@@ -1,24 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace KS3.Model
+﻿namespace KS3.Model
 {
-    public class HeadBucketRequest:KS3Request
+    public class HeadBucketRequest : KS3Request
     {
-        /** The name of the bucket whose ACL is being retrieved. */
-        private String bucketName;
+        /// <summary>
+        /// The name of the bucket whose ACL is being retrieved. 
+        /// </summary>
+        public string BucketName { get; set; }
+        public HeadBucketRequest()
+        {
 
-        public String BucketName
-        {
-            get { return bucketName; }
-            set { bucketName = value; }
         }
-        public HeadBucketRequest() { }
-        public HeadBucketRequest(String bucketName)
+
+        public HeadBucketRequest(string bucketName)
         {
-            this.bucketName = bucketName;
+            BucketName = bucketName;
         }
     }
 }

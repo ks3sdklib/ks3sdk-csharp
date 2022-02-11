@@ -27,9 +27,13 @@ namespace KS3.Transform
                 if (xr.NodeType.Equals(XmlNodeType.Element))
                 {
                     if (xr.Name.Equals("Grant"))
+                    {
                         insideGrant = true;
+                    }
                     else if (xr.Name.Equals("Grantee"))
+                    {
                         granteeType = xr.GetAttribute("xsi:type");
+                    }
                 }
                 else if (xr.NodeType.Equals(XmlNodeType.EndElement))
                 {
@@ -87,9 +91,9 @@ namespace KS3.Transform
                 {
                     currText.Append(xr.Value);
                 }
-            } // end while
+            }
 
             return acl;
-        } // end of unmarshall
+        }
     }
 }

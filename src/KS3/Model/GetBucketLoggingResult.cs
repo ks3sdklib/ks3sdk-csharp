@@ -1,43 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace KS3.Model
 {
     public class GetBucketLoggingResult
     {
-        //Container for logging information. This element and its children are present when logging is enabled, otherwise, this element and its children are absent.
-        private Boolean enable = false;
+        /// <summary>
+        /// Container for logging information. This element and its children are present when logging is enabled, otherwise, this element and its children are absent.
+        /// </summary>
+        public bool Enable { get; set; }
 
-        public Boolean Enable
-        {
-            get { return enable; }
-            set { enable = value; }
-        }
-        //Specifies the bucket whose logging status is being returned. This element specifies the bucket where server access logs will be delivered
-        private String targetBucket;
+        /// <summary>
+        /// Specifies the bucket whose logging status is being returned. This element specifies the bucket where server access logs will be delivered
+        /// </summary>
+        public string TargetBucket { get; set; }
 
-        public String TargetBucket
-        {
-            get { return targetBucket; }
-            set { targetBucket = value; }
-        }
-        //Specifies the prefix for the keys that the log files are being stored under.
-        private String targetPrefix;
+        /// <summary>
+        /// Specifies the prefix for the keys that the log files are being stored under.
+        /// </summary>
+        public string TargetPrefix { get; set; }
 
-        public String TargetPrefix
-        {
-            get { return targetPrefix; }
-            set { targetPrefix = value; }
-        }
-        //Container for Grantee and Permission. (Postpone the opening)
-        private HashSet<Grant> targetGrants = new HashSet<Grant>();
-
-        public HashSet<Grant> TargetGrants
-        {
-            get { return targetGrants; }
-            set { targetGrants = value; }
-        }
+        /// <summary>
+        /// Container for Grantee and Permission. (Postpone the opening)
+        /// </summary>
+        public ISet<Grant> TargetGrants { get; set; } = new HashSet<Grant>();
     }
 }

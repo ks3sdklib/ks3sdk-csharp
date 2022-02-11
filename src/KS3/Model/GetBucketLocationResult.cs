@@ -1,19 +1,19 @@
 ﻿using KS3.Http;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace KS3.Model
 {
     public class GetBucketLocationResult
     {
-        private Region region;
+        public Region Region { get; set; }
 
-        public Region Region
+        public GetBucketLocationResult()
         {
-            get { return region; }
-            set { region = value; }
+
+        }
+
+        public GetBucketLocationResult(Region region)
+        {
+            Region = region;
         }
     }
 }

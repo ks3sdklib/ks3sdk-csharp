@@ -1,22 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace KS3.Model
+﻿namespace KS3.Model
 {
-    public class DeleteBucketCorsRequest:KS3Request
+    public class DeleteBucketCorsRequest : KS3Request
     {
-        private String bucketName;
 
-        public String BucketName
+        public string BucketName { get; set; }
+
+        public DeleteBucketCorsRequest()
         {
-            get { return bucketName; }
-            set { bucketName = value; }
         }
-        public DeleteBucketCorsRequest() { }
-        public DeleteBucketCorsRequest(String bucketName) {
-            this.bucketName = bucketName;
+
+        public DeleteBucketCorsRequest(string bucketName)
+        {
+            BucketName = bucketName;
         }
 
     }

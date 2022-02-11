@@ -1,66 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-
-namespace KS3.Model
+﻿namespace KS3.Model
 {
-    public class InitiateMultipartUploadRequest:KS3Request
+    public class InitiateMultipartUploadRequest : KS3Request
     {
-        public InitiateMultipartUploadRequest(String bucketname, String objectkey)
+        public string BucketName { get; set; }
+
+        public string ObjectKey { get; set; }
+
+        public ObjectMetadata ObjectMeta { get; set; } = new ObjectMetadata();
+
+        public AccessControlList Acl { get; set; } = new AccessControlList();
+
+        public CannedAccessControlList CannedAcl { get; set; }
+
+        public string RedirectLocation { get; set; }
+
+        public InitiateMultipartUploadRequest()
         {
-            this.Bucketname=bucketname;
-            this.Objectkey=objectkey;
+
         }
 
-        private String bucketname;
-
-        public String Bucketname
+        public InitiateMultipartUploadRequest(string bucketName, string objectKey)
         {
-            get { return bucketname; }
-            set { bucketname = value; }
+            BucketName = bucketName;
+            ObjectKey = objectKey;
         }
-        private String objectkey;
-
-        public String Objectkey
-        {
-            get { return objectkey; }
-            set { objectkey = value; }
-        }
-
-
-        private ObjectMetadata objectMeta = new ObjectMetadata();
-
-        public ObjectMetadata ObjectMeta
-        {
-            get { return objectMeta; }
-            set { objectMeta = value; }
-        }
- 
-        private AccessControlList acl = new AccessControlList();
-
-        public AccessControlList Acl
-        {
-            get { return acl; }
-            set { acl = value; }
-        }
-
-        private CannedAccessControlList cannedAcl;
-
-        public CannedAccessControlList CannedAcl
-        {
-            get { return cannedAcl; }
-            set { cannedAcl = value; }
-        }
-        private String redirectLocation;
-
-        public String RedirectLocation
-        {
-            get { return redirectLocation; }
-            set { redirectLocation = value; }
-        }
-
-
     }
 }

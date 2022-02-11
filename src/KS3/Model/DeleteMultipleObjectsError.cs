@@ -1,42 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace KS3.Model
+﻿namespace KS3.Model
 {
     public class DeleteMultipleObjectsError
     {
-        /**
-	    *  object key
-	    */
-        private String key;
+        /// <summary>
+        /// Object key
+        /// </summary>
+        public string Key { get; set; }
 
-        public String Key
-        {
-            get { return key; }
-            set { key = value; }
-        }
-        /**
-         * Status code for the result of the failed delete，detail see <a href="http://ks3.ksyun.com/doc/api/index.html">http://ks3.ksyun.com/doc/api/index.html</a>
-         */
-        private String code;
+        /// <summary>
+        /// Status code for the result of the failed delete，detail see <a href="http://ks3.ksyun.com/doc/api/index.html">http://ks3.ksyun.com/doc/api/index.html</a>
+        /// </summary>
+        public string Code { get; set; }
 
-        public String Code
-        {
-            get { return code; }
-            set { code = value; }
-        }
-        /**
-         * error message
-         */
-        private String message;
-
-        public String Message
-        {
-            get { return message; }
-            set { message = value; }
-        }
-
+        /// <summary>
+        /// Error message
+        /// </summary>
+        public string Message { get; set; }
+    
     }
 }

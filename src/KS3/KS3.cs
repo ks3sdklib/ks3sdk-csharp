@@ -22,148 +22,212 @@ namespace KS3
         /// <returns></returns>
         IList<Bucket> ListBuckets();
 
-        /**
-         * Returns a list of all KS3 buckets that the authenticated sender of the request owns. 
-         */
-        IList<Bucket> listBuckets(ListBucketsRequest listBucketRequest);
+        /// <summary>
+        /// Returns a list of all KS3 buckets that the authenticated sender of the request owns. 
+        /// </summary>
+        /// <param name="listBucketRequest"></param>
+        /// <returns></returns>
+        IList<Bucket> ListBuckets(ListBucketsRequest listBucketRequest);
 
-        /**
-         * Deletes the specified bucket. 
-         */
-        void deleteBucket(String bucketName);
+        /// <summary>
+        /// Deletes the specified bucket. 
+        /// </summary>
+        /// <param name="bucketName"></param>
+        void DeleteBucket(string bucketName);
 
-        /**
-         * Deletes the specified bucket. 
-         */
-        void deleteBucket(DeleteBucketRequest deleteBucketRequest);
+        /// <summary>
+        ///  Deletes the specified bucket. 
+        /// </summary>
+        /// <param name="deleteBucketRequest"></param>
+        void DeleteBucket(DeleteBucketRequest deleteBucketRequest);
 
-        /**
-         * Gets the AccessControlList (ACL) for the specified KS3 bucket.
-         */
-        AccessControlList getBucketAcl(String bucketName);
+        /// <summary>
+        /// Gets the AccessControlList (ACL) for the specified KS3 bucket.
+        /// </summary>
+        /// <param name="bucketName"></param>
+        /// <returns></returns>
+        AccessControlList GetBucketAcl(String bucketName);
 
-        /**
-         * Gets the AccessControlList (ACL) for the specified KS3 bucket.
-         */
-        AccessControlList getBucketAcl(GetBucketAclRequest getBucketAclRequest);
+        /// <summary>
+        /// Gets the AccessControlList (ACL) for the specified KS3 bucket.
+        /// </summary>
+        /// <param name="getBucketAclRequest"></param>
+        /// <returns></returns>
+        AccessControlList GetBucketAcl(GetBucketAclRequest getBucketAclRequest);
 
-        /**
-         * Creates a new KS3 bucket. 
-         */
-        Bucket createBucket(String bucketName);
+        /// <summary>
+        /// Creates a new KS3 bucket. 
+        /// </summary>
+        /// <param name="bucketName"></param>
+        /// <returns></returns>
+        Bucket CreateBucket(string bucketName);
 
-        /**
-         * Creates a new KS3 bucket. 
-         */
-        Bucket createBucket(CreateBucketRequest createBucketRequest);
+        /// <summary>
+        /// Creates a new KS3 bucket. 
+        /// </summary>
+        /// <param name="createBucketRequest"></param>
+        /// <returns></returns>
+        Bucket CreateBucket(CreateBucketRequest createBucketRequest);
 
-        /**
-         * Sets the AccessControlList for the specified KS3 bucket.
-         */
-        void setBucketAcl(String bucketName, AccessControlList acl);
+        /// <summary>
+        /// Sets the AccessControlList for the specified KS3 bucket.
+        /// </summary>
+        /// <param name="bucketName"></param>
+        /// <param name="acl"></param>
+        void SetBucketAcl(string bucketName, AccessControlList acl);
 
-        /**
-         * Sets the AccessControlList for the specified KS3 bucket.
-         */
-        void setBucketAcl(String bucketName, CannedAccessControlList cannedAcl);
+        /// <summary>
+        /// Sets the AccessControlList for the specified KS3 bucket.
+        /// </summary>
+        /// <param name="bucketName"></param>
+        /// <param name="cannedAcl"></param>
+        void SetBucketAcl(string bucketName, CannedAccessControlList cannedAcl);
 
-        /**
-         * Sets the AccessControlList for the specified KS3 bucket.
-         */
-        void setBucketAcl(SetBucketAclRequest setBucketAclRequset);
+        /// <summary>
+        /// Sets the AccessControlList for the specified KS3 bucket.
+        /// </summary>
+        /// <param name="setBucketAclRequset"></param>
+        void SetBucketAcl(SetBucketAclRequest setBucketAclRequset);
 
-        /**
-         * Returns a list of summary information about the objects in the specified bucket.
-         */
-        ObjectListing listObjects(String bucketName);
+        /// <summary>
+        /// Returns a list of summary information about the objects in the specified bucket.
+        /// </summary>
+        /// <param name="bucketName"></param>
+        /// <returns></returns>
+        ObjectListing ListObjects(String bucketName);
 
-        /**
-         * Returns a list of summary information about the objects in the specified bucket.
-         */
-        ObjectListing listObjects(String bucketName, String prefix);
+        /// <summary>
+        /// Returns a list of summary information about the objects in the specified bucket.
+        /// </summary>
+        /// <param name="bucketName"></param>
+        /// <param name="prefix"></param>
+        /// <returns></returns>
+        ObjectListing ListObjects(string bucketName, string prefix);
 
-        /**
-         * Returns a list of summary information about the objects in the specified bucket.
-         */
-        ObjectListing listObjects(ListObjectsRequest listObjectRequest);
+        /// <summary>
+        /// Returns a list of summary information about the objects in the specified bucket.
+        /// </summary>
+        /// <param name="listObjectRequest"></param>
+        /// <returns></returns>
+        ObjectListing ListObjects(ListObjectsRequest listObjectRequest);
 
-        /**
-         * Deletes the specified object in the specified bucket.
-         */
-        void deleteObject(String bucketName, String key);
+        /// <summary>
+        /// Deletes the specified object in the specified bucket.
+        /// </summary>
+        /// <param name="bucketName"></param>
+        /// <param name="key"></param>
+        void DeleteObject(string bucketName, string key);
 
-        /**
-         * Deletes the specified object in the specified bucket.
-         */
-        void deleteObject(DeleteObjectRequest deleteObjectRequest);
+        /// <summary>
+        /// Deletes the specified object in the specified bucket.
+        /// </summary>
+        /// <param name="deleteObjectRequest"></param>
+        void DeleteObject(DeleteObjectRequest deleteObjectRequest);
 
-        /**
-         * Gets the object stored in KS3 under the specified bucket and key.
-         */
-        KS3Object getObject(String bucketName, String key);
+        /// <summary>
+        /// Gets the object stored in KS3 under the specified bucket and key.
+        /// </summary>
+        /// <param name="bucketName"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        KS3Object GetObject(string bucketName, string key);
 
-        /**
-         * Gets the object stored in KS3 under the specified bucket and key, and saves the object contents to the specified file.
-         */
-        KS3Object getObject(String bucketName, String key, FileInfo destinationFile);
+        /// <summary>
+        /// Gets the object stored in KS3 under the specified bucket and key, and saves the object contents to the specified file.
+        /// </summary>
+        /// <param name="bucketName"></param>
+        /// <param name="key"></param>
+        /// <param name="destinationFile"></param>
+        /// <returns></returns>
+        KS3Object GetObject(string bucketName, string key, FileInfo destinationFile);
 
-        /**
-         * Gets the object stored in KS3 under the specified bucket and key.
-         */
-        KS3Object getObject(GetObjectRequest getObjectRequest);
+        /// <summary>
+        /// Gets the object stored in KS3 under the specified bucket and key.
+        /// </summary>
+        /// <param name="getObjectRequest"></param>
+        /// <returns></returns>
+        KS3Object GetObject(GetObjectRequest getObjectRequest);
 
-        /**
-         * Gets the metadata for the specified KS3 object without actually fetching the object itself.
-         */
-        ObjectMetadata getObjectMetadata(String bucketName, String key);
+        /// <summary>
+        /// Gets the metadata for the specified KS3 object without actually fetching the object itself.
+        /// </summary>
+        /// <param name="bucketName"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        ObjectMetadata GetObjectMetadata(string bucketName, string key);
 
-        /**
-         * Gets the metadata for the specified KS3 object without actually fetching the object itself.
-         */
-        ObjectMetadata getObjectMetadata(GetObjectMetadataRequest getObjectMetadataRequest);
+        /// <summary>
+        /// Gets the metadata for the specified KS3 object without actually fetching the object itself.
+        /// </summary>
+        /// <param name="getObjectMetadataRequest"></param>
+        /// <returns></returns>
+        ObjectMetadata GetObjectMetadata(GetObjectMetadataRequest getObjectMetadataRequest);
 
-        /**
-         * Uploads the specified file to KS3 under the specified bucket and key name.
-         */
-        PutObjectResult putObject(String bucketName, String key, FileInfo file);
+        /// <summary>
+        /// Uploads the specified file to KS3 under the specified bucket and key name.
+        /// </summary>
+        /// <param name="bucketName"></param>
+        /// <param name="key"></param>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        PutObjectResult PutObject(string bucketName, string key, FileInfo file);
 
-        /**
-         * Uploads the specified input stream and object metadata to KS3 under the specified bucket and key name. 
-         */
-        PutObjectResult putObject(String bucketName, String key, Stream input, ObjectMetadata metadata);
+        /// <summary>
+        /// Uploads the specified input stream and object metadata to KS3 under the specified bucket and key name. 
+        /// </summary>
+        /// <param name="bucketName"></param>
+        /// <param name="key"></param>
+        /// <param name="input"></param>
+        /// <param name="metadata"></param>
+        /// <returns></returns>
+        PutObjectResult PutObject(string bucketName, string key, Stream input, ObjectMetadata metadata);
 
-        /**
-         * Uploads a new object to the specified KS3 bucket.
-         */
-        PutObjectResult putObject(PutObjectRequest putObjectRequest);
+        /// <summary>
+        /// Uploads a new object to the specified KS3 bucket.
+        /// </summary>
+        /// <param name="putObjectRequest"></param>
+        /// <returns></returns>
+        PutObjectResult PutObject(PutObjectRequest putObjectRequest);
 
-        InitiateMultipartUploadResult initiateMultipartUpload(String bucketname, String objectkey);
+        InitiateMultipartUploadResult InitiateMultipartUpload(string bucketname, string objectkey);
 
-        InitiateMultipartUploadResult initiateMultipartUpload(InitiateMultipartUploadRequest request);
+        InitiateMultipartUploadResult InitiateMultipartUpload(InitiateMultipartUploadRequest request);
 
-        /**
-         * Gets the AccessControlList (ACL) for the specified object in KS3.
-         */
-        AccessControlList getObjectAcl(String bucketName, String key);
+        /// <summary>
+        /// Gets the AccessControlList (ACL) for the specified object in KS3.
+        /// </summary>
+        /// <param name="bucketName"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        AccessControlList GetObjectAcl(string bucketName, string key);
 
-        /**
-         * Gets the AccessControlList (ACL) for the specified object in KS3.
-         */
-        AccessControlList getObjectAcl(GetObjectAclRequest getObjectAclRequest);
+        /// <summary>
+        /// Gets the AccessControlList (ACL) for the specified object in KS3.
+        /// </summary>
+        /// <param name="getObjectAclRequest"></param>
+        /// <returns></returns>
+        AccessControlList GetObjectAcl(GetObjectAclRequest getObjectAclRequest);
 
-        /**
-         * Sets the AccessControlList for the specified object in KS3.
-         */
-        void setObjectAcl(String bucketName, String key, AccessControlList acl);
+        /// <summary>
+        /// Sets the AccessControlList for the specified object in KS3.
+        /// </summary>
+        /// <param name="bucketName"></param>
+        /// <param name="key"></param>
+        /// <param name="acl"></param>
+        void SetObjectAcl(string bucketName, string key, AccessControlList acl);
 
-        /**
-         * Sets the AccessControlList for the specified object in KS3.
-         */
-        void setObjectAcl(String bucketName, String key, CannedAccessControlList cannedAcl);
+        /// <summary>
+        /// Sets the AccessControlList for the specified object in KS3.
+        /// </summary>
+        /// <param name="bucketName"></param>
+        /// <param name="key"></param>
+        /// <param name="cannedAcl"></param>
+        void SetObjectAcl(string bucketName, string key, CannedAccessControlList cannedAcl);
 
-        /**
-         * Sets the AccessControlList for the specified object in KS3.
-         */
-        void setObjectAcl(SetObjectAclRequest setObjectRequestAcl);
+        /// <summary>
+        /// Sets the AccessControlList for the specified object in KS3.
+        /// </summary>
+        /// <param name="setObjectRequestAcl"></param>
+        void SetObjectAcl(SetObjectAclRequest setObjectRequestAcl);
     }
 }

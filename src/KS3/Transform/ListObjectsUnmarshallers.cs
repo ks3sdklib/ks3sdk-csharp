@@ -1,4 +1,5 @@
-﻿using KS3.Model;
+﻿using KS3.Extensions;
+using KS3.Model;
 using System;
 using System.IO;
 using System.Text;
@@ -13,14 +14,14 @@ namespace KS3.Transform
             ObjectSummary currObject = null;
             Owner currOwner = null;
             StringBuilder currText = new StringBuilder();
-            Boolean insideCommonPrefixes = false;
+            bool insideCommonPrefixes = false;
 
             ObjectListing objectListing = new ObjectListing();
 
-            String bucketName = null;
-            String lastKey = null;
-            Boolean truncated = false;
-            String nextMarker = null;
+            string bucketName = null;
+            string lastKey = null;
+            bool truncated = false;
+            string nextMarker = null;
 
             XmlReader xr = XmlReader.Create(new BufferedStream(inputStream));
             while (xr.Read())
@@ -28,61 +29,80 @@ namespace KS3.Transform
                 if (xr.NodeType.Equals(XmlNodeType.Element))
                 {
                     if (xr.Name.Equals("Contents"))
+                    {
                         currObject = new ObjectSummary();
+                    }
                     else if (xr.Name.Equals("CommonPrefixes"))
+                    {
                         insideCommonPrefixes = true;
+                    }
                     else if (xr.Name.Equals("Owner"))
+                    {
                         currOwner = new Owner();
-
+                    }
                 }
                 else if (xr.NodeType.Equals(XmlNodeType.EndElement))
                 {
                     if (xr.Name.Equals("Name"))
+                    {
                         bucketName = currText.ToString();
+                    }
                     else if (xr.Name.Equals("Delimiter"))
                     {
-                        String s = currText.ToString();
+                        string s = currText.ToString();
                         if (s.Length > 0)
-                            objectListing.setDelimiter(s);
+                        {
+                            objectListing.Delimiter = s;
+                        }
                     }
                     else if (xr.Name.Equals("MaxKeys"))
                     {
-                        String s = currText.ToString();
+                        string s = currText.ToString();
                         if (s.Length > 0)
-                            objectListing.setMaxKeys(int.Parse(currText.ToString()));
+                        {
+                            objectListing.MaxKeys = int.Parse(currText.ToString());
+                        }
                     }
                     else if (xr.Name.Equals("Prefix"))
                     {
                         if (insideCommonPrefixes)
-                            objectListing.getCommonPrefixes().Add(currText.ToString());
+                        {
+                            objectListing.CommonPrefixes.Add(currText.ToString());
+                        }
                         else
                         {
-                            String s = currText.ToString();
+                            string s = currText.ToString();
                             if (s.Length > 0)
-                                objectListing.setPrefix(s);
+                            {
+                                objectListing.Prefix = s;
+                            }
                         }
                     }
                     else if (xr.Name.Equals("Marker"))
                     {
-                        String s = currText.ToString();
+                        string s = currText.ToString();
                         if (s.Length > 0)
-                            objectListing.setMarker(s);
+                        {
+                            objectListing.Marker = s;
+                        }
                     }
                     else if (xr.Name.Equals("NextMarker"))
+                    {
                         nextMarker = currText.ToString();
+                    }
                     else if (xr.Name.Equals("IsTruncated"))
                     {
-                        truncated = Boolean.Parse(currText.ToString());
-                        objectListing.setTruncated(truncated);
+                        truncated = bool.Parse(currText.ToString());
+                        objectListing.Truncated = truncated;
                     }
                     else if (xr.Name.Equals("Contents"))
                     {
-                        currObject.setBucketName(bucketName);
-                        objectListing.getObjectSummaries().Add(currObject);
+                        currObject.BucketName = bucketName;
+                        objectListing.ObjectSummaries.Add(currObject);
                     }
                     else if (xr.Name.Equals("Owner"))
                     {
-                        currObject.setOwner(currOwner);
+                        currObject.Owner = currOwner;
                     }
                     else if (xr.Name.Equals("DisplayName"))
                     {
@@ -94,11 +114,11 @@ namespace KS3.Transform
                     }
                     else if (xr.Name.Equals("LastModified"))
                     {
-                        currObject.setLastModified(DateTime.Parse(currText.ToString()));
+                        currObject.LastModified = DateTime.Parse(currText.ToString());
                     }
                     else if (xr.Name.Equals("ETag"))
                     {
-                        currObject.setETag(currText.ToString());
+                        currObject.ETag = currText.ToString();
                     }
                     else if (xr.Name.Equals("CommonPrefixes"))
                     {
@@ -107,11 +127,11 @@ namespace KS3.Transform
                     else if (xr.Name.Equals("Key"))
                     {
                         lastKey = currText.ToString();
-                        currObject.setKey(lastKey);
+                        currObject.Key = lastKey;
                     }
                     else if (xr.Name.Equals("Size"))
                     {
-                        currObject.setSize(long.Parse(currText.ToString()));
+                        currObject.Size = long.Parse(currText.ToString());
                     }
                     currText.Clear();
                 }
@@ -121,16 +141,19 @@ namespace KS3.Transform
                 }
             }
 
-            objectListing.setBucketName(bucketName);
+            objectListing.BucketName = bucketName;
 
             if (truncated)
             {
-                if (nextMarker == null && lastKey != null)
+                if (nextMarker.IsNullOrWhiteSpace() && !lastKey.IsNullOrWhiteSpace())
+                {
                     nextMarker = lastKey;
-                objectListing.setNextMarker(nextMarker);
+                }
+
+                objectListing.NextMarker = nextMarker;
             }
 
             return objectListing;
-        }  
+        }
     }
 }

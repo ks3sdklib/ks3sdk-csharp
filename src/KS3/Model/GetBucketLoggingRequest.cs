@@ -1,22 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace KS3.Model
+﻿namespace KS3.Model
 {
-    public class GetBucketLoggingRequest:KS3Request
+    public class GetBucketLoggingRequest : KS3Request
     {
-        private String bucketName;
+        public string BucketName { get; set; }
 
-        public String BucketName
+        public GetBucketLoggingRequest()
         {
-            get { return bucketName; }
-            set { bucketName = value; }
+
         }
-        public GetBucketLoggingRequest() { }
-        public GetBucketLoggingRequest(String bucketName) {
-            this.bucketName = bucketName;
+
+        public GetBucketLoggingRequest(string bucketName)
+        {
+            BucketName = bucketName;
         }
     }
 }

@@ -1,65 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace KS3.Model
+﻿namespace KS3.Model
 {
-    /**
-     * Provides options for deleting a specified object in a specified bucket. 
-     */
+    /// <summary>
+    /// Provides options for deleting a specified object in a specified bucket. 
+    /// </summary>
     public class DeleteObjectRequest : KS3Request
     {
-        /**
-         * The name of the KS3 bucket containing the object to delete.
-         */
-        private String bucketName;
+        /// <summary>
+        /// The name of the KS3 bucket containing the object to delete.
+        /// </summary>
+        public string BucketName { get; set; }
 
-        /**
-         * The key of the object to delete.
-         */
-        private String key;
+        /// <summary>
+        /// The key of the object to delete.
+        /// </summary>
+        public string Key { get; set; }
 
-	    /**
-	     * Constructs a new DeleteObjectRequest, specifying the object's
-	     * bucket name and key.
-         */
-        public DeleteObjectRequest(String bucketName, String key)
+        public DeleteObjectRequest()
         {
-            this.bucketName = bucketName;
-            this.key = key;
+
         }
 
-	    /**
-	     * Gets the name of the KS3 bucket containing the object to delete.
-	     */
-        public String getBucketName()
+        public DeleteObjectRequest(string bucketName, string key)
         {
-            return this.bucketName;
-        }
-
-	    /**
-	     * Sets the name of the KS3 bucket containing the object to delete.
-	     */
-        public void setBucketName(String bucketName)
-        {
-            this.bucketName = bucketName;
-        }
-
-	    /**
-	     * Gets the key of the object to delete.
-	     */
-        public String getKey()
-        {
-            return this.key;
-        }
-
-	    /**
-	     * Sets the key of the object to delete.
-	     */
-        public void setKey(String key)
-        {
-            this.key = key;
+            BucketName = bucketName;
+            Key = key;
         }
     }
 }

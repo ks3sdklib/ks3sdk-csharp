@@ -1,9 +1,8 @@
-﻿using KS3.Http;
+﻿using KS3.Extensions;
+using KS3.Http;
 using KS3.Internal;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 
@@ -11,44 +10,33 @@ namespace KS3.Model
 {
     public class PutBucketCorsRequest : KS3Request, ICalculatorMd5
     {
-        private String bucketName;
+        public string BucketName { get; set; }
+        public BucketCorsConfigurationResult BucketCorsConfiguration { get; set; }
 
-        public String BucketName
-        {
-            get { return bucketName; }
-            set { bucketName = value; }
-        }
-
-        private BucketCorsConfigurationResult bucketCorsConfiguration;
-
-        public BucketCorsConfigurationResult BucketCorsConfiguration
-        {
-            get { return bucketCorsConfiguration; }
-            set { bucketCorsConfiguration = value; }
-        }
         public PutBucketCorsRequest() { }
-        public PutBucketCorsRequest(String bucketName, BucketCorsConfigurationResult bucketCorsConfiguration)
+        public PutBucketCorsRequest(string bucketName, BucketCorsConfigurationResult bucketCorsConfiguration)
         {
-            this.bucketName = bucketName;
-            this.bucketCorsConfiguration = bucketCorsConfiguration;
+            BucketName = bucketName;
+            BucketCorsConfiguration = bucketCorsConfiguration;
         }
-        private String getXmlContent() {
-            validate();
+        private string GetXmlContent()
+        {
+            Validate();
             XNamespace v = "http://s3.amazonaws.com/doc/2006-03-01/";
-            XElement root = new XElement(v+"CORSConfiguration");
-            
-            foreach (CorsRule cr in bucketCorsConfiguration.Rules)
+            XElement root = new XElement(v + "CORSConfiguration");
+
+            foreach (CorsRule cr in BucketCorsConfiguration.Rules)
             {
                 XElement CORSRule = new XElement("CORSRule");
-                foreach (String origin in cr.AllowedOrigins)
+                foreach (string origin in cr.AllowedOrigins)
                 {
                     CORSRule.Add(new XElement("AllowedOrigin", origin));
                 }
-                foreach (String header in cr.AllowedHeaders)
+                foreach (string header in cr.AllowedHeaders)
                 {
                     CORSRule.Add(new XElement("AllowedHeader", header));
                 }
-                foreach (String eheader in cr.ExposedHeaders)
+                foreach (string eheader in cr.ExposedHeaders)
                 {
                     CORSRule.Add(new XElement("ExposeHeader", eheader));
                 }
@@ -61,42 +49,48 @@ namespace KS3.Model
             }
             return root.ToString();
         }
+
         /// <summary>
         /// return the xml stream content
         /// </summary>
         /// <returns></returns>
-        public Stream toXmlAdapter(){
-            return new MemoryStream(System.Text.Encoding.Default.GetBytes(getXmlContent()));
+        public Stream ToXmlAdapter()
+        {
+            return new MemoryStream(Encoding.Default.GetBytes(GetXmlContent()));
         }
+
         /// <summary>
         /// get the md5 digest byte and convert to base64 string
         /// </summary>
         /// <returns></returns>
-        public String GetMd5()
+        public string GetMd5()
         {
-            byte[] md5 = Md5Util.Md5Digest(getXmlContent());
+            byte[] md5 = Md5Util.Md5Digest(GetXmlContent());
             return Convert.ToBase64String(md5);
         }
-        
-        private void validate() {
-            if (String.IsNullOrEmpty(bucketName))
+
+        private void Validate()
+        {
+            if (BucketName.IsNullOrWhiteSpace())
             {
                 throw new Exception("bucketname is not null");
             }
-            if (bucketCorsConfiguration.Rules == null || bucketCorsConfiguration.Rules.Count==0)
+            if (BucketCorsConfiguration.Rules == null || BucketCorsConfiguration.Rules.Count == 0)
             {
                 throw new Exception("cors rules is not null");
             }
-            if (bucketCorsConfiguration.Rules.Count > Constants.CorsMaxRules)
+            if (BucketCorsConfiguration.Rules.Count > Constants.CorsMaxRules)
             {
                 throw new Exception("cors rules number must limit in " + Constants.CorsMaxRules);
             }
-            foreach (CorsRule cr in bucketCorsConfiguration.Rules)
+            foreach (CorsRule cr in BucketCorsConfiguration.Rules)
             {
-                if (cr.AllowedMethods == null || cr.AllowedMethods.Count == 0) {
+                if (cr.AllowedMethods == null || cr.AllowedMethods.Count == 0)
+                {
                     throw new Exception("bucketCorsConfiguration.rules.allowedMethods not null");
                 }
-                if(cr.AllowedOrigins==null||cr.AllowedOrigins.Count==0){
+                if (cr.AllowedOrigins == null || cr.AllowedOrigins.Count == 0)
+                {
                     throw new Exception("bucketCorsConfiguration.rules.allowedOrigins not null");
                 }
             }

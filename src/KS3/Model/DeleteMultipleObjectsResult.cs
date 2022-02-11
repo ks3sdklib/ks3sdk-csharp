@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace KS3.Model
 {
@@ -10,25 +7,16 @@ namespace KS3.Model
         /// <summary>
         /// the success delete keys
         /// </summary>
-        private IList<String> deleted = new List<String>();
+        public IList<string> Deleted { get; set; } = new List<string>();
 
-        public IList<String> Deleted
-        {
-            get { return deleted; }
-            set { deleted = value; }
-        }
         /// <summary>
         /// the error delete keys and error message
         /// </summary>
-        private IList<DeleteMultipleObjectsError> errors = new List<DeleteMultipleObjectsError>();
+        public IList<DeleteMultipleObjectsError> Errors { get; set; } = new List<DeleteMultipleObjectsError>();
 
-        public IList<DeleteMultipleObjectsError> Errors
+        public void AddDeleteErrors(DeleteMultipleObjectsError error)
         {
-            get { return errors; }
-            set { errors = value; }
-        }
-        public void addDeleteErrors(DeleteMultipleObjectsError error) {
-            this.errors.Add(error);
+            Errors.Add(error);
         }
     }
 }

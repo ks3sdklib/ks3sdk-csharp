@@ -9,7 +9,7 @@ namespace KS3.Internal
         /// <summary>
         /// The threshold of bytes between notifications.
         /// </summary>
-        private static readonly int NOTIFICATION_THRESHOLD =  Constants.DEFAULT_STREAM_BUFFER_SIZE;
+        private static readonly int NOTIFICATION_THRESHOLD = Constants.DEFAULT_STREAM_BUFFER_SIZE;
 
         /// <summary>
         /// The listener to notify.
@@ -48,8 +48,10 @@ namespace KS3.Internal
 
         private void Commit()
         {
-            ProgressEvent e = new ProgressEvent(ProgressEvent.TRANSFERRED);
-            e.setBytesTransferred(_unnotifiedByteCount);
+            var e = new ProgressEvent(ProgressEvent.TRANSFERRED)
+            {
+                BytesTransferred = _unnotifiedByteCount
+            };
 
             _listener.ProgressChanged(e);
 
@@ -84,7 +86,7 @@ namespace KS3.Internal
                 throw new ProgressInterruptedException("ProgreesReportingInputStream: Read has been interrupted.");
             }
 
-            int bytesRead =  _stream.Read(buffer, offset, count);
+            int bytesRead = _stream.Read(buffer, offset, count);
             if (bytesRead > 0)
             {
                 Notify(bytesRead);
@@ -108,34 +110,34 @@ namespace KS3.Internal
 
         public override bool CanSeek
         {
-            get { return  _stream.CanSeek; }
+            get { return _stream.CanSeek; }
         }
 
         public override bool CanWrite
         {
-            get { return  _stream.CanWrite; }
+            get { return _stream.CanWrite; }
         }
 
         public override long Seek(long offset, SeekOrigin origin)
         {
-            return  _stream.Seek(offset, origin);
+            return _stream.Seek(offset, origin);
         }
 
         public override long Length
         {
-            get { return  _stream.Length; }
+            get { return _stream.Length; }
         }
 
         public override void SetLength(long value)
         {
-           _stream.SetLength(value);
+            _stream.SetLength(value);
         }
 
         public override long Position
         {
             get
             {
-                return  _stream.Position;
+                return _stream.Position;
             }
             set
             {
@@ -145,7 +147,7 @@ namespace KS3.Internal
 
         public override void Flush()
         {
-             _stream.Flush();
+            _stream.Flush();
 
             if (_unnotifiedByteCount > 0)
             {

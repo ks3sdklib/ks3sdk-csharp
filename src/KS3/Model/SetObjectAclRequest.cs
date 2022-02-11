@@ -1,78 +1,52 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace KS3.Model
+﻿namespace KS3.Model
 {
     public class SetObjectAclRequest : KS3Request
     {
-        /** The name of the bucket whose object's ACL is being set. */
-        private String bukcetName;
+        /// <summary>
+        /// The name of the bucket whose object's ACL is being set.
+        /// </summary>
+        public string BucketName { get; set; }
 
-        /** The key of the object whose ACL is being set. */
-        private String key;
+        /// <summary>
+        /// The key of the object whose ACL is being set.
+        /// </summary>
+        public string Key { get; set; }
 
-        /** The custom ACL to apply to the specified object. */
-        private AccessControlList acl;
+        /// <summary>
+        /// The custom ACL to apply to the specified object.
+        /// </summary>
+        public AccessControlList Acl { get; set; }
 
-        /** The canned ACL to apply to the specified object. */
-        private CannedAccessControlList cannedAcl;
+        /// <summary>
+        /// The canned ACL to apply to the specified object.
+        /// </summary>
+        public CannedAccessControlList CannedAcl { get; set; }
 
-        /**
-         * Constructs a new SetObjectAclRequest object, ready to set the specified
-         * ACL on the specified object when this request is executed.
-         */
-        public SetObjectAclRequest(String bucketName, String key, AccessControlList acl)
+
+        /// <summary>
+        /// Constructs a new SetObjectAclRequest object, ready to set the specified ACL on the specified object when this request is executed.
+        /// </summary>
+        /// <param name="bucketName"></param>
+        /// <param name="key"></param>
+        /// <param name="acl"></param>
+        public SetObjectAclRequest(string bucketName, string key, AccessControlList acl)
         {
-            this.bukcetName = bucketName;
-            this.key = key;
-            this.acl = acl;
-            this.cannedAcl = null;
+            BucketName = bucketName;
+            Key = key;
+            Acl = acl;
         }
 
-        /**
-         * Constructs a new SetObjectAclRequest object, ready to set the specified
-         * ACL on the specified object when this request is executed.
-         */
-        public SetObjectAclRequest(String bucketName, String key, CannedAccessControlList cannedAcl)
+        /// <summary>
+        /// Constructs a new SetObjectAclRequest object, ready to set the specified ACL on the specified object when this request is executed.
+        /// </summary>
+        /// <param name="bucketName"></param>
+        /// <param name="key"></param>
+        /// <param name="cannedAcl"></param>
+        public SetObjectAclRequest(string bucketName, string key, CannedAccessControlList cannedAcl)
         {
-            this.bukcetName = bucketName;
-            this.key = key;
-            this.acl = null;
-            this.cannedAcl = cannedAcl;
-        }
-
-	    /**
-	     * Returns the name of the bucket whose object's ACL is being set.
-	     */
-        public String getBucketName()
-        {
-            return this.bukcetName;
-        }
-
-	    /**
-	     * Returns the key of the object whose ACL is being setting.
-	     */
-        public String getKey()
-        {
-            return this.key;
-        }
-
-	    /**
-	     * Returns the custom ACL to apply to the specified object.
-	     */
-        public AccessControlList getAcl()
-        {
-            return this.acl;
-        }
-
-	    /**
-	     * Returns the canned ACL to apply to the specified object.
-	     */
-        public CannedAccessControlList getCannedAcl()
-        {
-            return this.cannedAcl;
+            BucketName = bucketName;
+            Key = key;
+            CannedAcl = cannedAcl;
         }
     }
 }

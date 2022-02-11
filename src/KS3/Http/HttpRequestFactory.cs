@@ -1,4 +1,5 @@
-﻿using KS3.Internal;
+﻿using KS3.Extensions;
+using KS3.Internal;
 using KS3.Model;
 using System;
 using System.IO;
@@ -117,7 +118,7 @@ namespace KS3.Http
 
 
                 //builder.Append(name + (value != null ? ("=" + value) : ""));
-                var v = string.IsNullOrWhiteSpace(value) ? "" : $"={value}";
+                var v = value.IsNullOrWhiteSpace() ? "" : $"={value}";
                 builder.Append($"{name}{v}");
             }
 

@@ -1,23 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace KS3.Model
+﻿namespace KS3.Model
 {
-    public class GetBucketCorsRequest:KS3Request
+    public class GetBucketCorsRequest : KS3Request
     {
-        private String bucketName;
+        public string BucketName { get; set; }
 
-        public String BucketName
+        public GetBucketCorsRequest()
         {
-            get { return bucketName; }
-            set { bucketName = value; }
+
         }
 
-        public GetBucketCorsRequest() { }
-        public GetBucketCorsRequest(String bucketName) {
-            this.bucketName = bucketName;
+        public GetBucketCorsRequest(string bucketName)
+        {
+            BucketName = bucketName;
         }
     }
 }

@@ -1,26 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
+﻿using System.Net;
 
 namespace KS3.Model
 {
     public class PutAdpResult
     {
-        private HttpStatusCode status;
+        public HttpStatusCode Status { get; set; }
 
-        public HttpStatusCode Status
-        {
-            get { return status; }
-            set { status = value; }
-        }
-        private String taskId;
-
-        public String TaskId
-        {
-            get { return taskId; }
-            set { taskId = value; }
-        }
+        public string TaskId { get; set; }
     }
 }

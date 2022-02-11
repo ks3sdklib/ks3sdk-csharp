@@ -1,62 +1,52 @@
 ﻿using KS3.Internal;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Xml.Linq;
 
 namespace KS3.Model
 {
-    public class DeleteMultipleObjectsRequest:KS3Request,ICalculatorMd5
+    public class DeleteMultipleObjectsRequest : KS3Request, ICalculatorMd5
     {
-        private String bucketName;
 
-        public String BucketName
-        {
-            get { return bucketName; }
-            set { bucketName = value; }
-        }
-        private String[] objectKeys;
+        public string BucketName { get; set; }
 
-        public String[] ObjectKeys
+        public string[] ObjectKeys { get; set; }
+
+        private string GetXmlContent()
         {
-            get { return objectKeys; }
-            set { objectKeys = value; }
-        }
-        private String getXmlContent()
-        {
-            validate();
+            Validate();
             //XNamespace v = "http://s3.amazonaws.com/doc/2006-03-01/";
             XElement root = new XElement("Delete");
-            foreach(String key in objectKeys){
+            foreach (var key in ObjectKeys)
+            {
                 XElement Object = new XElement("Object");
-                Object.Add(new XElement("Key",key));
+                Object.Add(new XElement("Key", key));
                 root.Add(Object);
             }
             return root.ToString();
         }
-        public Stream toXmlAdapter()
+
+        public Stream ToXmlAdapter()
         {
-            return new MemoryStream(System.Text.Encoding.UTF8.GetBytes(getXmlContent()));
+            return new MemoryStream(System.Text.Encoding.UTF8.GetBytes(GetXmlContent()));
         }
         /// <summary>
         /// get the md5 digest byte and convert to base64 string
         /// </summary>
         /// <returns></returns>
-        public String GetMd5()
+        public string GetMd5()
         {
-            byte[] md5 = Md5Util.Md5Digest(getXmlContent());
+            byte[] md5 = Md5Util.Md5Digest(GetXmlContent());
             return Convert.ToBase64String(md5);
         }
 
-        private void validate()
+        private void Validate()
         {
-            if (String.IsNullOrEmpty(bucketName))
+            if (string.IsNullOrWhiteSpace(BucketName))
             {
                 throw new Exception("bucketname is not null");
             }
-            if (objectKeys == null || objectKeys.Length == 0)
+            if (ObjectKeys == null || ObjectKeys.Length == 0)
             {
                 throw new Exception("objectKeys is not null");
             }

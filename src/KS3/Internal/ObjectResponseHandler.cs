@@ -18,10 +18,10 @@ namespace KS3.Internal
         {
             KS3Object ks3Object = new KS3Object();
 
-            FileInfo destinationFile = _getObjectRequest.getDestinationFile();
+            FileInfo destinationFile = _getObjectRequest.DestinationFile;
             byte[] content = null;
 
-            IProgressListener progressListener = this._getObjectRequest.getProgressListener();
+            var progressListener = _getObjectRequest.ProgressListener;
 
             ObjectMetadata metadata = new ObjectMetadata();
             RestUtils.PopulateObjectMetadata(response, metadata);
@@ -42,7 +42,7 @@ namespace KS3.Internal
 
                 if (destinationFile != null)
                 {
-                    output = new FileStream(_getObjectRequest.getDestinationFile().FullName, FileMode.Create);
+                    output = new FileStream(_getObjectRequest.DestinationFile.FullName, FileMode.Create);
                 }
                 else
                 {

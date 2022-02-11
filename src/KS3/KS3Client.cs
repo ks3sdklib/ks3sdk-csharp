@@ -1,4 +1,5 @@
 ﻿using KS3.Auth;
+using KS3.Extensions;
 using KS3.Http;
 using KS3.Internal;
 using KS3.KS3Exception;
@@ -15,174 +16,235 @@ namespace KS3
 {
     public class KS3Client : IKS3
     {
-        private XmlResponseHandler<Type> voidResponseHandler = new XmlResponseHandler<Type>(null);
+        private readonly XmlResponseHandler<Type> _voidResponseHandler = new XmlResponseHandler<Type>(null);
 
-        /** KS3 credentials. */
-        private IKS3Credentials ks3Credentials;
+        /// <summary>
+        /// KS3 credentials.
+        /// </summary>
+        private readonly IKS3Credentials _ks3Credentials;
 
-        /** The service endpoint to which this client will send requests. */
-        private Uri endpoint;
+        /// <summary>
+        /// The service endpoint to which this client will send requests.
+        /// </summary>
+        private Uri _endpoint;
 
-        /** The client configuration */
-        private ClientConfiguration clientConfiguration;
+        /// <summary>
+        /// The client configuration
+        /// </summary>
+        private ClientConfiguration _clientConfiguration;
 
-        /** Low level client for sending requests to KS3. */
-        private KS3HttpClient client;
+        /// <summary>
+        /// Low level client for sending requests to KS3.
+        /// </summary>
+        private KS3HttpClient _client;
 
-        /** Optional offset (in seconds) to use when signing requests */
-        private int timeOffset;
+        /// <summary>
+        /// Optional offset (in seconds) to use when signing requests
+        /// </summary>
+        private int _timeOffset;
 
-        /**
-         * Constructs a new KS3Client object using the specified Access Key ID and Secret Key.
-         */
-        public KS3Client(String accessKey, String secretKey)
-            : this(new BasicKS3Credentials(accessKey, secretKey)) { }
+        /// <summary>
+        /// Constructs a new KS3Client object using the specified Access Key ID and Secret Key.
+        /// </summary>
+        /// <param name="accessKey"></param>
+        /// <param name="secretKey"></param>
+        public KS3Client(string accessKey, string secretKey) : this(new BasicKS3Credentials(accessKey, secretKey))
+        {
+        }
 
-        /**
-         * Constructs a new KS3Client object using the specified configuration.
-         */
-        public KS3Client(IKS3Credentials ks3Credentials)
-            : this(ks3Credentials, new ClientConfiguration()) { }
+        /// <summary>
+        /// Constructs a new KS3Client object using the specified configuration.
+        /// </summary>
+        /// <param name="ks3Credentials"></param>
+        public KS3Client(IKS3Credentials ks3Credentials) : this(ks3Credentials, new ClientConfiguration())
+        {
+        }
 
-        /**
-         * Constructs a new KS3Client object using the specified Access Key ID, Secret Key and configuration.
-         */
-        public KS3Client(String accessKey, String secretKey, ClientConfiguration clientConfiguration)
-            : this(new BasicKS3Credentials(accessKey, secretKey), clientConfiguration) { }
+        /// <summary>
+        ///  Constructs a new KS3Client object using the specified Access Key ID, Secret Key and configuration.
+        /// </summary>
+        /// <param name="accessKey"></param>
+        /// <param name="secretKey"></param>
+        /// <param name="clientConfiguration"></param>
+        public KS3Client(string accessKey, string secretKey, ClientConfiguration clientConfiguration)
+            : this(new BasicKS3Credentials(accessKey, secretKey), clientConfiguration)
+        {
+        }
 
-        /**
-         * Constructs a new KS3Client object using the specified credential and configuration.
-         */
+        /// <summary>
+        /// Constructs a new KS3Client object using the specified credential and configuration.
+        /// </summary>
+        /// <param name="ks3Credentials"></param>
+        /// <param name="clientConfiguration"></param>
         public KS3Client(IKS3Credentials ks3Credentials, ClientConfiguration clientConfiguration)
         {
-            this.clientConfiguration = clientConfiguration;
-            this.client = new KS3HttpClient(clientConfiguration);
-            this.ks3Credentials = ks3Credentials;
+            _clientConfiguration = clientConfiguration;
+            _client = new KS3HttpClient(clientConfiguration);
+            _ks3Credentials = ks3Credentials;
 
-            this.init();
+            Init();
         }
 
-        private void init()
+        private void Init()
         {
-            this.SetEndpoint(Constants.KS3_HOSTNAME);
+            SetEndpoint(Constants.KS3_HOSTNAME);
         }
 
-        public void SetEndpoint(String endpoint)
+        public void SetEndpoint(string endpoint)
         {
             if (!endpoint.Contains("://"))
-                endpoint = clientConfiguration.Protocol + "://" + endpoint;
-            this.endpoint = new Uri(endpoint);
+            {
+                endpoint = _clientConfiguration.Protocol + "://" + endpoint;
+            }
+            _endpoint = new Uri(endpoint);
         }
 
-        public void setConfiguration(ClientConfiguration clientConfiguration)
+        public void SetConfiguration(ClientConfiguration clientConfiguration)
         {
-            this.clientConfiguration = clientConfiguration;
-            client = new KS3HttpClient(clientConfiguration);
+            _clientConfiguration = clientConfiguration;
+            _client = new KS3HttpClient(clientConfiguration);
         }
 
-        /**
-         * Sets the optional value for time offset for this client.  This
-         * value will be applied to all requests processed through this client.
-         * Value is in seconds, positive values imply the current clock is "fast",
-         * negative values imply clock is slow.
-         */
-        public void setTimeOffset(int timeOffset)
+        /// <summary>
+        ///  * Sets the optional value for time offset for this client.  This
+        ///  * value will be applied to all requests processed through this client.
+        ///  * Value is in seconds, positive values imply the current clock is "fast",
+        ///  * negative values imply clock is slow.
+        /// </summary>
+        /// <param name="timeOffset"></param>
+        public void SetTimeOffset(int timeOffset)
         {
-            this.timeOffset = timeOffset;
+            _timeOffset = timeOffset;
         }
 
-        /**
-         * Returns the optional value for time offset for this client.  This
-         * value will be applied to all requests processed through this client.
-         * Value is in seconds, positive values imply the current clock is "fast",
-         * negative values imply clock is slow.
-         */
-        public int getTimeOffset()
+        /// <summary>
+        /// * Returns the optional value for time offset for this client.  This
+        /// * value will be applied to all requests processed through this client.
+        /// * Value is in seconds, positive values imply the current clock is "fast",
+        /// * negative values imply clock is slow.
+        /// </summary>
+        /// <returns></returns>
+        public int GetTimeOffset()
         {
-            return this.timeOffset;
+            return _timeOffset;
         }
 
-        /**
-         * Returns a list of all KS3 buckets that the authenticated sender of the request owns. 
-         */
+        /// <summary>
+        /// Returns a list of all KS3 buckets that the authenticated sender of the request owns. 
+        /// </summary>
+        /// <returns></returns>
         public IList<Bucket> ListBuckets()
         {
-            return this.listBuckets(new ListBucketsRequest());
+            return ListBuckets(new ListBucketsRequest());
         }
 
-        /**
-         * Returns a list of all KS3 buckets that the authenticated sender of the request owns. 
-         */
-        public IList<Bucket> listBuckets(ListBucketsRequest listBucketsRequest)
+        /// <summary>
+        /// Returns a list of all KS3 buckets that the authenticated sender of the request owns. 
+        /// </summary>
+        /// <param name="listBucketsRequest"></param>
+        /// <returns></returns>
+        public IList<Bucket> ListBuckets(ListBucketsRequest listBucketsRequest)
         {
-            IRequest<ListBucketsRequest> request = this.createRequest(null, null, listBucketsRequest, HttpMethod.GET);
-            return this.invoke(request, new ListBucketsUnmarshaller(), null, null);
+            IRequest<ListBucketsRequest> request = CreateRequest(
+                null,
+                null,
+                listBucketsRequest,
+                HttpMethod.GET);
+
+            return Invoke(request, new ListBucketsUnmarshaller(), null, null);
         }
 
-        /**
-         * Deletes the specified bucket. 
-         */
-        public void deleteBucket(String bucketName)
+        /// <summary>
+        ///  Deletes the specified bucket. 
+        /// </summary>
+        /// <param name="bucketName"></param>
+        public void DeleteBucket(string bucketName)
         {
-            this.deleteBucket(new DeleteBucketRequest(bucketName));
+            DeleteBucket(new DeleteBucketRequest(bucketName));
         }
 
-        /**
-         * Deletes the specified bucket. 
-         */
-        public void deleteBucket(DeleteBucketRequest deleteBucketRequest)
+        /// <summary>
+        /// Deletes the specified bucket. 
+        /// </summary>
+        /// <param name="deleteBucketRequest"></param>
+        public void DeleteBucket(DeleteBucketRequest deleteBucketRequest)
         {
-            String bucketName = deleteBucketRequest.getBucketName();
+            var bucketName = deleteBucketRequest.BucketName;
 
-            IRequest<DeleteBucketRequest> request = this.createRequest(bucketName, null, deleteBucketRequest, HttpMethod.DELETE);
-            this.Invoke(request, voidResponseHandler, bucketName, null);
+            IRequest<DeleteBucketRequest> request = CreateRequest(
+                bucketName,
+                null,
+                deleteBucketRequest,
+                HttpMethod.DELETE);
+            Invoke(request, _voidResponseHandler, bucketName, null);
         }
 
-        /**
-         * Gets the AccessControlList (ACL) for the specified KS3 bucket.
-         */
-        public AccessControlList getBucketAcl(String bucketName)
+        /// <summary>
+        /// Gets the AccessControlList (ACL) for the specified KS3 bucket.
+        /// </summary>
+        /// <param name="bucketName"></param>
+        /// <returns></returns>
+        public AccessControlList GetBucketAcl(String bucketName)
         {
-            return this.getBucketAcl(new GetBucketAclRequest(bucketName));
+            return GetBucketAcl(new GetBucketAclRequest(bucketName));
         }
 
-        /**
-         * Gets the AccessControlList (ACL) for the specified KS3 bucket.
-         */
-        public AccessControlList getBucketAcl(GetBucketAclRequest getBucketAclRequest)
+        /// <summary>
+        ///  Gets the AccessControlList (ACL) for the specified KS3 bucket.
+        /// </summary>
+        /// <param name="getBucketAclRequest"></param>
+        /// <returns></returns>
+        public AccessControlList GetBucketAcl(GetBucketAclRequest getBucketAclRequest)
         {
-            String bucketName = getBucketAclRequest.getBucketName();
+            var bucketName = getBucketAclRequest.BucketName;
 
-            IRequest<GetBucketAclRequest> request = createRequest(bucketName, null, getBucketAclRequest, HttpMethod.GET);
+            IRequest<GetBucketAclRequest> request = CreateRequest(
+                bucketName, null,
+                getBucketAclRequest,
+                HttpMethod.GET);
+
             request.SetParameter("acl", null);
 
-            return this.invoke(request, new AccessControlListUnmarshaller(), bucketName, null);
+            return Invoke(request, new AccessControlListUnmarshaller(), bucketName, null);
         }
 
-        /**
-         * Creates a new KS3 bucket. 
-         */
-        public Bucket createBucket(String bucketName)
+        /// <summary>
+        /// Creates a new KS3 bucket. 
+        /// </summary>
+        /// <param name="bucketName"></param>
+        /// <returns></returns>
+        public Bucket CreateBucket(String bucketName)
         {
-            return this.createBucket(new CreateBucketRequest(bucketName));
+            return CreateBucket(new CreateBucketRequest(bucketName));
         }
 
-        /**
-         * Creates a new KS3 bucket. 
-         */
-        public Bucket createBucket(CreateBucketRequest createBucketRequest)
+        /// <summary>
+        /// Creates a new KS3 bucket. 
+        /// </summary>
+        /// <param name="createBucketRequest"></param>
+        /// <returns></returns>
+        public Bucket CreateBucket(CreateBucketRequest createBucketRequest)
         {
-            String bucketName = createBucketRequest.getBucketName();
+            var bucketName = createBucketRequest.BucketName;
 
-            IRequest<CreateBucketRequest> request = this.createRequest(bucketName, null, createBucketRequest, HttpMethod.PUT);
+            IRequest<CreateBucketRequest> request = CreateRequest(
+                bucketName,
+                null,
+                createBucketRequest,
+                HttpMethod.PUT);
+
             request.SetHeader(Headers.CONTENT_LENGTH, "0");
 
-            if (createBucketRequest.getAcl() != null)
-                addAclHeaders(request, createBucketRequest.getAcl());
-            else if (createBucketRequest.getCannedAcl() != null)
-                request.SetHeader(Headers.KS3_CANNED_ACL, createBucketRequest.getCannedAcl().CannedAclHeader);
+            if (createBucketRequest.Acl != null)
+            {
+                addAclHeaders(request, createBucketRequest.Acl);
+            }
+            else if (createBucketRequest.CannedAcl != null)
+            {
+                request.SetHeader(Headers.KS3_CANNED_ACL, createBucketRequest.CannedAcl.CannedAclHeader);
+            }
 
-            this.Invoke(request, voidResponseHandler, bucketName, null);
+            Invoke(request, _voidResponseHandler, bucketName, null);
 
             return new Bucket(bucketName);
         }
@@ -191,205 +253,294 @@ namespace KS3
         /// </summary>
         /// <param name="bucketName"></param>
         /// <returns></returns>
-        public HeadBucketResult headBucket(String bucketName)
+        public HeadBucketResult HeadBucket(string bucketName)
         {
-            return headBucket(new HeadBucketRequest(bucketName));
+            return HeadBucket(new HeadBucketRequest(bucketName));
         }
-        public HeadBucketResult headBucket(HeadBucketRequest headBucketRequest)
+
+        /// <summary>
+        /// This operation is useful to determine if a bucket exists and you have permission to access it
+        /// </summary>
+        /// <param name="headBucketRequest"></param>
+        /// <returns></returns>
+        public HeadBucketResult HeadBucket(HeadBucketRequest headBucketRequest)
         {
             String bucketname = headBucketRequest.BucketName;
-            IRequest<HeadBucketRequest> request = this.createRequest(bucketname, null, headBucketRequest, HttpMethod.HEAD);
+            IRequest<HeadBucketRequest> request = this.CreateRequest(bucketname, null, headBucketRequest, HttpMethod.HEAD);
             return this.Invoke(request, new HeadBucketResponseHandler(), bucketname, null);
         }
+
         /// <summary>
         /// Returns the cors configuration information set for the bucket.
         /// To use this operation, you must have permission to perform the s3:GetBucketCORS action. By default, the bucket owner has this permission and can grant it to others.
         /// </summary>
         /// <param name="bucketName"></param>
         /// <returns></returns>
-        public BucketCorsConfigurationResult getBucketCors(String bucketName)
+        public BucketCorsConfigurationResult GetBucketCors(string bucketName)
         {
-            return this.getBucketCors(new GetBucketCorsRequest(bucketName));
+            return GetBucketCors(new GetBucketCorsRequest(bucketName));
         }
-        public BucketCorsConfigurationResult getBucketCors(GetBucketCorsRequest getBucketCorsRequest)
+
+        /// <summary>
+        /// Returns the cors configuration information set for the bucket.
+        /// To use this operation, you must have permission to perform the s3:GetBucketCORS action. By default, the bucket owner has this permission and can grant it to others.
+        /// </summary>
+        /// <param name="getBucketCorsRequest"></param>
+        /// <returns></returns>
+        public BucketCorsConfigurationResult GetBucketCors(GetBucketCorsRequest getBucketCorsRequest)
         {
-            BucketCorsConfigurationResult result = new BucketCorsConfigurationResult();
-            String bucketname = getBucketCorsRequest.BucketName;
-            IRequest<GetBucketCorsRequest> request = this.createRequest(bucketname, null, getBucketCorsRequest, HttpMethod.GET);
+            var bucketname = getBucketCorsRequest.BucketName;
+            IRequest<GetBucketCorsRequest> request = CreateRequest(
+                bucketname,
+                null,
+                getBucketCorsRequest,
+                HttpMethod.GET);
             request.SetParameter("cors", null);
-            result = this.invoke(request, new BucketCorsConfigurationResultUnmarshaller(), bucketname, null);
+
+            var result = Invoke(
+                request,
+                new BucketCorsConfigurationResultUnmarshaller(),
+                bucketname,
+                null);
             return result;
         }
+
         /// <summary>
         /// This implementation of the GET operation uses the location subresource to return a bucket's region. You set the bucket's region using the LocationConstraint request parameter in a PUT Bucket request. 
         /// </summary>
         /// <param name="bucketName"></param>
         /// <returns></returns>
-        public GetBucketLocationResult getBucketLocation(String bucketName)
+        public GetBucketLocationResult GetBucketLocation(string bucketName)
         {
-            return getBucketLocation(new GetBucketLocationRequest(bucketName));
+            return GetBucketLocation(new GetBucketLocationRequest(bucketName));
         }
-        public GetBucketLocationResult getBucketLocation(GetBucketLocationRequest getBucketLocationRequest)
+
+        /// <summary>
+        /// This implementation of the GET operation uses the location subresource to return a bucket's region. You set the bucket's region using the LocationConstraint request parameter in a PUT Bucket request. 
+        /// </summary>
+        /// <param name="getBucketLocationRequest"></param>
+        /// <returns></returns>
+        public GetBucketLocationResult GetBucketLocation(GetBucketLocationRequest getBucketLocationRequest)
         {
-            GetBucketLocationResult result = new GetBucketLocationResult();
-            IRequest<GetBucketLocationRequest> request = this.createRequest(getBucketLocationRequest.BucketName, null, getBucketLocationRequest, HttpMethod.GET);
+            var request = CreateRequest(
+                getBucketLocationRequest.BucketName,
+                null,
+                getBucketLocationRequest,
+                HttpMethod.GET);
+
             request.Parameters.Add("location", null);
-            result = this.invoke(request, new GetBucketLocationResultUnmarshaller(), getBucketLocationRequest.BucketName, null);
+
+            var result = Invoke(
+                request,
+                new GetBucketLocationResultUnmarshaller(),
+                getBucketLocationRequest.BucketName,
+                null);
             return result;
         }
+
         /// <summary>
         /// This implementation of the GET operation uses the logging subresource to return the logging status of a bucket and the permissions users have to view and modify that status. To use GET, you must be the bucket owner. 
         /// </summary>
         /// <param name="bucketName"></param>
         /// <returns></returns>
-        public GetBucketLoggingResult getBucketLogging(String bucketName)
+        public GetBucketLoggingResult GetBucketLogging(string bucketName)
         {
-            return getBucketLogging(new GetBucketLoggingRequest(bucketName));
+            return GetBucketLogging(new GetBucketLoggingRequest(bucketName));
         }
-        public GetBucketLoggingResult getBucketLogging(GetBucketLoggingRequest getBucketLoggingRequest)
+
+        /// <summary>
+        /// This implementation of the GET operation uses the logging subresource to return the logging status of a bucket and the permissions users have to view and modify that status. To use GET, you must be the bucket owner. 
+        /// </summary>
+        /// <param name="getBucketLoggingRequest"></param>
+        /// <returns></returns>
+        public GetBucketLoggingResult GetBucketLogging(GetBucketLoggingRequest getBucketLoggingRequest)
         {
-            GetBucketLoggingResult result = new GetBucketLoggingResult();
-            IRequest<GetBucketLoggingRequest> request = this.createRequest(getBucketLoggingRequest.BucketName, null, getBucketLoggingRequest, HttpMethod.GET);
+            var request = CreateRequest(
+                getBucketLoggingRequest.BucketName,
+                null,
+                getBucketLoggingRequest,
+                HttpMethod.GET);
+
             request.Parameters.Add("logging", null);
-            result = this.invoke(request, new GetBucketLoggingResultUnmarshaller(), getBucketLoggingRequest.BucketName, null);
+            var result = Invoke(
+                request,
+                new GetBucketLoggingResultUnmarshaller(),
+                getBucketLoggingRequest.BucketName,
+                null);
+
             return result;
         }
 
-        /**
-         * Sets the AccessControlList for the specified KS3 bucket.
-         */
-        public void setBucketAcl(String bucketName, AccessControlList acl)
+        /// <summary>
+        /// Sets the AccessControlList for the specified KS3 bucket.
+        /// </summary>
+        /// <param name="bucketName"></param>
+        /// <param name="acl"></param>
+        public void SetBucketAcl(string bucketName, AccessControlList acl)
         {
-            this.setBucketAcl(new SetBucketAclRequest(bucketName, acl));
+            SetBucketAcl(new SetBucketAclRequest(bucketName, acl));
         }
 
-        /**
-         * Sets the AccessControlList for the specified KS3 bucket.
-         */
-        public void setBucketAcl(String bucketName, CannedAccessControlList cannedAcl)
+        /// <summary>
+        /// Sets the AccessControlList for the specified KS3 bucket.
+        /// </summary>
+        /// <param name="bucketName"></param>
+        /// <param name="cannedAcl"></param>
+        public void SetBucketAcl(string bucketName, CannedAccessControlList cannedAcl)
         {
-            this.setBucketAcl(new SetBucketAclRequest(bucketName, cannedAcl));
+            SetBucketAcl(new SetBucketAclRequest(bucketName, cannedAcl));
         }
 
-        /**
-         * Sets the AccessControlList for the specified KS3 bucket.
-         */
-        public void setBucketAcl(SetBucketAclRequest setBucketAclRequest)
+        /// <summary>
+        /// Sets the AccessControlList for the specified KS3 bucket.
+        /// </summary>
+        /// <param name="setBucketAclRequest"></param>
+        public void SetBucketAcl(SetBucketAclRequest setBucketAclRequest)
         {
-            String bucketName = setBucketAclRequest.getBucketName();
-            AccessControlList acl = setBucketAclRequest.getAcl();
-            CannedAccessControlList cannedAcl = setBucketAclRequest.getCannedAcl();
 
-            IRequest<SetBucketAclRequest> request = this.createRequest(bucketName, null, setBucketAclRequest, HttpMethod.PUT);
+            var request = CreateRequest(
+                setBucketAclRequest.BucketName,
+                null,
+                setBucketAclRequest,
+                HttpMethod.PUT);
 
-            if (acl != null)
+            if (setBucketAclRequest.Acl != null)
             {
-                String xml = AclXmlFactory.ConvertToXmlString(acl);
+                var xml = AclXmlFactory.ConvertToXmlString(setBucketAclRequest.Acl);
                 MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(xml));
 
                 request.Content = (memoryStream);
                 request.SetHeader(Headers.CONTENT_LENGTH, memoryStream.Length.ToString());
             }
-            else if (cannedAcl != null)
+            else if (setBucketAclRequest.CannedAcl != null)
             {
-                request.SetHeader(Headers.KS3_CANNED_ACL, cannedAcl.CannedAclHeader);
+                request.SetHeader(Headers.KS3_CANNED_ACL, setBucketAclRequest.CannedAcl.CannedAclHeader);
                 request.SetHeader(Headers.CONTENT_LENGTH, "0");
             }
 
             request.SetParameter("acl", null);
 
-            this.Invoke(request, this.voidResponseHandler, bucketName, null);
+            Invoke(request, _voidResponseHandler, setBucketAclRequest.BucketName, null);
         }
+
         /// <summary>
         /// Sets the cors configuration for your bucket. If the configuration exists, Amazon S3 replaces it. 
         /// </summary>
         /// <param name="putBucketCorsRequest"></param>
-        public void setBucketCors(PutBucketCorsRequest putBucketCorsRequest)
+        public void SetBucketCors(PutBucketCorsRequest putBucketCorsRequest)
         {
-            IRequest<PutBucketCorsRequest> request = this.createRequest(putBucketCorsRequest.BucketName, null, putBucketCorsRequest, HttpMethod.PUT);
+            var request = CreateRequest(putBucketCorsRequest.BucketName, null, putBucketCorsRequest, HttpMethod.PUT);
+
             request.SetParameter("cors", null);
-            request.SetHeader(Headers.CONTENT_LENGTH, putBucketCorsRequest.toXmlAdapter().Length.ToString());
+            request.SetHeader(Headers.CONTENT_LENGTH, putBucketCorsRequest.ToXmlAdapter().Length.ToString());
             request.SetHeader(Headers.CONTENT_TYPE, "application/xml");
             request.SetHeader(Headers.CONTENT_MD5, putBucketCorsRequest.GetMd5());
-            request.Content = (putBucketCorsRequest.toXmlAdapter());
-            this.Invoke(request, this.voidResponseHandler, putBucketCorsRequest.BucketName, null);
+            request.Content = (putBucketCorsRequest.ToXmlAdapter());
+            Invoke(request, _voidResponseHandler, putBucketCorsRequest.BucketName, null);
         }
+
         /// <summary>
         /// This implementation of the PUT operation uses the logging subresource to set the logging parameters for a bucket and to specify permissions for who can view and modify the logging parameters. To set the logging status of a bucket, you must be the bucket owner.
         /// </summary>
         /// <param name="putBucketLoggingRequest"></param>
-        public void setBucketLogging(PutBucketLoggingRequest putBucketLoggingRequest)
+        public void SetBucketLogging(PutBucketLoggingRequest putBucketLoggingRequest)
         {
-            IRequest<PutBucketLoggingRequest> request = this.createRequest(putBucketLoggingRequest.BucketName, null, putBucketLoggingRequest, HttpMethod.PUT);
+            var request = CreateRequest(putBucketLoggingRequest.BucketName, null, putBucketLoggingRequest, HttpMethod.PUT);
             request.SetParameter("logging", null);
-            request.SetHeader(Headers.CONTENT_LENGTH, putBucketLoggingRequest.toXmlAdapter().Length.ToString());
+            request.SetHeader(Headers.CONTENT_LENGTH, putBucketLoggingRequest.ToXmlAdapter().Length.ToString());
             request.SetHeader(Headers.CONTENT_TYPE, "application/xml");
-            request.Content = (putBucketLoggingRequest.toXmlAdapter());
-            this.Invoke(request, this.voidResponseHandler, putBucketLoggingRequest.BucketName, null);
+            request.Content = (putBucketLoggingRequest.ToXmlAdapter());
+            Invoke(request, _voidResponseHandler, putBucketLoggingRequest.BucketName, null);
         }
+
+
         /// <summary>
         /// Deletes the cors configuration information set for the bucket.
         /// </summary>
         /// <param name="bucketName"></param>
-        public void deleteBucketCors(String bucketName)
+        public void DeleteBucketCors(string bucketName)
         {
             DeleteBucketCors(new DeleteBucketCorsRequest(bucketName));
         }
+
+        /// <summary>
+        /// Deletes the cors configuration information set for the bucket.
+        /// </summary>
+        /// <param name="deleteBucketCorsRequest"></param>
         public void DeleteBucketCors(DeleteBucketCorsRequest deleteBucketCorsRequest)
         {
-            IRequest<DeleteBucketCorsRequest> request = createRequest(deleteBucketCorsRequest.BucketName, null, deleteBucketCorsRequest, HttpMethod.DELETE);
+            var request = CreateRequest(deleteBucketCorsRequest.BucketName, null, deleteBucketCorsRequest, HttpMethod.DELETE);
             request.SetParameter("cors", null);
-            this.Invoke(request, this.voidResponseHandler, deleteBucketCorsRequest.BucketName, null);
+            Invoke(request, _voidResponseHandler, deleteBucketCorsRequest.BucketName, null);
         }
+
         /// <summary>
         /// The Multi-Object Delete operation enables you to delete multiple objects from a bucket using a single HTTP request.
         /// </summary>
         /// <param name="deleteMultipleObjectsRequest"></param>
         /// <returns></returns>
-        public DeleteMultipleObjectsResult deleteMultiObjects(DeleteMultipleObjectsRequest deleteMultipleObjectsRequest)
+        public DeleteMultipleObjectsResult DeleteMultiObjects(DeleteMultipleObjectsRequest deleteMultipleObjectsRequest)
         {
-            IRequest<DeleteMultipleObjectsRequest> request = this.createRequest(deleteMultipleObjectsRequest.BucketName, null, deleteMultipleObjectsRequest, HttpMethod.POST);
+            var request = CreateRequest(deleteMultipleObjectsRequest.BucketName, null, deleteMultipleObjectsRequest, HttpMethod.POST);
             request.SetParameter("delete", null);
-            request.SetHeader(Headers.CONTENT_LENGTH, deleteMultipleObjectsRequest.toXmlAdapter().Length.ToString());
+            request.SetHeader(Headers.CONTENT_LENGTH, deleteMultipleObjectsRequest.ToXmlAdapter().Length.ToString());
             request.SetHeader(Headers.CONTENT_TYPE, "application/xml");
             request.SetHeader(Headers.CONTENT_MD5, deleteMultipleObjectsRequest.GetMd5());
-            request.Content = (deleteMultipleObjectsRequest.toXmlAdapter());
-            return this.invoke(request, new DeleteMultipleObjectsResultUnmarshaller(), deleteMultipleObjectsRequest.BucketName, null);
-        }
-        /**
-         * Returns a list of summary information about the objects in the specified bucket.
-         */
-        public ObjectListing listObjects(String bucketName)
-        {
-            return this.listObjects(new ListObjectsRequest(bucketName, null, null, null, null));
+            request.Content = (deleteMultipleObjectsRequest.ToXmlAdapter());
+            return Invoke(request, new DeleteMultipleObjectsResultUnmarshaller(), deleteMultipleObjectsRequest.BucketName, null);
         }
 
-        /**
-         * Returns a list of summary information about the objects in the specified bucket.
-         */
-        public ObjectListing listObjects(String bucketName, String prefix)
+        /// <summary>
+        /// Returns a list of summary information about the objects in the specified bucket.
+        /// </summary>
+        /// <param name="bucketName"></param>
+        /// <returns></returns>
+        public ObjectListing ListObjects(String bucketName)
         {
-            return this.listObjects(new ListObjectsRequest(bucketName, prefix, null, null, null));
+            return ListObjects(new ListObjectsRequest(bucketName, null, null, null, null));
         }
 
-        /**
-         * Returns a list of summary information about the objects in the specified bucket.
-         */
-        public ObjectListing listObjects(ListObjectsRequest listObjectRequest)
+        /// <summary>
+        /// Returns a list of summary information about the objects in the specified bucket.
+        /// </summary>
+        /// <param name="bucketName"></param>
+        /// <param name="prefix"></param>
+        /// <returns></returns>
+        public ObjectListing ListObjects(string bucketName, string prefix)
         {
-            String bucketName = listObjectRequest.getBucketName();
-            IRequest<ListObjectsRequest> request = this.createRequest(bucketName, null, listObjectRequest, HttpMethod.GET);
+            return ListObjects(new ListObjectsRequest(bucketName, prefix, null, null, null));
+        }
 
-            if (listObjectRequest.getPrefix() != null)
-                request.SetParameter("prefix", listObjectRequest.getPrefix());
-            if (listObjectRequest.getMarker() != null)
-                request.SetParameter("marker", listObjectRequest.getMarker());
-            if (listObjectRequest.getDelimiter() != null)
-                request.SetParameter("delimiter", listObjectRequest.getDelimiter());
-            if (listObjectRequest.getMaxKeys() != null && listObjectRequest.getMaxKeys() >= 0)
-                request.SetParameter("max-keys", listObjectRequest.getMaxKeys().ToString());
+        /// <summary>
+        /// Returns a list of summary information about the objects in the specified bucket.
+        /// </summary>
+        /// <param name="listObjectRequest"></param>
+        /// <returns></returns>
+        public ObjectListing ListObjects(ListObjectsRequest listObjectRequest)
+        {
+            var request = CreateRequest(listObjectRequest.BucketName, null, listObjectRequest, HttpMethod.GET);
 
-            return this.invoke(request, new ListObjectsUnmarshallers(), bucketName, null);
+            if (!listObjectRequest.Prefix.IsNullOrWhiteSpace())
+            {
+                request.SetParameter("prefix", listObjectRequest.Prefix);
+            }
+
+            if (!listObjectRequest.Marker.IsNullOrWhiteSpace())
+            {
+                request.SetParameter("marker", listObjectRequest.Marker);
+            }
+
+            if (!listObjectRequest.Delimiter.IsNullOrWhiteSpace())
+            {
+                request.SetParameter("delimiter", listObjectRequest.Delimiter);
+            }
+
+            if (listObjectRequest.MaxKeys.HasValue && listObjectRequest.MaxKeys.Value > 0)
+            {
+                request.SetParameter("max-keys", listObjectRequest.MaxKeys.ToString());
+            }
+
+            return Invoke(request, new ListObjectsUnmarshallers(), listObjectRequest.BucketName, null);
         }
 
         /// <summary>
@@ -397,69 +548,72 @@ namespace KS3
         /// </summary>
         /// <param name="bucketName"></param>
         /// <param name="key"></param>
-        public void deleteObject(String bucketName, String key)
+        public void DeleteObject(string bucketName, string key)
         {
-            this.deleteObject(new DeleteObjectRequest(bucketName, key));
+            DeleteObject(new DeleteObjectRequest(bucketName, key));
         }
 
         /// <summary>
         /// Deletes the specified object in the specified bucket.
         /// </summary>
         /// <param name="deleteObjectRequest"></param>
-        public void deleteObject(DeleteObjectRequest deleteObjectRequest)
+        public void DeleteObject(DeleteObjectRequest deleteObjectRequest)
         {
-            String bucketName = deleteObjectRequest.getBucketName();
-            String key = deleteObjectRequest.getKey();
-            IRequest<DeleteObjectRequest> request = this.createRequest(bucketName, key, deleteObjectRequest, HttpMethod.DELETE);
-
-            this.Invoke(request, voidResponseHandler, bucketName, key);
+            var request = CreateRequest(deleteObjectRequest.BucketName, deleteObjectRequest.Key, deleteObjectRequest, HttpMethod.DELETE);
+            Invoke(request, _voidResponseHandler, deleteObjectRequest.BucketName, deleteObjectRequest.Key);
         }
 
-        /**
-         * Gets the object stored in KS3 under the specified bucket and key.
-         */
-        public KS3Object getObject(String bucketName, String key)
+        /// <summary>
+        ///  Gets the object stored in KS3 under the specified bucket and key.
+        /// </summary>
+        /// <param name="bucketName"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public KS3Object GetObject(string bucketName, string key)
         {
-            return this.getObject(new GetObjectRequest(bucketName, key));
+            return GetObject(new GetObjectRequest(bucketName, key));
         }
 
-        /**
-         * Gets the object stored in KS3 under the specified bucket and key, and saves the object contents to the specified file.
-         */
-        public KS3Object getObject(String bucketName, String key, FileInfo destinationFile)
+        /// <summary>
+        /// Gets the object stored in KS3 under the specified bucket and key, and saves the object contents to the specified file.
+        /// </summary>
+        /// <param name="bucketName"></param>
+        /// <param name="key"></param>
+        /// <param name="destinationFile"></param>
+        /// <returns></returns>
+        public KS3Object GetObject(string bucketName, string key, FileInfo destinationFile)
         {
-            return this.getObject(new GetObjectRequest(bucketName, key, destinationFile));
+            return GetObject(new GetObjectRequest(bucketName, key, destinationFile));
         }
 
-        /**
-         * Gets the object stored in KS3 under the specified bucket and key.
-         */
-        public KS3Object getObject(GetObjectRequest getObjectRequest)
+        /// <summary>
+        /// Gets the object stored in KS3 under the specified bucket and key.
+        /// </summary>
+        /// <param name="getObjectRequest"></param>
+        /// <returns></returns>
+        public KS3Object GetObject(GetObjectRequest getObjectRequest)
         {
-            String bucketName = getObjectRequest.getBucketName();
-            String key = getObjectRequest.getKey();
+            var request = CreateRequest(getObjectRequest.BucketName, getObjectRequest.Key, getObjectRequest, HttpMethod.GET);
 
-            IRequest<GetObjectRequest> request = this.createRequest(bucketName, key, getObjectRequest, HttpMethod.GET);
-
-            if (getObjectRequest.getRange() != null)
+            if (getObjectRequest.Range != null)
             {
-                long[] range = getObjectRequest.getRange();
+                var range = getObjectRequest.Range;
                 request.SetHeader(Headers.RANGE, range[0].ToString() + "-" + range[1].ToString());
             }
 
-            AddDateHeader(request, Headers.GET_OBJECT_IF_MODIFIED_SINCE, getObjectRequest.getModifiedSinceConstraint());
-            AddDateHeader(request, Headers.GET_OBJECT_IF_UNMODIFIED_SINCE, getObjectRequest.getUnmodifiedSinceConstraint());
-            AddStringListHeader(request, Headers.GET_OBJECT_IF_MATCH, getObjectRequest.getMatchingETagConstraints());
-            AddStringListHeader(request, Headers.GET_OBJECT_IF_NONE_MATCH, getObjectRequest.getNonmatchingETagConstraints());
+            AddDateHeader(request, Headers.GET_OBJECT_IF_MODIFIED_SINCE, getObjectRequest.ModifiedSinceConstraint);
+            AddDateHeader(request, Headers.GET_OBJECT_IF_UNMODIFIED_SINCE, getObjectRequest.UnmodifiedSinceConstraint);
+            AddStringListHeader(request, Headers.GET_OBJECT_IF_MATCH, getObjectRequest.MatchingETagConstraints);
+            AddStringListHeader(request, Headers.GET_OBJECT_IF_NONE_MATCH, getObjectRequest.NonmatchingETagContraints);
 
-            IProgressListener progressListener = getObjectRequest.getProgressListener();
+            var progressListener = getObjectRequest.ProgressListener;
 
             FireProgressEvent(progressListener, ProgressEvent.STARTED);
 
-            KS3Object ks3Object = null;
+            KS3Object ks3Object;
             try
             {
-                ks3Object = this.Invoke(request, new ObjectResponseHandler(getObjectRequest), bucketName, key);
+                ks3Object = Invoke(request, new ObjectResponseHandler(getObjectRequest), getObjectRequest.BucketName, getObjectRequest.Key);
             }
             catch (ProgressInterruptedException e)
             {
@@ -473,77 +627,95 @@ namespace KS3
             }
             FireProgressEvent(progressListener, ProgressEvent.COMPLETED);
 
-            ks3Object.BucketName = bucketName;
-            ks3Object.Key = key;
+            ks3Object.BucketName = getObjectRequest.BucketName;
+            ks3Object.Key = getObjectRequest.Key;
 
             return ks3Object;
         }
 
-        /*
-         * Gets the metadata for the specified KS3 object without actually fetching the object itself.
-         */
-        public ObjectMetadata getObjectMetadata(String bucketName, String key)
+        /// <summary>
+        /// Gets the metadata for the specified KS3 object without actually fetching the object itself.
+        /// </summary>
+        /// <param name="bucketName"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public ObjectMetadata GetObjectMetadata(string bucketName, string key)
         {
-            return this.getObjectMetadata(new GetObjectMetadataRequest(bucketName, key));
+            return GetObjectMetadata(new GetObjectMetadataRequest(bucketName, key));
         }
 
-        /*
-         * Gets the metadata for the specified KS3 object without actually fetching the object itself.
-         */
-        public ObjectMetadata getObjectMetadata(GetObjectMetadataRequest getObjectMetadataRequest)
+        /// <summary>
+        ///  Gets the metadata for the specified KS3 object without actually fetching the object itself.
+        /// </summary>
+        /// <param name="getObjectMetadataRequest"></param>
+        /// <returns></returns>
+        public ObjectMetadata GetObjectMetadata(GetObjectMetadataRequest getObjectMetadataRequest)
         {
-            String bucketName = getObjectMetadataRequest.getBucketName();
-            String key = getObjectMetadataRequest.getKey();
+            var request = CreateRequest(getObjectMetadataRequest.BucketName, getObjectMetadataRequest.Key, getObjectMetadataRequest, HttpMethod.HEAD);
 
-            IRequest<GetObjectMetadataRequest> request = this.createRequest(bucketName, key, getObjectMetadataRequest, HttpMethod.HEAD);
-
-            return Invoke(request, new MetadataResponseHandler(), bucketName, key);
+            return Invoke(request, new MetadataResponseHandler(), getObjectMetadataRequest.BucketName, getObjectMetadataRequest.Key);
         }
 
-        /**
-         * Uploads the specified file to KS3 under the specified bucket and key name.
-         */
-        public PutObjectResult putObject(String bucketName, String key, FileInfo file)
+        /// <summary>
+        /// Uploads the specified file to KS3 under the specified bucket and key name.
+        /// </summary>
+        /// <param name="bucketName"></param>
+        /// <param name="key"></param>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        public PutObjectResult PutObject(string bucketName, string key, FileInfo file)
         {
-            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, key, file);
-            putObjectRequest.setMetadata(new ObjectMetadata());
-            return this.putObject(putObjectRequest);
+            var putObjectRequest = new PutObjectRequest(bucketName, key, file)
+            {
+                Metadata = new ObjectMetadata()
+            };
+            return PutObject(putObjectRequest);
         }
 
-        /**
-         * Uploads the specified input stream and object metadata to KS3 under the specified bucket and key name. 
-         */
-        public PutObjectResult putObject(String bucketName, String key, Stream input, ObjectMetadata metadata)
+        /// <summary>
+        /// Uploads the specified input stream and object metadata to KS3 under the specified bucket and key name.
+        /// </summary>
+        /// <param name="bucketName"></param>
+        /// <param name="key"></param>
+        /// <param name="input"></param>
+        /// <param name="metadata"></param>
+        /// <returns></returns>
+        public PutObjectResult PutObject(string bucketName, string key, Stream input, ObjectMetadata metadata)
         {
-            return this.putObject(new PutObjectRequest(bucketName, key, input, metadata));
+            return PutObject(new PutObjectRequest(bucketName, key, input, metadata));
         }
 
-        /**
-         * Uploads a new object to the specified KS3 bucket.
-         */
-        public PutObjectResult putObject(PutObjectRequest putObjectRequest)
+        /// <summary>
+        /// Uploads a new object to the specified KS3 bucket.
+        /// </summary>
+        /// <param name="putObjectRequest"></param>
+        /// <returns></returns>
+        public PutObjectResult PutObject(PutObjectRequest putObjectRequest)
         {
-            String bucketName = putObjectRequest.getBucketName();
-            String key = putObjectRequest.getKey();
-            ObjectMetadata metadata = putObjectRequest.getMetadata();
-            Stream input = putObjectRequest.getInputStream();
-            IProgressListener progressListener = putObjectRequest.getProgressListener();
+            string bucketName = putObjectRequest.BucketName;
+            string key = putObjectRequest.Key;
+            ObjectMetadata metadata = putObjectRequest.Metadata;
+            Stream input = putObjectRequest.InputStream;
+            IProgressListener progressListener = putObjectRequest.ProgressListener;
             if (metadata == null)
+            {
                 metadata = new ObjectMetadata();
+            }
 
             // If a file is specified for upload, we need to pull some additional
             // information from it to auto-configure a few options
-            if (putObjectRequest.getFile() != null)
+            if (putObjectRequest.File != null)
             {
-                FileInfo file = putObjectRequest.getFile();
+                FileInfo file = putObjectRequest.File;
 
                 // Always set the content length, even if it's already set
                 metadata.SetContentLength(file.Length);
 
                 // Only set the content type if it hasn't already been set
                 if (metadata.GetContentType() == null)
+                {
                     metadata.SetContentType(Mimetypes.GetMimetype(file));
-
+                }
                 if (metadata.GetContentMD5() == null)
                 {
                     using (FileStream fileStream = file.OpenRead())
@@ -559,9 +731,12 @@ namespace KS3
             {
                 metadata.SetContentLength(input.Length);
 
-                if (metadata.GetContentType() == null)
+                if (metadata.GetContentType().IsNullOrWhiteSpace())
+                {
                     metadata.SetContentType(Mimetypes.DEFAULT_MIMETYPE);
-                if (metadata.GetContentMD5() == null)
+                }
+
+                if (metadata.GetContentMD5().IsNullOrWhiteSpace())
                 {
                     using (MD5 md5 = MD5.Create())
                     {
@@ -572,12 +747,16 @@ namespace KS3
                 }
             }
 
-            IRequest<PutObjectRequest> request = this.createRequest(bucketName, key, putObjectRequest, HttpMethod.PUT);
+            var request = CreateRequest(bucketName, key, putObjectRequest, HttpMethod.PUT);
 
-            if (putObjectRequest.getAcl() != null)
-                addAclHeaders(request, putObjectRequest.getAcl());
-            else if (putObjectRequest.getCannedAcl() != null)
-                request.SetHeader(Headers.KS3_CANNED_ACL, putObjectRequest.getCannedAcl().CannedAclHeader);
+            if (putObjectRequest.Acl != null)
+            {
+                addAclHeaders(request, putObjectRequest.Acl);
+            }
+            else if (putObjectRequest.CannedAcl != null)
+            {
+                request.SetHeader(Headers.KS3_CANNED_ACL, putObjectRequest.CannedAcl.CannedAclHeader);
+            }
 
             if (progressListener != null)
             {
@@ -593,7 +772,7 @@ namespace KS3
             ObjectMetadata returnedMetadata = null;
             try
             {
-                returnedMetadata = this.Invoke(request, new MetadataResponseHandler(), bucketName, key);
+                returnedMetadata = Invoke(request, new MetadataResponseHandler(), bucketName, key);
             }
             catch (ProgressInterruptedException e)
             {
@@ -607,15 +786,17 @@ namespace KS3
             }
             finally
             {
-                if (input != null)
-                    input.Close();
+                input?.Close();
+                input?.Dispose();
             }
 
             FireProgressEvent(progressListener, ProgressEvent.COMPLETED);
 
-            PutObjectResult result = new PutObjectResult();
-            result.setETag(returnedMetadata.GetETag());
-            result.setContentMD5(metadata.GetContentMD5());
+            var result = new PutObjectResult()
+            {
+                ETag = returnedMetadata.GetETag(),
+                ContentMD5 = metadata.GetContentMD5()
+            };
 
             return result;
         }
@@ -626,14 +807,14 @@ namespace KS3
         /// <returns></returns>
         public CopyObjectResult copyObject(CopyObjectRequest copyObjectRequest)
         {
-            IRequest<CopyObjectRequest> request = this.createRequest(copyObjectRequest.DestinationBucket, copyObjectRequest.DestinationObject, copyObjectRequest, HttpMethod.PUT);
+            IRequest<CopyObjectRequest> request = this.CreateRequest(copyObjectRequest.DestinationBucket, copyObjectRequest.DestinationObject, copyObjectRequest, HttpMethod.PUT);
             request.SetHeader(Headers.XKssCopySource, "/" + copyObjectRequest.SourceBucket + "/" + UrlEncoder.Encode(copyObjectRequest.SourceObject, Encoding.UTF8));
             if (copyObjectRequest.AccessControlList != null)
                 addAclHeaders(request, copyObjectRequest.AccessControlList);
             else if (copyObjectRequest.CannedAcl != null)
                 request.SetHeader(Headers.KS3_CANNED_ACL, copyObjectRequest.CannedAcl.CannedAclHeader);
             request.SetHeader(Headers.CONTENT_LENGTH, "0");
-            return this.invoke(request, new CopyObjectResultUnmarshaller(), copyObjectRequest.DestinationBucket, copyObjectRequest.DestinationObject);
+            return this.Invoke(request, new CopyObjectResultUnmarshaller(), copyObjectRequest.DestinationBucket, copyObjectRequest.DestinationObject);
         }
         /// <summary>
         /// The HEAD operation retrieves metadata from an object without returning the object itself. This operation is useful if you are interested only in an object's metadata. To use HEAD, you must have READ access to the object.
@@ -647,8 +828,8 @@ namespace KS3
         }
         public HeadObjectResult headObject(HeadObjectRequest headObjectRequest)
         {
-            IRequest<HeadObjectRequest> request = this.createRequest(headObjectRequest.BucketName, headObjectRequest.ObjectKey, headObjectRequest, HttpMethod.HEAD);
-            headObjectRequest.validate();
+            IRequest<HeadObjectRequest> request = this.CreateRequest(headObjectRequest.BucketName, headObjectRequest.ObjectKey, headObjectRequest, HttpMethod.HEAD);
+            headObjectRequest.Validate();
             if (headObjectRequest.MatchingETagConstraints.Count > 0)
             {
                 StringBuilder Etags = new StringBuilder();
@@ -693,42 +874,53 @@ namespace KS3
 
             return this.Invoke(request, new HeadObjectResultHandler(), headObjectRequest.BucketName, headObjectRequest.ObjectKey);
         }
-        /**
-         * init multi upload big file
-         * **/
-        public InitiateMultipartUploadResult initiateMultipartUpload(string bucketname, string objectkey)
+
+        /// <summary>
+        /// init multi upload big file
+        /// </summary>
+        /// <param name="bucketname"></param>
+        /// <param name="objectkey"></param>
+        /// <returns></returns>
+        public InitiateMultipartUploadResult InitiateMultipartUpload(string bucketname, string objectkey)
         {
-            return initiateMultipartUpload(new InitiateMultipartUploadRequest(bucketname, objectkey));
+            return InitiateMultipartUpload(new InitiateMultipartUploadRequest(bucketname, objectkey));
         }
-        public InitiateMultipartUploadResult initiateMultipartUpload(InitiateMultipartUploadRequest param)
+
+        public InitiateMultipartUploadResult InitiateMultipartUpload(InitiateMultipartUploadRequest param)
         {
-            IRequest<InitiateMultipartUploadRequest> request = this.createRequest(param.Bucketname, param.Objectkey, param, HttpMethod.POST);
+            IRequest<InitiateMultipartUploadRequest> request = CreateRequest(param.BucketName, param.ObjectKey, param, HttpMethod.POST);
             request.SetParameter("uploads", null);
             request.SetHeader(Headers.CONTENT_LENGTH, "0");
-            InitiateMultipartUploadResult result = new InitiateMultipartUploadResult();
-            result = this.invoke(request, new MultipartUploadResultUnmarshaller(), param.Bucketname, param.Objectkey);
+            var result = Invoke(request, new MultipartUploadResultUnmarshaller(), param.BucketName, param.ObjectKey);
             return result;
         }
-        /**
-         * upload multi file by part
-         * **/
-        public PartETag uploadPart(UploadPartRequest param)
+
+        /// <summary>
+        /// upload multi file by part
+        /// </summary>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public PartETag UploadPart(UploadPartRequest param)
         {
-            String bucketName = param.getBucketname();
-            String key = param.getObjectkey();
-            ObjectMetadata metadata = param.getMetadata();
-            Stream input = param.getInputStream();
-            IProgressListener progressListener = param.getProgressListener();
+            var bucketName = param.BucketName;
+            var key = param.ObjectKey;
+            var metadata = param.Metadata;
+            var input = param.InputStream;
+            var progressListener = param.ProgressListener;
 
             if (metadata == null)
+            {
                 metadata = new ObjectMetadata();
+            }
 
             // If a file is specified for upload, we need to pull some additional
             // information from it to auto-configure a few options
             metadata.SetContentLength(input.Length);
 
             if (metadata.GetContentType() == null)
+            {
                 metadata.SetContentType(Mimetypes.DEFAULT_MIMETYPE);
+            }
             if (metadata.GetContentMD5() == null)
             {
                 using (MD5 md5 = MD5.Create())
@@ -739,11 +931,12 @@ namespace KS3
                 input.Seek(0, SeekOrigin.Begin); // It is needed after calculated MD5.
             }
 
-            IRequest<UploadPartRequest> request = this.createRequest(param.getBucketname(), param.getObjectkey(), param, HttpMethod.PUT);
-            request.SetParameter("partNumber", param.getPartNumber().ToString());
-            request.SetParameter("uploadId", param.getUploadId());
-
-
+            IRequest<UploadPartRequest> request = CreateRequest(
+                param.BucketName,
+                param.ObjectKey,
+                param, HttpMethod.PUT);
+            request.SetParameter("partNumber", param.PartNumber.ToString());
+            request.SetParameter("uploadId", param.UploadId);
 
             if (progressListener != null)
             {
@@ -779,22 +972,31 @@ namespace KS3
 
             FireProgressEvent(progressListener, ProgressEvent.COMPLETED);
 
-            PartETag result = new PartETag();
-            result.seteTag(returnedMetadata.GetETag());
-            result.setPartNumber(param.getPartNumber());
-
+            var result = new PartETag()
+            {
+                PartNumber = param.PartNumber,
+                ETag = returnedMetadata.GetETag()
+            };
             return result;
         }
-        /**
-         * getlist had uploaded part list
-         * **/
-        public ListMultipartUploadsResult getListMultipartUploads(ListMultipartUploadsRequest param)
+
+
+        /// <summary>
+        /// getlist had uploaded part list
+        /// </summary>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public ListMultipartUploadsResult GetListMultipartUploads(ListMultipartUploadsRequest param)
         {
-            IRequest<ListMultipartUploadsRequest> request = this.createRequest(param.getBucketname(), param.getObjectkey(), param, HttpMethod.GET);
-            request.SetParameter("uploadId", param.getUploadId());
+            IRequest<ListMultipartUploadsRequest> request = CreateRequest(param.BucketName, param.ObjectKey, param, HttpMethod.GET);
+            request.SetParameter("uploadId", param.UploadId);
             request.SetHeader(Headers.CONTENT_LENGTH, "0");
-            ListMultipartUploadsResult result = new ListMultipartUploadsResult();
-            result = this.invoke(request, new ListMultipartUploadsResultUnmarshaller(), param.getBucketname(), param.getObjectkey());
+            var result = Invoke(
+                request,
+                new ListMultipartUploadsResultUnmarshaller(),
+                param.BucketName,
+                param.ObjectKey);
+
             return result;
         }
 
@@ -804,9 +1006,9 @@ namespace KS3
         /// </summary>
         /// <param name="param"></param>
         /// <returns></returns>
-        public CompleteMultipartUploadResult completeMultipartUpload(CompleteMultipartUploadRequest param)
+        public CompleteMultipartUploadResult CompleteMultipartUpload(CompleteMultipartUploadRequest param)
         {
-            IRequest<CompleteMultipartUploadRequest> request = createRequest(
+            IRequest<CompleteMultipartUploadRequest> request = CreateRequest(
                 param.BucketName,
                 param.ObjectKey,
                 param,
@@ -814,9 +1016,14 @@ namespace KS3
 
             request.SetParameter("uploadId", param.UploadId);
             request.SetHeader(Headers.CONTENT_LENGTH, param.Content.Length.ToString());
-            request.Content = (param.Content);
-            CompleteMultipartUploadResult result = new CompleteMultipartUploadResult();
-            result = invoke(request, new CompleteMultipartUploadResultUnmarshaller(), param.BucketName, param.ObjectKey);
+            request.Content = param.Content;
+
+            var result = Invoke(
+                request,
+                new CompleteMultipartUploadResultUnmarshaller(),
+                param.BucketName,
+                param.ObjectKey);
+
             return result;
         }
 
@@ -826,66 +1033,79 @@ namespace KS3
         /// <param name="param"></param>
         public void AbortMultipartUpload(AbortMultipartUploadRequest param)
         {
-            IRequest<AbortMultipartUploadRequest> request = this.createRequest(param.BucketName, param.ObjectKey, param, HttpMethod.DELETE);
+            IRequest<AbortMultipartUploadRequest> request = this.CreateRequest(param.BucketName, param.ObjectKey, param, HttpMethod.DELETE);
             request.SetParameter("uploadId", param.UploadId);
             request.SetHeader(Headers.CONTENT_LENGTH, "0");
-            this.Invoke(request, voidResponseHandler, param.BucketName, param.ObjectKey);
+            this.Invoke(request, _voidResponseHandler, param.BucketName, param.ObjectKey);
         }
 
         /**
          * Gets the AccessControlList (ACL) for the specified object in KS3.
          */
-        public AccessControlList getObjectAcl(String bucketName, String key)
+        public AccessControlList GetObjectAcl(String bucketName, String key)
         {
-            return this.getObjectAcl(new GetObjectAclRequest(bucketName, key));
+            return this.GetObjectAcl(new GetObjectAclRequest(bucketName, key));
         }
 
-        /**
-         * Gets the AccessControlList (ACL) for the specified object in KS3.
-         */
-        public AccessControlList getObjectAcl(GetObjectAclRequest getObjectAclRequest)
+        /// <summary>
+        /// Gets the AccessControlList (ACL) for the specified object in KS3.
+        /// </summary>
+        /// <param name="getObjectAclRequest"></param>
+        /// <returns></returns>
+        public AccessControlList GetObjectAcl(GetObjectAclRequest getObjectAclRequest)
         {
-            String bucketName = getObjectAclRequest.getBucketName();
-            String key = getObjectAclRequest.getKey();
+            var bucketName = getObjectAclRequest.BucketName;
+            var key = getObjectAclRequest.Key;
 
-            IRequest<GetObjectAclRequest> request = this.createRequest(bucketName, key, getObjectAclRequest, HttpMethod.GET);
+            IRequest<GetObjectAclRequest> request = CreateRequest(
+                bucketName,
+                key,
+                getObjectAclRequest,
+                HttpMethod.GET);
+
             request.SetParameter("acl", null);
 
-            return this.invoke(request, new AccessControlListUnmarshaller(), bucketName, key);
+            return Invoke(request, new AccessControlListUnmarshaller(), bucketName, key);
         }
 
-        /**
-         * Sets the AccessControlList for the specified object in KS3.
-         */
-        public void setObjectAcl(String bucketName, String key, AccessControlList acl)
+        /// <summary>
+        /// Sets the AccessControlList for the specified object in KS3.
+        /// </summary>
+        /// <param name="bucketName"></param>
+        /// <param name="key"></param>
+        /// <param name="acl"></param>
+        public void SetObjectAcl(string bucketName, string key, AccessControlList acl)
         {
-            this.setObjectAcl(new SetObjectAclRequest(bucketName, key, acl));
+            SetObjectAcl(new SetObjectAclRequest(bucketName, key, acl));
         }
 
-        /**
-         * Sets the AccessControlList for the specified object in KS3.
-         */
-        public void setObjectAcl(String bucketName, String key, CannedAccessControlList cannedAcl)
+        /// <summary>
+        /// Sets the AccessControlList for the specified object in KS3.
+        /// </summary>
+        /// <param name="bucketName"></param>
+        /// <param name="key"></param>
+        /// <param name="cannedAcl"></param>
+        public void SetObjectAcl(string bucketName, string key, CannedAccessControlList cannedAcl)
         {
-            this.setObjectAcl(new SetObjectAclRequest(bucketName, key, cannedAcl));
+            SetObjectAcl(new SetObjectAclRequest(bucketName, key, cannedAcl));
         }
 
         /// <summary>
         /// Sets the AccessControlList for the specified object in KS3.
         /// </summary>
         /// <param name="setObjectAclRequest"></param>
-        public void setObjectAcl(SetObjectAclRequest setObjectAclRequest)
+        public void SetObjectAcl(SetObjectAclRequest setObjectAclRequest)
         {
-            String bucketName = setObjectAclRequest.getBucketName();
-            String key = setObjectAclRequest.getKey();
-            AccessControlList acl = setObjectAclRequest.getAcl();
-            CannedAccessControlList cannedAcl = setObjectAclRequest.getCannedAcl();
+            var bucketName = setObjectAclRequest.BucketName;
+            var key = setObjectAclRequest.Key;
+            var acl = setObjectAclRequest.Acl;
+            var cannedAcl = setObjectAclRequest.CannedAcl;
 
-            IRequest<SetObjectAclRequest> request = this.createRequest(bucketName, key, setObjectAclRequest, HttpMethod.PUT);
+            IRequest<SetObjectAclRequest> request = this.CreateRequest(bucketName, key, setObjectAclRequest, HttpMethod.PUT);
 
             if (acl != null)
             {
-                String xml = AclXmlFactory.ConvertToXmlString(acl);
+                string xml = AclXmlFactory.ConvertToXmlString(acl);
                 MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(xml));
 
                 request.Content = (memoryStream);
@@ -898,8 +1118,9 @@ namespace KS3
             }
             request.SetParameter("acl", null);
 
-            Invoke(request, this.voidResponseHandler, bucketName, key);
+            Invoke(request, this._voidResponseHandler, bucketName, key);
         }
+
         /// <summary>
         /// generate presignerd url for private object with in limit times
         /// </summary>
@@ -907,10 +1128,11 @@ namespace KS3
         /// <param name="key">objectkey</param>
         /// <param name="expiration">expire time</param>
         /// <returns>url</returns>
-        public string generatePresignedUrl(string bucketName, string key, DateTime expiration)
+        public string GeneratePresignedUrl(string bucketName, string key, DateTime expiration)
         {
-            return this.generatePresignedUrl(bucketName, key, expiration, null);
+            return GeneratePresignedUrl(bucketName, key, expiration, null);
         }
+
         /// <summary>
         /// generate PresignedUrl the url can apply for other user
         /// </summary>
@@ -919,7 +1141,7 @@ namespace KS3
         /// <param name="expiration"></param>
         /// <param name="overrides"></param>
         /// <returns></returns>
-        public string generatePresignedUrl(string bucketName, string key, DateTime expiration, ResponseHeaderOverrides overrides)
+        public string GeneratePresignedUrl(string bucketName, string key, DateTime expiration, ResponseHeaderOverrides overrides)
         {
             string url = "";
             string param = "";
@@ -943,10 +1165,10 @@ namespace KS3
             try
             {
                 KS3Signer<NoneKS3Request> ks3Signer = CreateSigner<NoneKS3Request>(HttpMethod.GET.ToString(), bucketName, key);
-                string signer = ks3Signer.GetSignature(this.ks3Credentials, expires.ToString());
+                string signer = ks3Signer.GetSignature(this._ks3Credentials, expires.ToString());
                 url += @"http://" + bucketName + "." + Constants.KS3_HOSTNAME
                              + "/" + filterSpecial(UrlEncoder.Encode(key, Constants.DEFAULT_ENCODING)) + "?AccessKeyId="
-                             + UrlEncoder.Encode(this.ks3Credentials.GetKS3AccessKeyId(), Constants.DEFAULT_ENCODING)
+                             + UrlEncoder.Encode(this._ks3Credentials.GetKS3AccessKeyId(), Constants.DEFAULT_ENCODING)
                              + "&Expires=" + expires + "&Signature="
                              + UrlEncoder.Encode(signer, Constants.DEFAULT_ENCODING) + "&" + param;
 
@@ -963,12 +1185,12 @@ namespace KS3
         /// </summary>
         /// <param name="putAdpRequest"></param>
         /// <returns></returns>
-        public String putAdpTask(PutAdpRequest putAdpRequest)
+        public string PutAdpTask(PutAdpRequest putAdpRequest)
         {
-            IRequest<PutAdpRequest> request = this.createRequest(putAdpRequest.BucketName, putAdpRequest.ObjectKey, putAdpRequest, HttpMethod.PUT);
+            IRequest<PutAdpRequest> request = this.CreateRequest(putAdpRequest.BucketName, putAdpRequest.ObjectKey, putAdpRequest, HttpMethod.PUT);
             request.SetParameter("adp", null);
 
-            request.SetHeader(Headers.AsynchronousProcessingList, putAdpRequest.convertAdpsToString());
+            request.SetHeader(Headers.AsynchronousProcessingList, putAdpRequest.ConvertAdpsToString());
             request.SetHeader(Headers.NotifyURL, putAdpRequest.NotifyURL);
             request.SetHeader(Headers.CONTENT_LENGTH, "0");
             PutAdpResult result = this.Invoke(request, new PutAdpResponseHandler(), putAdpRequest.BucketName, putAdpRequest.ObjectKey);
@@ -976,28 +1198,40 @@ namespace KS3
         }
         public GetAdpResult getAdpTask(GetAdpRequest getAdpRequest)
         {
-            IRequest<GetAdpRequest> request = this.createRequest(getAdpRequest.TaskId, null, getAdpRequest, HttpMethod.GET);
+            IRequest<GetAdpRequest> request = this.CreateRequest(getAdpRequest.TaskId, null, getAdpRequest, HttpMethod.GET);
             request.SetParameter("queryadp", string.Empty);
-            return this.invoke(request, new GetAdpResultUnmarshaller(), null, null);
+            return this.Invoke(request, new GetAdpResultUnmarshaller(), null, null);
         }
         ////////////////////////////////////////////////////////////////////////////////////////
 
 
-        /**
-         * Creates and initializes a new request object for the specified KS3 resource.
-         * Three parameters needed to be set
-         * 1. http method (GET, PUT, HEAD or DELETE)
-         * 2. endpoint (http or https, and the host name. e.g. http://kss.ksyun.com)
-         * 3. resource path (bucketName/[key], e.g. my-bucket/my-object)
-         */
-        private IRequest<X> createRequest<X>(String bucketName, String key, X originalRequest, HttpMethod httpMethod) where X : KS3Request
+        /// <summary>
+        /// * Creates and initializes a new request object for the specified KS3 resource.
+        /// * Three parameters needed to be set
+        /// * 1. http method(GET, PUT, HEAD or DELETE)
+        /// * 2. endpoint(http or https, and the host name. e.g.http://kss.ksyun.com)
+        /// * 3. resource path (bucketName/[key], e.g.my-bucket/my-object)
+        /// </summary>
+        /// <typeparam name="X"></typeparam>
+        /// <param name="bucketName"></param>
+        /// <param name="key"></param>
+        /// <param name="originalRequest"></param>
+        /// <param name="httpMethod"></param>
+        /// <returns></returns>
+        private IRequest<X> CreateRequest<X>(
+            string bucketName,
+            string key,
+            X originalRequest,
+            HttpMethod httpMethod) where X : KS3Request
         {
-            IRequest<X> request = new DefaultRequest<X>(originalRequest);
-            request.HttpMethod = (httpMethod);
-            request.Endpoint = (endpoint);
-            String bucketEncode = UrlEncoder.Encode(bucketName != null ? bucketName : "", Constants.DEFAULT_ENCODING);
-            String keyEncode = UrlEncoder.Encode(key != null ? key : "", Constants.DEFAULT_ENCODING);
-            String resourcePath = "/" + (bucketEncode != null ? bucketEncode + "/" : "") + (keyEncode != null ? keyEncode : "");
+            IRequest<X> request = new DefaultRequest<X>(originalRequest)
+            {
+                HttpMethod = (httpMethod),
+                Endpoint = (_endpoint)
+            };
+            var bucketEncode = UrlEncoder.Encode(bucketName != null ? bucketName : "", Constants.DEFAULT_ENCODING);
+            var keyEncode = UrlEncoder.Encode(key != null ? key : "", Constants.DEFAULT_ENCODING);
+            var resourcePath = "/" + (bucketEncode != null ? bucketEncode + "/" : "") + (keyEncode != null ? keyEncode : "");
             resourcePath = filterSpecial(resourcePath);
 
             request.ResourcePath = (resourcePath);
@@ -1005,7 +1239,7 @@ namespace KS3
             return request;
         }
 
-        private X invoke<X, Y>(
+        private X Invoke<X, Y>(
             IRequest<Y> request,
             IUnmarshaller<X, Stream> unmarshaller,
             string bucketName,
@@ -1014,20 +1248,26 @@ namespace KS3
             return Invoke(request, new XmlResponseHandler<X>(unmarshaller), bucketName, key);
         }
 
-        /**
-         * Before the KS3HttpClient deal with the request, we want the request looked like a collection of that:
-         * 1. http method
-         * 2. endpoint
-         * 3. resource path
-         * 4. headers
-         * 5. parameters
-         * 6. content
-         * 7. time offset
-         * 
-         * The first three points are done in "createRequest".
-         * The content was set before "createRequest" when we need to put a object to server. And some metadata like Content-Type, Content-Length, etc.
-         * So at here, we need to complete 4, 5, and 7.
-         */
+        /// <summary>
+        /// * Before the KS3HttpClient deal with the request, we want the request looked like a collection of that:
+        /// * 1. http method
+        /// * 2. endpoint
+        /// * 3. resource path
+        /// * 4. headers
+        /// * 5. parameters
+        /// * 6. content
+        /// * 7. time offset
+        /// * The first three points are done in "createRequest".
+        /// * The content was set before "createRequest" when we need to put a object to server.And some metadata like Content-Type, Content-Length, etc.
+        ///  * So at here, we need to complete 4, 5, and 7.
+        /// </summary>
+        /// <typeparam name="X"></typeparam>
+        /// <typeparam name="Y"></typeparam>
+        /// <param name="request"></param>
+        /// <param name="responseHandler"></param>
+        /// <param name="bucket"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
         private X Invoke<X, Y>(
             IRequest<Y> request,
             IHttpResponseHandler<X> responseHandler,
@@ -1039,7 +1279,7 @@ namespace KS3
             {
                 request.SetParameter(name, parameters[name]);
             }
-            request.TimeOffset = timeOffset;
+            request.TimeOffset = _timeOffset;
 
             //The string we sign needs to include the exact headers that we send with the request, but the client runtime layer adds the Content-Type header before the request is sent if one isn't set, so we have to set something here otherwise the request will fail.
             if (!request.Headers.ContainsKey(Headers.CONTENT_TYPE))
@@ -1050,9 +1290,9 @@ namespace KS3
             //Set the credentials which will be used by the KS3Signer later.
             if (request.OriginalRequest.Credentials == null)
             {
-                request.OriginalRequest.Credentials = (ks3Credentials);
+                request.OriginalRequest.Credentials = (_ks3Credentials);
             }
-            return client.Excute(request, responseHandler, CreateSigner(request, bucket, key));
+            return _client.Excute(request, responseHandler, CreateSigner(request, bucket, key));
         }
 
         private KS3Signer<T> CreateSigner<T>(IRequest<T> request, String bucketName, String key) where T : KS3Request
@@ -1165,7 +1405,7 @@ namespace KS3
                 }
                 grantsByPermission[grant.Permission].Add(grant.Grantee);
             }
-            foreach (String permission in Permission.listPermissions())
+            foreach (String permission in Permission.ListPermissions())
             {
                 if (grantsByPermission.ContainsKey(permission))
                 {
@@ -1180,7 +1420,7 @@ namespace KS3
                             granteeString.Append(", ");
                         granteeString.Append(grantee.GetTypeIdentifier() + "=\"" + grantee.GetIdentifier() + "\"");
                     }
-                    request.SetHeader(Permission.getHeaderName(permission), granteeString.ToString());
+                    request.SetHeader(Permission.GetHeaderName(permission), granteeString.ToString());
                 }
             }
         }
