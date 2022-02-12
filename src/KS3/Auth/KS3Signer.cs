@@ -12,7 +12,7 @@ namespace KS3.Auth
         private readonly string _httpVerb;
 
         /// <summary>
-        /// The canonical resource path portion of the S3 string to sign. Examples: "/", "/<bucket name>/", or "/<bucket name>/<key>"
+        /// The canonical resource path portion of the S3 string to sign. Examples: "/", "/(bucket name)/", or "/(bucket name)/(key)"
         /// </summary>
         private readonly string _resourcePath;
 

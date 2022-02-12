@@ -11,6 +11,11 @@ namespace KS3.Model
 
         public CompleteMultipartUploadRequest() { }
 
+        public CompleteMultipartUploadRequest(string bucketName, string objectKey, string uploadId) : this(bucketName, objectKey, uploadId, null)
+        {
+            
+        }
+
         public CompleteMultipartUploadRequest(string bucketName, string objectKey, string uploadId, Stream content)
         {
             BucketName = bucketName;
@@ -18,5 +23,7 @@ namespace KS3.Model
             UploadId = uploadId;
             Content = content;
         }
+
+
     }
 }

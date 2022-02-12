@@ -7,9 +7,7 @@ namespace KS3.Model
 {
     public class DeleteMultipleObjectsRequest : KS3Request, ICalculatorMd5
     {
-
         public string BucketName { get; set; }
-
         public string[] ObjectKeys { get; set; }
 
         private string GetXmlContent()

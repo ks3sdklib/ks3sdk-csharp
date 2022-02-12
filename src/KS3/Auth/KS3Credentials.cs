@@ -1,8 +1,8 @@
-﻿/// <summary>
-/// Provides access to the KS3 credentials used for accessing KS3 services: KS3 access key ID and secret access key. These credentials are used to securely sign requests to KS3 services.
-/// </summary>
-namespace KS3.Auth
+﻿namespace KS3.Auth
 {
+    /// <summary>
+    /// Provides access to the KS3 credentials used for accessing KS3 services: KS3 access key ID and secret access key. These credentials are used to securely sign requests to KS3 services.
+    /// </summary>
     public interface IKS3Credentials
     {
         /// <summary>

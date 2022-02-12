@@ -1,4 +1,5 @@
 ﻿using KS3.Model;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -179,7 +180,7 @@ namespace KS3
         /// <param name="bucketname"></param>
         /// <param name="objectkey"></param>
         /// <returns></returns>
-        public static InitiateMultipartUploadResult InitiateMultipartUpload(IKS3 ks3, string bucketname, string objectkey)
+        public static InitiateMultipartUploadResult InitiateMultipartUpload(this IKS3 ks3, string bucketname, string objectkey)
         {
             return ks3.InitiateMultipartUpload(new InitiateMultipartUploadRequest(bucketname, objectkey));
         }
@@ -218,6 +219,86 @@ namespace KS3
         public static void SetObjectAcl(this IKS3 ks3, string bucketName, string key, CannedAccessControlList cannedAcl)
         {
             ks3.SetObjectAcl(new SetObjectAclRequest(bucketName, key, cannedAcl));
+        }
+
+        /// <summary>
+        /// generate presignerd url for private object with in limit times
+        /// </summary>
+        /// <param name="ks3"></param>
+        /// <param name="bucketName"></param>
+        /// <param name="key"></param>
+        /// <param name="expiration"></param>
+        /// <returns></returns>
+        public static string GeneratePresignedUrl(this IKS3 ks3, string bucketName, string key, DateTime expiration)
+        {
+            return ks3.GeneratePresignedUrl(bucketName, key, expiration, null);
+        }
+
+        /// <summary>
+        /// This operation is useful to determine if a bucket exists and you have permission to access it
+        /// </summary>
+        /// <param name="ks3"></param>
+        /// <param name="bucketName"></param>
+        /// <returns></returns>
+        public static HeadBucketResult HeadBucket(this IKS3 ks3, string bucketName)
+        {
+            return ks3.HeadBucket(new HeadBucketRequest(bucketName));
+        }
+
+        /// <summary>
+        /// Returns the cors configuration information set for the bucket.
+        /// To use this operation, you must have permission to perform the s3:GetBucketCORS action. By default, the bucket owner has this permission and can grant it to others.
+        /// </summary>
+        /// <param name="ks3"></param>
+        /// <param name="bucketName"></param>
+        /// <returns></returns>
+        public static BucketCorsConfigurationResult GetBucketCors(this IKS3 ks3, string bucketName)
+        {
+            return ks3.GetBucketCors(new GetBucketCorsRequest(bucketName));
+        }
+
+        /// <summary>
+        /// Deletes the cors configuration information set for the bucket.
+        /// </summary>
+        /// <param name="ks3"></param>
+        /// <param name="bucketName"></param>
+        public static void DeleteBucketCors(IKS3 ks3, string bucketName)
+        {
+            ks3.DeleteBucketCors(new DeleteBucketCorsRequest(bucketName));
+        }
+
+        /// <summary>
+        /// This implementation of the GET operation uses the location subresource to return a bucket's region. You set the bucket's region using the LocationConstraint request parameter in a PUT Bucket request. 
+        /// </summary>
+        /// <param name="ks3"></param>
+        /// <param name="bucketName"></param>
+        /// <returns></returns>
+        public static GetBucketLocationResult GetBucketLocation(this IKS3 ks3, string bucketName)
+        {
+            return ks3.GetBucketLocation(new GetBucketLocationRequest(bucketName));
+        }
+
+        /// <summary>
+        /// This implementation of the GET operation uses the logging subresource to return the logging status of a bucket and the permissions users have to view and modify that status. To use GET, you must be the bucket owner. 
+        /// </summary>
+        /// <param name="ks3"></param>
+        /// <param name="bucketName"></param>
+        /// <returns></returns>
+        public static GetBucketLoggingResult GetBucketLogging(this IKS3 ks3, string bucketName)
+        {
+            return ks3.GetBucketLogging(new GetBucketLoggingRequest(bucketName));
+        }
+
+        /// <summary>
+        /// The HEAD operation retrieves metadata from an object without returning the object itself. This operation is useful if you are interested only in an object's metadata. To use HEAD, you must have READ access to the object.
+        /// </summary>
+        /// <param name="ks3"></param>
+        /// <param name="bucketName"></param>
+        /// <param name="objectKey"></param>
+        /// <returns></returns>
+        public static HeadObjectResult HeadObject(this IKS3 ks3, string bucketName, string objectKey)
+        {
+            return ks3.HeadObject(bucketName, objectKey);
         }
 
     }

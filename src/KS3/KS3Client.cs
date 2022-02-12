@@ -189,33 +189,12 @@ namespace KS3
         /// <summary>
         /// This operation is useful to determine if a bucket exists and you have permission to access it
         /// </summary>
-        /// <param name="bucketName"></param>
-        /// <returns></returns>
-        public HeadBucketResult HeadBucket(string bucketName)
-        {
-            return HeadBucket(new HeadBucketRequest(bucketName));
-        }
-
-        /// <summary>
-        /// This operation is useful to determine if a bucket exists and you have permission to access it
-        /// </summary>
         /// <param name="headBucketRequest"></param>
         /// <returns></returns>
         public HeadBucketResult HeadBucket(HeadBucketRequest headBucketRequest)
         {
             var request = CreateRequest(headBucketRequest.BucketName, null, headBucketRequest, HttpMethod.HEAD);
             return Invoke(request, new HeadBucketResponseHandler(), headBucketRequest.BucketName, null);
-        }
-
-        /// <summary>
-        /// Returns the cors configuration information set for the bucket.
-        /// To use this operation, you must have permission to perform the s3:GetBucketCORS action. By default, the bucket owner has this permission and can grant it to others.
-        /// </summary>
-        /// <param name="bucketName"></param>
-        /// <returns></returns>
-        public BucketCorsConfigurationResult GetBucketCors(string bucketName)
-        {
-            return GetBucketCors(new GetBucketCorsRequest(bucketName));
         }
 
         /// <summary>
@@ -230,80 +209,6 @@ namespace KS3
             request.SetParameter("cors", null);
             var result = Invoke(request, new BucketCorsConfigurationResultUnmarshaller(), getBucketCorsRequest.BucketName, null);
             return result;
-        }
-
-        /// <summary>
-        /// This implementation of the GET operation uses the location subresource to return a bucket's region. You set the bucket's region using the LocationConstraint request parameter in a PUT Bucket request. 
-        /// </summary>
-        /// <param name="bucketName"></param>
-        /// <returns></returns>
-        public GetBucketLocationResult GetBucketLocation(string bucketName)
-        {
-            return GetBucketLocation(new GetBucketLocationRequest(bucketName));
-        }
-
-        /// <summary>
-        /// This implementation of the GET operation uses the location subresource to return a bucket's region. You set the bucket's region using the LocationConstraint request parameter in a PUT Bucket request. 
-        /// </summary>
-        /// <param name="getBucketLocationRequest"></param>
-        /// <returns></returns>
-        public GetBucketLocationResult GetBucketLocation(GetBucketLocationRequest getBucketLocationRequest)
-        {
-            var request = CreateRequest(getBucketLocationRequest.BucketName, null, getBucketLocationRequest, HttpMethod.GET);
-            request.Parameters.Add("location", null);
-            var result = Invoke(request, new GetBucketLocationResultUnmarshaller(), getBucketLocationRequest.BucketName, null);
-            return result;
-        }
-
-        /// <summary>
-        /// This implementation of the GET operation uses the logging subresource to return the logging status of a bucket and the permissions users have to view and modify that status. To use GET, you must be the bucket owner. 
-        /// </summary>
-        /// <param name="bucketName"></param>
-        /// <returns></returns>
-        public GetBucketLoggingResult GetBucketLogging(string bucketName)
-        {
-            return GetBucketLogging(new GetBucketLoggingRequest(bucketName));
-        }
-
-        /// <summary>
-        /// This implementation of the GET operation uses the logging subresource to return the logging status of a bucket and the permissions users have to view and modify that status. To use GET, you must be the bucket owner. 
-        /// </summary>
-        /// <param name="getBucketLoggingRequest"></param>
-        /// <returns></returns>
-        public GetBucketLoggingResult GetBucketLogging(GetBucketLoggingRequest getBucketLoggingRequest)
-        {
-            var request = CreateRequest(getBucketLoggingRequest.BucketName, null, getBucketLoggingRequest, HttpMethod.GET);
-            request.Parameters.Add("logging", null);
-            var result = Invoke(request, new GetBucketLoggingResultUnmarshaller(), getBucketLoggingRequest.BucketName, null);
-            return result;
-        }
-
-
-        /// <summary>
-        /// Sets the AccessControlList for the specified KS3 bucket.
-        /// </summary>
-        /// <param name="setBucketAclRequest"></param>
-        public void SetBucketAcl(SetBucketAclRequest setBucketAclRequest)
-        {
-            var request = CreateRequest(setBucketAclRequest.BucketName, null, setBucketAclRequest, HttpMethod.PUT);
-
-            if (setBucketAclRequest.Acl != null)
-            {
-                var xml = AclXmlFactory.ConvertToXmlString(setBucketAclRequest.Acl);
-                MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(xml));
-
-                request.Content = (memoryStream);
-                request.SetHeader(Headers.CONTENT_LENGTH, memoryStream.Length.ToString());
-            }
-            else if (setBucketAclRequest.CannedAcl != null)
-            {
-                request.SetHeader(Headers.KS3_CANNED_ACL, setBucketAclRequest.CannedAcl.CannedAclHeader);
-                request.SetHeader(Headers.CONTENT_LENGTH, "0");
-            }
-
-            request.SetParameter("acl", null);
-
-            Invoke(request, _voidResponseHandler, setBucketAclRequest.BucketName, null);
         }
 
         /// <summary>
@@ -323,30 +228,6 @@ namespace KS3
         }
 
         /// <summary>
-        /// This implementation of the PUT operation uses the logging subresource to set the logging parameters for a bucket and to specify permissions for who can view and modify the logging parameters. To set the logging status of a bucket, you must be the bucket owner.
-        /// </summary>
-        /// <param name="putBucketLoggingRequest"></param>
-        public void SetBucketLogging(PutBucketLoggingRequest putBucketLoggingRequest)
-        {
-            var request = CreateRequest(putBucketLoggingRequest.BucketName, null, putBucketLoggingRequest, HttpMethod.PUT);
-            request.SetParameter("logging", null);
-            request.SetHeader(Headers.CONTENT_LENGTH, putBucketLoggingRequest.ToXmlAdapter().Length.ToString());
-            request.SetHeader(Headers.CONTENT_TYPE, "application/xml");
-            request.Content = (putBucketLoggingRequest.ToXmlAdapter());
-            Invoke(request, _voidResponseHandler, putBucketLoggingRequest.BucketName, null);
-        }
-
-
-        /// <summary>
-        /// Deletes the cors configuration information set for the bucket.
-        /// </summary>
-        /// <param name="bucketName"></param>
-        public void DeleteBucketCors(string bucketName)
-        {
-            DeleteBucketCors(new DeleteBucketCorsRequest(bucketName));
-        }
-
-        /// <summary>
         /// Deletes the cors configuration information set for the bucket.
         /// </summary>
         /// <param name="deleteBucketCorsRequest"></param>
@@ -358,19 +239,69 @@ namespace KS3
         }
 
         /// <summary>
-        /// The Multi-Object Delete operation enables you to delete multiple objects from a bucket using a single HTTP request.
+        /// This implementation of the GET operation uses the location subresource to return a bucket's region. You set the bucket's region using the LocationConstraint request parameter in a PUT Bucket request. 
         /// </summary>
-        /// <param name="deleteMultipleObjectsRequest"></param>
+        /// <param name="getBucketLocationRequest"></param>
         /// <returns></returns>
-        public DeleteMultipleObjectsResult DeleteMultiObjects(DeleteMultipleObjectsRequest deleteMultipleObjectsRequest)
+        public GetBucketLocationResult GetBucketLocation(GetBucketLocationRequest getBucketLocationRequest)
         {
-            var request = CreateRequest(deleteMultipleObjectsRequest.BucketName, null, deleteMultipleObjectsRequest, HttpMethod.POST);
-            request.SetParameter("delete", null);
-            request.SetHeader(Headers.CONTENT_LENGTH, deleteMultipleObjectsRequest.ToXmlAdapter().Length.ToString());
+            var request = CreateRequest(getBucketLocationRequest.BucketName, null, getBucketLocationRequest, HttpMethod.GET);
+            request.Parameters.Add("location", null);
+            var result = Invoke(request, new GetBucketLocationResultUnmarshaller(), getBucketLocationRequest.BucketName, null);
+            return result;
+        }
+
+        /// <summary>
+        /// This implementation of the GET operation uses the logging subresource to return the logging status of a bucket and the permissions users have to view and modify that status. To use GET, you must be the bucket owner. 
+        /// </summary>
+        /// <param name="getBucketLoggingRequest"></param>
+        /// <returns></returns>
+        public GetBucketLoggingResult GetBucketLogging(GetBucketLoggingRequest getBucketLoggingRequest)
+        {
+            var request = CreateRequest(getBucketLoggingRequest.BucketName, null, getBucketLoggingRequest, HttpMethod.GET);
+            request.Parameters.Add("logging", null);
+            var result = Invoke(request, new GetBucketLoggingResultUnmarshaller(), getBucketLoggingRequest.BucketName, null);
+            return result;
+        }
+
+        /// <summary>
+        /// Sets the AccessControlList for the specified KS3 bucket.
+        /// </summary>
+        /// <param name="setBucketAclRequest"></param>
+        public void SetBucketAcl(SetBucketAclRequest setBucketAclRequest)
+        {
+            var request = CreateRequest(setBucketAclRequest.BucketName, null, setBucketAclRequest, HttpMethod.PUT);
+            if (setBucketAclRequest.Acl != null)
+            {
+                var xml = AclXmlFactory.ConvertToXmlString(setBucketAclRequest.Acl);
+                var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(xml));
+
+                request.Content = memoryStream;
+                request.SetHeader(Headers.CONTENT_LENGTH, memoryStream.Length.ToString());
+            }
+            else if (setBucketAclRequest.CannedAcl != null)
+            {
+                request.SetHeader(Headers.KS3_CANNED_ACL, setBucketAclRequest.CannedAcl.CannedAclHeader);
+                request.SetHeader(Headers.CONTENT_LENGTH, "0");
+            }
+
+            request.SetParameter("acl", null);
+
+            Invoke(request, _voidResponseHandler, setBucketAclRequest.BucketName, null);
+        }
+
+        /// <summary>
+        /// This implementation of the PUT operation uses the logging subresource to set the logging parameters for a bucket and to specify permissions for who can view and modify the logging parameters. To set the logging status of a bucket, you must be the bucket owner.
+        /// </summary>
+        /// <param name="putBucketLoggingRequest"></param>
+        public void SetBucketLogging(PutBucketLoggingRequest putBucketLoggingRequest)
+        {
+            var request = CreateRequest(putBucketLoggingRequest.BucketName, null, putBucketLoggingRequest, HttpMethod.PUT);
+            request.SetParameter("logging", null);
+            request.SetHeader(Headers.CONTENT_LENGTH, putBucketLoggingRequest.ToXmlAdapter().Length.ToString());
             request.SetHeader(Headers.CONTENT_TYPE, "application/xml");
-            request.SetHeader(Headers.CONTENT_MD5, deleteMultipleObjectsRequest.GetMd5());
-            request.Content = (deleteMultipleObjectsRequest.ToXmlAdapter());
-            return Invoke(request, new DeleteMultipleObjectsResultUnmarshaller(), deleteMultipleObjectsRequest.BucketName, null);
+            request.Content = (putBucketLoggingRequest.ToXmlAdapter());
+            Invoke(request, _voidResponseHandler, putBucketLoggingRequest.BucketName, null);
         }
 
         /// <summary>
@@ -405,17 +336,6 @@ namespace KS3
             return Invoke(request, new ListObjectsUnmarshallers(), listObjectRequest.BucketName, null);
         }
 
-
-        /// <summary>
-        /// Deletes the specified object in the specified bucket.
-        /// </summary>
-        /// <param name="deleteObjectRequest"></param>
-        public void DeleteObject(DeleteObjectRequest deleteObjectRequest)
-        {
-            var request = CreateRequest(deleteObjectRequest.BucketName, deleteObjectRequest.Key, deleteObjectRequest, HttpMethod.DELETE);
-            Invoke(request, _voidResponseHandler, deleteObjectRequest.BucketName, deleteObjectRequest.Key);
-        }
-      
         /// <summary>
         /// Gets the object stored in KS3 under the specified bucket and key.
         /// </summary>
@@ -464,18 +384,6 @@ namespace KS3
         }
 
         /// <summary>
-        ///  Gets the metadata for the specified KS3 object without actually fetching the object itself.
-        /// </summary>
-        /// <param name="getObjectMetadataRequest"></param>
-        /// <returns></returns>
-        public ObjectMetadata GetObjectMetadata(GetObjectMetadataRequest getObjectMetadataRequest)
-        {
-            var request = CreateRequest(getObjectMetadataRequest.BucketName, getObjectMetadataRequest.Key, getObjectMetadataRequest, HttpMethod.HEAD);
-
-            return Invoke(request, new MetadataResponseHandler(), getObjectMetadataRequest.BucketName, getObjectMetadataRequest.Key);
-        }
-
-        /// <summary>
         /// Uploads a new object to the specified KS3 bucket.
         /// </summary>
         /// <param name="putObjectRequest"></param>
@@ -484,13 +392,10 @@ namespace KS3
         {
             string bucketName = putObjectRequest.BucketName;
             string key = putObjectRequest.Key;
-            ObjectMetadata metadata = putObjectRequest.Metadata;
+            var metadata = putObjectRequest.Metadata ?? new ObjectMetadata();
+
             Stream input = putObjectRequest.InputStream;
             IProgressListener progressListener = putObjectRequest.ProgressListener;
-            if (metadata == null)
-            {
-                metadata = new ObjectMetadata();
-            }
 
             // If a file is specified for upload, we need to pull some additional
             // information from it to auto-configure a few options
@@ -508,11 +413,9 @@ namespace KS3
                 }
                 if (metadata.GetContentMD5() == null)
                 {
-                    using (FileStream fileStream = file.OpenRead())
-                    {
-                        MD5 md5 = MD5.Create();
-                        metadata.SetContentMD5(Convert.ToBase64String(md5.ComputeHash(fileStream)));
-                    }
+                    using FileStream fileStream = file.OpenRead();
+                    MD5 md5 = MD5.Create();
+                    metadata.SetContentMD5(Convert.ToBase64String(md5.ComputeHash(fileStream)));
                 }
 
                 input = file.OpenRead();
@@ -590,6 +493,21 @@ namespace KS3
 
             return result;
         }
+
+        /// <summary>
+        /// init multi upload big file
+        /// </summary>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public InitiateMultipartUploadResult InitiateMultipartUpload(InitiateMultipartUploadRequest param)
+        {
+            var request = CreateRequest(param.BucketName, param.ObjectKey, param, HttpMethod.POST);
+            request.SetParameter("uploads", null);
+            request.SetHeader(Headers.CONTENT_LENGTH, "0");
+            var result = Invoke(request, new MultipartUploadResultUnmarshaller(), param.BucketName, param.ObjectKey);
+            return result;
+        }
+
         /// <summary>
         /// This implementation of the PUT operation creates a copy of an object that is already stored in S3. A PUT copy operation is the same as performing a GET and then a PUT. Adding the request header, x-amz-copy-source, makes the PUT operation copy the source object into the destination bucket.
         /// </summary>
@@ -610,33 +528,29 @@ namespace KS3
             request.SetHeader(Headers.CONTENT_LENGTH, "0");
             return Invoke(request, new CopyObjectResultUnmarshaller(), copyObjectRequest.DestinationBucket, copyObjectRequest.DestinationObject);
         }
+
         /// <summary>
-        /// The HEAD operation retrieves metadata from an object without returning the object itself. This operation is useful if you are interested only in an object's metadata. To use HEAD, you must have READ access to the object.
+        ///  The HEAD operation retrieves metadata from an object without returning the object itself. This operation is useful if you are interested only in an object's metadata. To use HEAD, you must have READ access to the object.
         /// </summary>
-        /// <param name="bucketName"></param>
-        /// <param name="objectKey"></param>
+        /// <param name="headObjectRequest"></param>
         /// <returns></returns>
-        public HeadObjectResult HeadObject(string bucketName, string objectKey)
-        {
-            return HeadObject(bucketName, objectKey);
-        }
         public HeadObjectResult HeadObject(HeadObjectRequest headObjectRequest)
         {
             var request = CreateRequest(headObjectRequest.BucketName, headObjectRequest.ObjectKey, headObjectRequest, HttpMethod.HEAD);
             headObjectRequest.Validate();
             if (headObjectRequest.MatchingETagConstraints.Count > 0)
             {
-                StringBuilder Etags = new StringBuilder();
+                var etags = new StringBuilder();
                 foreach (var etag in headObjectRequest.MatchingETagConstraints)
                 {
-                    Etags.Append(etag);
-                    Etags.Append(",");
+                    etags.Append(etag);
+                    etags.Append(",");
                 }
-                request.SetHeader(Headers.GET_OBJECT_IF_MATCH, Etags.ToString().TrimEnd(','));
+                request.SetHeader(Headers.GET_OBJECT_IF_MATCH, etags.ToString().TrimEnd(','));
             }
             if (headObjectRequest.NonmatchingEtagConstraints.Count > 0)
             {
-                StringBuilder noEtags = new StringBuilder();
+                var noEtags = new StringBuilder();
                 foreach (String etag in headObjectRequest.NonmatchingEtagConstraints)
                 {
                     noEtags.Append(etag);
@@ -652,8 +566,6 @@ namespace KS3
             {
                 request.SetHeader(Headers.GET_OBJECT_IF_UNMODIFIED_SINCE, headObjectRequest.UnmodifiedSinceConstraint.ToUniversalTime().ToString("r"));
             }
-
-
             if (!headObjectRequest.Overrides.CacheControl.IsNullOrWhiteSpace())
             {
                 request.SetParameter("response-cache-control", headObjectRequest.Overrides.CacheControl);
@@ -682,17 +594,41 @@ namespace KS3
         }
 
         /// <summary>
-        /// init multi upload big file
+        /// Deletes the specified object in the specified bucket.
         /// </summary>
-        /// <param name="param"></param>
-        /// <returns></returns>
-        public InitiateMultipartUploadResult InitiateMultipartUpload(InitiateMultipartUploadRequest param)
+        /// <param name="deleteObjectRequest"></param>
+        public void DeleteObject(DeleteObjectRequest deleteObjectRequest)
         {
-            var request = CreateRequest(param.BucketName, param.ObjectKey, param, HttpMethod.POST);
-            request.SetParameter("uploads", null);
-            request.SetHeader(Headers.CONTENT_LENGTH, "0");
-            var result = Invoke(request, new MultipartUploadResultUnmarshaller(), param.BucketName, param.ObjectKey);
-            return result;
+            var request = CreateRequest(deleteObjectRequest.BucketName, deleteObjectRequest.Key, deleteObjectRequest, HttpMethod.DELETE);
+            Invoke(request, _voidResponseHandler, deleteObjectRequest.BucketName, deleteObjectRequest.Key);
+        }
+
+        /// <summary>
+        /// The Multi-Object Delete operation enables you to delete multiple objects from a bucket using a single HTTP request.
+        /// </summary>
+        /// <param name="deleteMultipleObjectsRequest"></param>
+        /// <returns></returns>
+        public DeleteMultipleObjectsResult DeleteMultiObjects(DeleteMultipleObjectsRequest deleteMultipleObjectsRequest)
+        {
+            var request = CreateRequest(deleteMultipleObjectsRequest.BucketName, null, deleteMultipleObjectsRequest, HttpMethod.POST);
+            request.SetParameter("delete", null);
+            request.SetHeader(Headers.CONTENT_LENGTH, deleteMultipleObjectsRequest.ToXmlAdapter().Length.ToString());
+            request.SetHeader(Headers.CONTENT_TYPE, "application/xml");
+            request.SetHeader(Headers.CONTENT_MD5, deleteMultipleObjectsRequest.GetMd5());
+            request.Content = (deleteMultipleObjectsRequest.ToXmlAdapter());
+            return Invoke(request, new DeleteMultipleObjectsResultUnmarshaller(), deleteMultipleObjectsRequest.BucketName, null);
+        }
+
+        /// <summary>
+        ///  Gets the metadata for the specified KS3 object without actually fetching the object itself.
+        /// </summary>
+        /// <param name="getObjectMetadataRequest"></param>
+        /// <returns></returns>
+        public ObjectMetadata GetObjectMetadata(GetObjectMetadataRequest getObjectMetadataRequest)
+        {
+            var request = CreateRequest(getObjectMetadataRequest.BucketName, getObjectMetadataRequest.Key, getObjectMetadataRequest, HttpMethod.HEAD);
+
+            return Invoke(request, new MetadataResponseHandler(), getObjectMetadataRequest.BucketName, getObjectMetadataRequest.Key);
         }
 
         /// <summary>
@@ -777,7 +713,6 @@ namespace KS3
             return result;
         }
 
-
         /// <summary>
         /// getlist had uploaded part list
         /// </summary>
@@ -791,7 +726,6 @@ namespace KS3
             var result = Invoke(request, new ListMultipartUploadsResultUnmarshaller(), param.BucketName, param.ObjectKey);
             return result;
         }
-
 
         /// <summary>
         /// submit the all part,the server will complete join part
@@ -848,7 +782,7 @@ namespace KS3
             if (acl != null)
             {
                 string xml = AclXmlFactory.ConvertToXmlString(acl);
-                MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(xml));
+                var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(xml));
 
                 request.Content = (memoryStream);
                 request.SetHeader(Headers.CONTENT_LENGTH, memoryStream.Length.ToString());
@@ -864,18 +798,6 @@ namespace KS3
         }
 
         /// <summary>
-        /// generate presignerd url for private object with in limit times
-        /// </summary>
-        /// <param name="bucketName">bucketname</param>
-        /// <param name="key">objectkey</param>
-        /// <param name="expiration">expire time</param>
-        /// <returns>url</returns>
-        public string GeneratePresignedUrl(string bucketName, string key, DateTime expiration)
-        {
-            return GeneratePresignedUrl(bucketName, key, expiration, null);
-        }
-
-        /// <summary>
         /// generate PresignedUrl the url can apply for other user
         /// </summary>
         /// <param name="bucketName"></param>
@@ -888,7 +810,7 @@ namespace KS3
             string url = "";
             string param = "";
 
-            overrides = overrides ?? new ResponseHeaderOverrides();
+            overrides ??= new ResponseHeaderOverrides();
             if (!overrides.CacheControl.IsNullOrWhiteSpace())
             {
                 param += "response-cache-control=" + overrides.CacheControl;
@@ -951,6 +873,11 @@ namespace KS3
             return result.TaskId;
         }
 
+        /// <summary>
+        /// Get adp task
+        /// </summary>
+        /// <param name="getAdpRequest"></param>
+        /// <returns></returns>
         public GetAdpResult GetAdpTask(GetAdpRequest getAdpRequest)
         {
             IRequest<GetAdpRequest> request = CreateRequest(getAdpRequest.TaskId, null, getAdpRequest, HttpMethod.GET);
@@ -1076,7 +1003,7 @@ namespace KS3
                 return;
             }
 
-            ProgressEvent e = new ProgressEvent(eventType);
+            var e = new ProgressEvent(eventType);
             listener.ProgressChanged(e);
         }
 
@@ -1170,7 +1097,7 @@ namespace KS3
                 {
                     IList<IGrantee> grantees = grantsByPermission[permission];
                     bool first = true;
-                    StringBuilder granteeString = new StringBuilder();
+                    var granteeString = new StringBuilder();
                     foreach (IGrantee grantee in grantees)
                     {
                         if (first)
