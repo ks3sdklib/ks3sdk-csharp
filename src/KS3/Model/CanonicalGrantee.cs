@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace KS3.Model
+﻿namespace KS3.Model
 {
     /// <summary>
     /// Represents a grantee identified by their canonical KS3 ID. The canonical KS3 ID can be thought of as an KS3-internal ID specific to a user.
@@ -66,7 +61,7 @@ namespace KS3.Model
         /// <returns></returns>
         public string GetDisplayName()
         {
-            return this._displayName;
+            return _displayName;
         }
 
         public override int GetHashCode()

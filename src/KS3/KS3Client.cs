@@ -132,35 +132,12 @@ namespace KS3
         /// <summary>
         /// Returns a list of all KS3 buckets that the authenticated sender of the request owns. 
         /// </summary>
-        /// <returns></returns>
-        public IList<Bucket> ListBuckets()
-        {
-            return ListBuckets(new ListBucketsRequest());
-        }
-
-        /// <summary>
-        /// Returns a list of all KS3 buckets that the authenticated sender of the request owns. 
-        /// </summary>
         /// <param name="listBucketsRequest"></param>
         /// <returns></returns>
         public IList<Bucket> ListBuckets(ListBucketsRequest listBucketsRequest)
         {
-            IRequest<ListBucketsRequest> request = CreateRequest(
-                null,
-                null,
-                listBucketsRequest,
-                HttpMethod.GET);
-
+            var request = CreateRequest(null, null, listBucketsRequest, HttpMethod.GET);
             return Invoke(request, new ListBucketsUnmarshaller(), null, null);
-        }
-
-        /// <summary>
-        ///  Deletes the specified bucket. 
-        /// </summary>
-        /// <param name="bucketName"></param>
-        public void DeleteBucket(string bucketName)
-        {
-            DeleteBucket(new DeleteBucketRequest(bucketName));
         }
 
         /// <summary>
@@ -169,24 +146,8 @@ namespace KS3
         /// <param name="deleteBucketRequest"></param>
         public void DeleteBucket(DeleteBucketRequest deleteBucketRequest)
         {
-            var bucketName = deleteBucketRequest.BucketName;
-
-            IRequest<DeleteBucketRequest> request = CreateRequest(
-                bucketName,
-                null,
-                deleteBucketRequest,
-                HttpMethod.DELETE);
-            Invoke(request, _voidResponseHandler, bucketName, null);
-        }
-
-        /// <summary>
-        /// Gets the AccessControlList (ACL) for the specified KS3 bucket.
-        /// </summary>
-        /// <param name="bucketName"></param>
-        /// <returns></returns>
-        public AccessControlList GetBucketAcl(String bucketName)
-        {
-            return GetBucketAcl(new GetBucketAclRequest(bucketName));
+            var request = CreateRequest(deleteBucketRequest.BucketName, null, deleteBucketRequest, HttpMethod.DELETE);
+            Invoke(request, _voidResponseHandler, deleteBucketRequest.BucketName, null);
         }
 
         /// <summary>
@@ -196,26 +157,9 @@ namespace KS3
         /// <returns></returns>
         public AccessControlList GetBucketAcl(GetBucketAclRequest getBucketAclRequest)
         {
-            var bucketName = getBucketAclRequest.BucketName;
-
-            IRequest<GetBucketAclRequest> request = CreateRequest(
-                bucketName, null,
-                getBucketAclRequest,
-                HttpMethod.GET);
-
+            var request = CreateRequest(getBucketAclRequest.BucketName, null, getBucketAclRequest, HttpMethod.GET);
             request.SetParameter("acl", null);
-
-            return Invoke(request, new AccessControlListUnmarshaller(), bucketName, null);
-        }
-
-        /// <summary>
-        /// Creates a new KS3 bucket. 
-        /// </summary>
-        /// <param name="bucketName"></param>
-        /// <returns></returns>
-        public Bucket CreateBucket(String bucketName)
-        {
-            return CreateBucket(new CreateBucketRequest(bucketName));
+            return Invoke(request, new AccessControlListUnmarshaller(), getBucketAclRequest.BucketName, null);
         }
 
         /// <summary>
@@ -225,29 +169,23 @@ namespace KS3
         /// <returns></returns>
         public Bucket CreateBucket(CreateBucketRequest createBucketRequest)
         {
-            var bucketName = createBucketRequest.BucketName;
-
-            IRequest<CreateBucketRequest> request = CreateRequest(
-                bucketName,
-                null,
-                createBucketRequest,
-                HttpMethod.PUT);
-
+            var request = CreateRequest(createBucketRequest.BucketName, null, createBucketRequest, HttpMethod.PUT);
             request.SetHeader(Headers.CONTENT_LENGTH, "0");
 
             if (createBucketRequest.Acl != null)
             {
-                addAclHeaders(request, createBucketRequest.Acl);
+                AddAclHeaders(request, createBucketRequest.Acl);
             }
             else if (createBucketRequest.CannedAcl != null)
             {
                 request.SetHeader(Headers.KS3_CANNED_ACL, createBucketRequest.CannedAcl.CannedAclHeader);
             }
 
-            Invoke(request, _voidResponseHandler, bucketName, null);
+            Invoke(request, _voidResponseHandler, createBucketRequest.BucketName, null);
 
-            return new Bucket(bucketName);
+            return new Bucket(createBucketRequest.BucketName);
         }
+
         /// <summary>
         /// This operation is useful to determine if a bucket exists and you have permission to access it
         /// </summary>
@@ -265,9 +203,8 @@ namespace KS3
         /// <returns></returns>
         public HeadBucketResult HeadBucket(HeadBucketRequest headBucketRequest)
         {
-            String bucketname = headBucketRequest.BucketName;
-            IRequest<HeadBucketRequest> request = this.CreateRequest(bucketname, null, headBucketRequest, HttpMethod.HEAD);
-            return this.Invoke(request, new HeadBucketResponseHandler(), bucketname, null);
+            var request = CreateRequest(headBucketRequest.BucketName, null, headBucketRequest, HttpMethod.HEAD);
+            return Invoke(request, new HeadBucketResponseHandler(), headBucketRequest.BucketName, null);
         }
 
         /// <summary>
@@ -289,19 +226,9 @@ namespace KS3
         /// <returns></returns>
         public BucketCorsConfigurationResult GetBucketCors(GetBucketCorsRequest getBucketCorsRequest)
         {
-            var bucketname = getBucketCorsRequest.BucketName;
-            IRequest<GetBucketCorsRequest> request = CreateRequest(
-                bucketname,
-                null,
-                getBucketCorsRequest,
-                HttpMethod.GET);
+            var request = CreateRequest(getBucketCorsRequest.BucketName, null, getBucketCorsRequest, HttpMethod.GET);
             request.SetParameter("cors", null);
-
-            var result = Invoke(
-                request,
-                new BucketCorsConfigurationResultUnmarshaller(),
-                bucketname,
-                null);
+            var result = Invoke(request, new BucketCorsConfigurationResultUnmarshaller(), getBucketCorsRequest.BucketName, null);
             return result;
         }
 
@@ -322,19 +249,9 @@ namespace KS3
         /// <returns></returns>
         public GetBucketLocationResult GetBucketLocation(GetBucketLocationRequest getBucketLocationRequest)
         {
-            var request = CreateRequest(
-                getBucketLocationRequest.BucketName,
-                null,
-                getBucketLocationRequest,
-                HttpMethod.GET);
-
+            var request = CreateRequest(getBucketLocationRequest.BucketName, null, getBucketLocationRequest, HttpMethod.GET);
             request.Parameters.Add("location", null);
-
-            var result = Invoke(
-                request,
-                new GetBucketLocationResultUnmarshaller(),
-                getBucketLocationRequest.BucketName,
-                null);
+            var result = Invoke(request, new GetBucketLocationResultUnmarshaller(), getBucketLocationRequest.BucketName, null);
             return result;
         }
 
@@ -355,41 +272,12 @@ namespace KS3
         /// <returns></returns>
         public GetBucketLoggingResult GetBucketLogging(GetBucketLoggingRequest getBucketLoggingRequest)
         {
-            var request = CreateRequest(
-                getBucketLoggingRequest.BucketName,
-                null,
-                getBucketLoggingRequest,
-                HttpMethod.GET);
-
+            var request = CreateRequest(getBucketLoggingRequest.BucketName, null, getBucketLoggingRequest, HttpMethod.GET);
             request.Parameters.Add("logging", null);
-            var result = Invoke(
-                request,
-                new GetBucketLoggingResultUnmarshaller(),
-                getBucketLoggingRequest.BucketName,
-                null);
-
+            var result = Invoke(request, new GetBucketLoggingResultUnmarshaller(), getBucketLoggingRequest.BucketName, null);
             return result;
         }
 
-        /// <summary>
-        /// Sets the AccessControlList for the specified KS3 bucket.
-        /// </summary>
-        /// <param name="bucketName"></param>
-        /// <param name="acl"></param>
-        public void SetBucketAcl(string bucketName, AccessControlList acl)
-        {
-            SetBucketAcl(new SetBucketAclRequest(bucketName, acl));
-        }
-
-        /// <summary>
-        /// Sets the AccessControlList for the specified KS3 bucket.
-        /// </summary>
-        /// <param name="bucketName"></param>
-        /// <param name="cannedAcl"></param>
-        public void SetBucketAcl(string bucketName, CannedAccessControlList cannedAcl)
-        {
-            SetBucketAcl(new SetBucketAclRequest(bucketName, cannedAcl));
-        }
 
         /// <summary>
         /// Sets the AccessControlList for the specified KS3 bucket.
@@ -397,12 +285,7 @@ namespace KS3
         /// <param name="setBucketAclRequest"></param>
         public void SetBucketAcl(SetBucketAclRequest setBucketAclRequest)
         {
-
-            var request = CreateRequest(
-                setBucketAclRequest.BucketName,
-                null,
-                setBucketAclRequest,
-                HttpMethod.PUT);
+            var request = CreateRequest(setBucketAclRequest.BucketName, null, setBucketAclRequest, HttpMethod.PUT);
 
             if (setBucketAclRequest.Acl != null)
             {
@@ -493,27 +376,6 @@ namespace KS3
         /// <summary>
         /// Returns a list of summary information about the objects in the specified bucket.
         /// </summary>
-        /// <param name="bucketName"></param>
-        /// <returns></returns>
-        public ObjectListing ListObjects(String bucketName)
-        {
-            return ListObjects(new ListObjectsRequest(bucketName, null, null, null, null));
-        }
-
-        /// <summary>
-        /// Returns a list of summary information about the objects in the specified bucket.
-        /// </summary>
-        /// <param name="bucketName"></param>
-        /// <param name="prefix"></param>
-        /// <returns></returns>
-        public ObjectListing ListObjects(string bucketName, string prefix)
-        {
-            return ListObjects(new ListObjectsRequest(bucketName, prefix, null, null, null));
-        }
-
-        /// <summary>
-        /// Returns a list of summary information about the objects in the specified bucket.
-        /// </summary>
         /// <param name="listObjectRequest"></param>
         /// <returns></returns>
         public ObjectListing ListObjects(ListObjectsRequest listObjectRequest)
@@ -543,15 +405,6 @@ namespace KS3
             return Invoke(request, new ListObjectsUnmarshallers(), listObjectRequest.BucketName, null);
         }
 
-        /// <summary>
-        /// Deletes the specified object in the specified bucket.
-        /// </summary>
-        /// <param name="bucketName"></param>
-        /// <param name="key"></param>
-        public void DeleteObject(string bucketName, string key)
-        {
-            DeleteObject(new DeleteObjectRequest(bucketName, key));
-        }
 
         /// <summary>
         /// Deletes the specified object in the specified bucket.
@@ -562,30 +415,7 @@ namespace KS3
             var request = CreateRequest(deleteObjectRequest.BucketName, deleteObjectRequest.Key, deleteObjectRequest, HttpMethod.DELETE);
             Invoke(request, _voidResponseHandler, deleteObjectRequest.BucketName, deleteObjectRequest.Key);
         }
-
-        /// <summary>
-        ///  Gets the object stored in KS3 under the specified bucket and key.
-        /// </summary>
-        /// <param name="bucketName"></param>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        public KS3Object GetObject(string bucketName, string key)
-        {
-            return GetObject(new GetObjectRequest(bucketName, key));
-        }
-
-        /// <summary>
-        /// Gets the object stored in KS3 under the specified bucket and key, and saves the object contents to the specified file.
-        /// </summary>
-        /// <param name="bucketName"></param>
-        /// <param name="key"></param>
-        /// <param name="destinationFile"></param>
-        /// <returns></returns>
-        public KS3Object GetObject(string bucketName, string key, FileInfo destinationFile)
-        {
-            return GetObject(new GetObjectRequest(bucketName, key, destinationFile));
-        }
-
+      
         /// <summary>
         /// Gets the object stored in KS3 under the specified bucket and key.
         /// </summary>
@@ -634,17 +464,6 @@ namespace KS3
         }
 
         /// <summary>
-        /// Gets the metadata for the specified KS3 object without actually fetching the object itself.
-        /// </summary>
-        /// <param name="bucketName"></param>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        public ObjectMetadata GetObjectMetadata(string bucketName, string key)
-        {
-            return GetObjectMetadata(new GetObjectMetadataRequest(bucketName, key));
-        }
-
-        /// <summary>
         ///  Gets the metadata for the specified KS3 object without actually fetching the object itself.
         /// </summary>
         /// <param name="getObjectMetadataRequest"></param>
@@ -654,35 +473,6 @@ namespace KS3
             var request = CreateRequest(getObjectMetadataRequest.BucketName, getObjectMetadataRequest.Key, getObjectMetadataRequest, HttpMethod.HEAD);
 
             return Invoke(request, new MetadataResponseHandler(), getObjectMetadataRequest.BucketName, getObjectMetadataRequest.Key);
-        }
-
-        /// <summary>
-        /// Uploads the specified file to KS3 under the specified bucket and key name.
-        /// </summary>
-        /// <param name="bucketName"></param>
-        /// <param name="key"></param>
-        /// <param name="file"></param>
-        /// <returns></returns>
-        public PutObjectResult PutObject(string bucketName, string key, FileInfo file)
-        {
-            var putObjectRequest = new PutObjectRequest(bucketName, key, file)
-            {
-                Metadata = new ObjectMetadata()
-            };
-            return PutObject(putObjectRequest);
-        }
-
-        /// <summary>
-        /// Uploads the specified input stream and object metadata to KS3 under the specified bucket and key name.
-        /// </summary>
-        /// <param name="bucketName"></param>
-        /// <param name="key"></param>
-        /// <param name="input"></param>
-        /// <param name="metadata"></param>
-        /// <returns></returns>
-        public PutObjectResult PutObject(string bucketName, string key, Stream input, ObjectMetadata metadata)
-        {
-            return PutObject(new PutObjectRequest(bucketName, key, input, metadata));
         }
 
         /// <summary>
@@ -751,7 +541,7 @@ namespace KS3
 
             if (putObjectRequest.Acl != null)
             {
-                addAclHeaders(request, putObjectRequest.Acl);
+                AddAclHeaders(request, putObjectRequest.Acl);
             }
             else if (putObjectRequest.CannedAcl != null)
             {
@@ -805,16 +595,20 @@ namespace KS3
         /// </summary>
         /// <param name="copyObjectRequest"></param>
         /// <returns></returns>
-        public CopyObjectResult copyObject(CopyObjectRequest copyObjectRequest)
+        public CopyObjectResult CopyObject(CopyObjectRequest copyObjectRequest)
         {
-            IRequest<CopyObjectRequest> request = this.CreateRequest(copyObjectRequest.DestinationBucket, copyObjectRequest.DestinationObject, copyObjectRequest, HttpMethod.PUT);
+            var request = CreateRequest(copyObjectRequest.DestinationBucket, copyObjectRequest.DestinationObject, copyObjectRequest, HttpMethod.PUT);
             request.SetHeader(Headers.XKssCopySource, "/" + copyObjectRequest.SourceBucket + "/" + UrlEncoder.Encode(copyObjectRequest.SourceObject, Encoding.UTF8));
             if (copyObjectRequest.AccessControlList != null)
-                addAclHeaders(request, copyObjectRequest.AccessControlList);
+            {
+                AddAclHeaders(request, copyObjectRequest.AccessControlList);
+            }
             else if (copyObjectRequest.CannedAcl != null)
+            {
                 request.SetHeader(Headers.KS3_CANNED_ACL, copyObjectRequest.CannedAcl.CannedAclHeader);
+            }
             request.SetHeader(Headers.CONTENT_LENGTH, "0");
-            return this.Invoke(request, new CopyObjectResultUnmarshaller(), copyObjectRequest.DestinationBucket, copyObjectRequest.DestinationObject);
+            return Invoke(request, new CopyObjectResultUnmarshaller(), copyObjectRequest.DestinationBucket, copyObjectRequest.DestinationObject);
         }
         /// <summary>
         /// The HEAD operation retrieves metadata from an object without returning the object itself. This operation is useful if you are interested only in an object's metadata. To use HEAD, you must have READ access to the object.
@@ -822,20 +616,20 @@ namespace KS3
         /// <param name="bucketName"></param>
         /// <param name="objectKey"></param>
         /// <returns></returns>
-        public HeadObjectResult headObject(String bucketName, String objectKey)
+        public HeadObjectResult HeadObject(string bucketName, string objectKey)
         {
-            return headObject(bucketName, objectKey);
+            return HeadObject(bucketName, objectKey);
         }
-        public HeadObjectResult headObject(HeadObjectRequest headObjectRequest)
+        public HeadObjectResult HeadObject(HeadObjectRequest headObjectRequest)
         {
-            IRequest<HeadObjectRequest> request = this.CreateRequest(headObjectRequest.BucketName, headObjectRequest.ObjectKey, headObjectRequest, HttpMethod.HEAD);
+            var request = CreateRequest(headObjectRequest.BucketName, headObjectRequest.ObjectKey, headObjectRequest, HttpMethod.HEAD);
             headObjectRequest.Validate();
             if (headObjectRequest.MatchingETagConstraints.Count > 0)
             {
                 StringBuilder Etags = new StringBuilder();
-                foreach (String Etag in headObjectRequest.MatchingETagConstraints)
+                foreach (var etag in headObjectRequest.MatchingETagConstraints)
                 {
-                    Etags.Append(Etag);
+                    Etags.Append(etag);
                     Etags.Append(",");
                 }
                 request.SetHeader(Headers.GET_OBJECT_IF_MATCH, Etags.ToString().TrimEnd(','));
@@ -859,36 +653,42 @@ namespace KS3
                 request.SetHeader(Headers.GET_OBJECT_IF_UNMODIFIED_SINCE, headObjectRequest.UnmodifiedSinceConstraint.ToUniversalTime().ToString("r"));
             }
 
-            if (!string.IsNullOrEmpty(headObjectRequest.Overrides.CacheControl))
-                request.SetParameter("response-cache-control", headObjectRequest.Overrides.CacheControl);
-            if (!string.IsNullOrEmpty(headObjectRequest.Overrides.ContentType))
-                request.SetParameter("&response-content-type", headObjectRequest.Overrides.ContentType);
-            if (!string.IsNullOrEmpty(headObjectRequest.Overrides.ContentLanguage))
-                request.SetParameter("&response-content-language", headObjectRequest.Overrides.ContentLanguage);
-            if (!string.IsNullOrEmpty(headObjectRequest.Overrides.Expires))
-                request.SetParameter("&response-expires", headObjectRequest.Overrides.Expires);
-            if (!string.IsNullOrEmpty(headObjectRequest.Overrides.ContentDisposition))
-                request.SetParameter("&response-content-disposition", headObjectRequest.Overrides.ContentDisposition);
-            if (!string.IsNullOrEmpty(headObjectRequest.Overrides.ContentEncoding))
-                request.SetParameter("&response-content-encoding", headObjectRequest.Overrides.ContentEncoding);
 
-            return this.Invoke(request, new HeadObjectResultHandler(), headObjectRequest.BucketName, headObjectRequest.ObjectKey);
+            if (!headObjectRequest.Overrides.CacheControl.IsNullOrWhiteSpace())
+            {
+                request.SetParameter("response-cache-control", headObjectRequest.Overrides.CacheControl);
+            }
+            if (!headObjectRequest.Overrides.ContentType.IsNullOrWhiteSpace())
+            {
+                request.SetParameter("&response-content-type", headObjectRequest.Overrides.ContentType);
+            }
+            if (!headObjectRequest.Overrides.ContentLanguage.IsNullOrWhiteSpace())
+            {
+                request.SetParameter("&response-content-language", headObjectRequest.Overrides.ContentLanguage);
+            }
+            if (!headObjectRequest.Overrides.Expires.IsNullOrWhiteSpace())
+            {
+                request.SetParameter("&response-expires", headObjectRequest.Overrides.Expires);
+            }
+            if (!headObjectRequest.Overrides.ContentDisposition.IsNullOrWhiteSpace())
+            {
+                request.SetParameter("&response-content-disposition", headObjectRequest.Overrides.ContentDisposition);
+            }
+            if (!headObjectRequest.Overrides.ContentEncoding.IsNullOrWhiteSpace())
+            {
+                request.SetParameter("&response-content-encoding", headObjectRequest.Overrides.ContentEncoding);
+            }
+            return Invoke(request, new HeadObjectResultHandler(), headObjectRequest.BucketName, headObjectRequest.ObjectKey);
         }
 
         /// <summary>
         /// init multi upload big file
         /// </summary>
-        /// <param name="bucketname"></param>
-        /// <param name="objectkey"></param>
+        /// <param name="param"></param>
         /// <returns></returns>
-        public InitiateMultipartUploadResult InitiateMultipartUpload(string bucketname, string objectkey)
-        {
-            return InitiateMultipartUpload(new InitiateMultipartUploadRequest(bucketname, objectkey));
-        }
-
         public InitiateMultipartUploadResult InitiateMultipartUpload(InitiateMultipartUploadRequest param)
         {
-            IRequest<InitiateMultipartUploadRequest> request = CreateRequest(param.BucketName, param.ObjectKey, param, HttpMethod.POST);
+            var request = CreateRequest(param.BucketName, param.ObjectKey, param, HttpMethod.POST);
             request.SetParameter("uploads", null);
             request.SetHeader(Headers.CONTENT_LENGTH, "0");
             var result = Invoke(request, new MultipartUploadResultUnmarshaller(), param.BucketName, param.ObjectKey);
@@ -917,11 +717,11 @@ namespace KS3
             // information from it to auto-configure a few options
             metadata.SetContentLength(input.Length);
 
-            if (metadata.GetContentType() == null)
+            if (metadata.GetContentType().IsNullOrWhiteSpace())
             {
                 metadata.SetContentType(Mimetypes.DEFAULT_MIMETYPE);
             }
-            if (metadata.GetContentMD5() == null)
+            if (metadata.GetContentMD5().IsNullOrWhiteSpace())
             {
                 using (MD5 md5 = MD5.Create())
                 {
@@ -931,10 +731,7 @@ namespace KS3
                 input.Seek(0, SeekOrigin.Begin); // It is needed after calculated MD5.
             }
 
-            IRequest<UploadPartRequest> request = CreateRequest(
-                param.BucketName,
-                param.ObjectKey,
-                param, HttpMethod.PUT);
+            var request = CreateRequest(param.BucketName, param.ObjectKey, param, HttpMethod.PUT);
             request.SetParameter("partNumber", param.PartNumber.ToString());
             request.SetParameter("uploadId", param.UploadId);
 
@@ -952,7 +749,7 @@ namespace KS3
             ObjectMetadata returnedMetadata = null;
             try
             {
-                returnedMetadata = this.Invoke(request, new MetadataResponseHandler(), bucketName, key);
+                returnedMetadata = Invoke(request, new MetadataResponseHandler(), bucketName, key);
             }
             catch (ProgressInterruptedException e)
             {
@@ -966,8 +763,8 @@ namespace KS3
             }
             finally
             {
-                if (input != null)
-                    input.Close();
+                input?.Close();
+                input?.Dispose();
             }
 
             FireProgressEvent(progressListener, ProgressEvent.COMPLETED);
@@ -988,15 +785,10 @@ namespace KS3
         /// <returns></returns>
         public ListMultipartUploadsResult GetListMultipartUploads(ListMultipartUploadsRequest param)
         {
-            IRequest<ListMultipartUploadsRequest> request = CreateRequest(param.BucketName, param.ObjectKey, param, HttpMethod.GET);
+            var request = CreateRequest(param.BucketName, param.ObjectKey, param, HttpMethod.GET);
             request.SetParameter("uploadId", param.UploadId);
             request.SetHeader(Headers.CONTENT_LENGTH, "0");
-            var result = Invoke(
-                request,
-                new ListMultipartUploadsResultUnmarshaller(),
-                param.BucketName,
-                param.ObjectKey);
-
+            var result = Invoke(request, new ListMultipartUploadsResultUnmarshaller(), param.BucketName, param.ObjectKey);
             return result;
         }
 
@@ -1008,22 +800,11 @@ namespace KS3
         /// <returns></returns>
         public CompleteMultipartUploadResult CompleteMultipartUpload(CompleteMultipartUploadRequest param)
         {
-            IRequest<CompleteMultipartUploadRequest> request = CreateRequest(
-                param.BucketName,
-                param.ObjectKey,
-                param,
-                HttpMethod.POST);
-
+            var request = CreateRequest(param.BucketName, param.ObjectKey, param, HttpMethod.POST);
             request.SetParameter("uploadId", param.UploadId);
             request.SetHeader(Headers.CONTENT_LENGTH, param.Content.Length.ToString());
             request.Content = param.Content;
-
-            var result = Invoke(
-                request,
-                new CompleteMultipartUploadResultUnmarshaller(),
-                param.BucketName,
-                param.ObjectKey);
-
+            var result = Invoke(request, new CompleteMultipartUploadResultUnmarshaller(), param.BucketName, param.ObjectKey);
             return result;
         }
 
@@ -1033,18 +814,10 @@ namespace KS3
         /// <param name="param"></param>
         public void AbortMultipartUpload(AbortMultipartUploadRequest param)
         {
-            IRequest<AbortMultipartUploadRequest> request = this.CreateRequest(param.BucketName, param.ObjectKey, param, HttpMethod.DELETE);
+            var request = CreateRequest(param.BucketName, param.ObjectKey, param, HttpMethod.DELETE);
             request.SetParameter("uploadId", param.UploadId);
             request.SetHeader(Headers.CONTENT_LENGTH, "0");
-            this.Invoke(request, _voidResponseHandler, param.BucketName, param.ObjectKey);
-        }
-
-        /**
-         * Gets the AccessControlList (ACL) for the specified object in KS3.
-         */
-        public AccessControlList GetObjectAcl(String bucketName, String key)
-        {
-            return this.GetObjectAcl(new GetObjectAclRequest(bucketName, key));
+            Invoke(request, _voidResponseHandler, param.BucketName, param.ObjectKey);
         }
 
         /// <summary>
@@ -1054,40 +827,9 @@ namespace KS3
         /// <returns></returns>
         public AccessControlList GetObjectAcl(GetObjectAclRequest getObjectAclRequest)
         {
-            var bucketName = getObjectAclRequest.BucketName;
-            var key = getObjectAclRequest.Key;
-
-            IRequest<GetObjectAclRequest> request = CreateRequest(
-                bucketName,
-                key,
-                getObjectAclRequest,
-                HttpMethod.GET);
-
+            var request = CreateRequest(getObjectAclRequest.BucketName, getObjectAclRequest.Key, getObjectAclRequest, HttpMethod.GET);
             request.SetParameter("acl", null);
-
-            return Invoke(request, new AccessControlListUnmarshaller(), bucketName, key);
-        }
-
-        /// <summary>
-        /// Sets the AccessControlList for the specified object in KS3.
-        /// </summary>
-        /// <param name="bucketName"></param>
-        /// <param name="key"></param>
-        /// <param name="acl"></param>
-        public void SetObjectAcl(string bucketName, string key, AccessControlList acl)
-        {
-            SetObjectAcl(new SetObjectAclRequest(bucketName, key, acl));
-        }
-
-        /// <summary>
-        /// Sets the AccessControlList for the specified object in KS3.
-        /// </summary>
-        /// <param name="bucketName"></param>
-        /// <param name="key"></param>
-        /// <param name="cannedAcl"></param>
-        public void SetObjectAcl(string bucketName, string key, CannedAccessControlList cannedAcl)
-        {
-            SetObjectAcl(new SetObjectAclRequest(bucketName, key, cannedAcl));
+            return Invoke(request, new AccessControlListUnmarshaller(), getObjectAclRequest.BucketName, getObjectAclRequest.Key);
         }
 
         /// <summary>
@@ -1101,7 +843,7 @@ namespace KS3
             var acl = setObjectAclRequest.Acl;
             var cannedAcl = setObjectAclRequest.CannedAcl;
 
-            IRequest<SetObjectAclRequest> request = this.CreateRequest(bucketName, key, setObjectAclRequest, HttpMethod.PUT);
+            var request = CreateRequest(bucketName, key, setObjectAclRequest, HttpMethod.PUT);
 
             if (acl != null)
             {
@@ -1146,28 +888,40 @@ namespace KS3
             string url = "";
             string param = "";
 
-            overrides = overrides == null ? new ResponseHeaderOverrides() : overrides;
-            if (!string.IsNullOrEmpty(overrides.CacheControl))
+            overrides = overrides ?? new ResponseHeaderOverrides();
+            if (!overrides.CacheControl.IsNullOrWhiteSpace())
+            {
                 param += "response-cache-control=" + overrides.CacheControl;
-            if (!string.IsNullOrEmpty(overrides.ContentType))
+            }
+            if (!overrides.ContentType.IsNullOrWhiteSpace())
+            {
                 param += "&response-content-type=" + overrides.ContentType;
-            if (!string.IsNullOrEmpty(overrides.ContentLanguage))
+            }
+            if (!overrides.ContentLanguage.IsNullOrWhiteSpace())
+            {
                 param += "&response-content-language=" + overrides.ContentLanguage;
-            if (!string.IsNullOrEmpty(overrides.Expires))
+            }
+            if (!overrides.Expires.IsNullOrWhiteSpace())
+            {
                 param += "&response-expires=" + overrides.Expires;
-            if (!string.IsNullOrEmpty(overrides.ContentDisposition))
+            }
+            if (!overrides.ContentDisposition.IsNullOrWhiteSpace())
+            {
                 param += "&response-content-disposition=" + overrides.ContentDisposition;
-            if (!string.IsNullOrEmpty(overrides.ContentEncoding))
+            }
+            if (!overrides.ContentEncoding.IsNullOrWhiteSpace())
+            {
                 param += "&response-content-encoding=" + overrides.ContentEncoding;
+            }
 
             var baselineTime = new DateTime(1970, 1, 1);
             var expires = Convert.ToInt64((expiration.ToUniversalTime() - baselineTime).TotalSeconds);
             try
             {
                 KS3Signer<NoneKS3Request> ks3Signer = CreateSigner<NoneKS3Request>(HttpMethod.GET.ToString(), bucketName, key);
-                string signer = ks3Signer.GetSignature(this._ks3Credentials, expires.ToString());
+                string signer = ks3Signer.GetSignature(_ks3Credentials, expires.ToString());
                 url += @"http://" + bucketName + "." + Constants.KS3_HOSTNAME
-                             + "/" + filterSpecial(UrlEncoder.Encode(key, Constants.DEFAULT_ENCODING)) + "?AccessKeyId="
+                             + "/" + FilterSpecial(UrlEncoder.Encode(key, Constants.DEFAULT_ENCODING)) + "?AccessKeyId="
                              + UrlEncoder.Encode(this._ks3Credentials.GetKS3AccessKeyId(), Constants.DEFAULT_ENCODING)
                              + "&Expires=" + expires + "&Signature="
                              + UrlEncoder.Encode(signer, Constants.DEFAULT_ENCODING) + "&" + param;
@@ -1180,6 +934,7 @@ namespace KS3
 
             return url;
         }
+
         /// <summary>
         /// add Asynchronous Data Processing 可以通过adp执行图片缩略图处理、执行转码操作等
         /// </summary>
@@ -1187,20 +942,20 @@ namespace KS3
         /// <returns></returns>
         public string PutAdpTask(PutAdpRequest putAdpRequest)
         {
-            IRequest<PutAdpRequest> request = this.CreateRequest(putAdpRequest.BucketName, putAdpRequest.ObjectKey, putAdpRequest, HttpMethod.PUT);
+            var request = CreateRequest(putAdpRequest.BucketName, putAdpRequest.ObjectKey, putAdpRequest, HttpMethod.PUT);
             request.SetParameter("adp", null);
-
             request.SetHeader(Headers.AsynchronousProcessingList, putAdpRequest.ConvertAdpsToString());
             request.SetHeader(Headers.NotifyURL, putAdpRequest.NotifyURL);
             request.SetHeader(Headers.CONTENT_LENGTH, "0");
-            PutAdpResult result = this.Invoke(request, new PutAdpResponseHandler(), putAdpRequest.BucketName, putAdpRequest.ObjectKey);
+            PutAdpResult result = Invoke(request, new PutAdpResponseHandler(), putAdpRequest.BucketName, putAdpRequest.ObjectKey);
             return result.TaskId;
         }
-        public GetAdpResult getAdpTask(GetAdpRequest getAdpRequest)
+
+        public GetAdpResult GetAdpTask(GetAdpRequest getAdpRequest)
         {
-            IRequest<GetAdpRequest> request = this.CreateRequest(getAdpRequest.TaskId, null, getAdpRequest, HttpMethod.GET);
-            request.SetParameter("queryadp", string.Empty);
-            return this.Invoke(request, new GetAdpResultUnmarshaller(), null, null);
+            IRequest<GetAdpRequest> request = CreateRequest(getAdpRequest.TaskId, null, getAdpRequest, HttpMethod.GET);
+            request.SetParameter("queryadp", null);
+            return Invoke(request, new GetAdpResultUnmarshaller(), null, null);
         }
         ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1229,13 +984,12 @@ namespace KS3
                 HttpMethod = (httpMethod),
                 Endpoint = (_endpoint)
             };
-            var bucketEncode = UrlEncoder.Encode(bucketName != null ? bucketName : "", Constants.DEFAULT_ENCODING);
-            var keyEncode = UrlEncoder.Encode(key != null ? key : "", Constants.DEFAULT_ENCODING);
-            var resourcePath = "/" + (bucketEncode != null ? bucketEncode + "/" : "") + (keyEncode != null ? keyEncode : "");
-            resourcePath = filterSpecial(resourcePath);
 
+            var bucketEncode = UrlEncoder.Encode(bucketName.IsNullOrWhiteSpace() ? "" : bucketName, Constants.DEFAULT_ENCODING);
+            var keyEncode = UrlEncoder.Encode(key.IsNullOrWhiteSpace() ? "" : key, Constants.DEFAULT_ENCODING);
+            var resourcePath = "/" + (bucketEncode != null ? bucketEncode + "/" : "") + (keyEncode.IsNullOrWhiteSpace() ? "" : keyEncode);
+            resourcePath = FilterSpecial(resourcePath);
             request.ResourcePath = (resourcePath);
-
             return request;
         }
 
@@ -1299,13 +1053,14 @@ namespace KS3
         {
             return CreateSigner<T>(request.HttpMethod.ToString(), bucketName, key);
         }
+
         private KS3Signer<T> CreateSigner<T>(string httpMethod, string bucketName, string key) where T : KS3Request
         {
             string bucketEncode = UrlEncoder.Encode(string.IsNullOrWhiteSpace(bucketName) ? "" : bucketName, Constants.DEFAULT_ENCODING);
             string keyEncode = UrlEncoder.Encode(string.IsNullOrWhiteSpace(key) ? "" : key, Constants.DEFAULT_ENCODING);
 
             string resourcePath = "/" + (string.IsNullOrWhiteSpace(bucketEncode) ? "" : $"{bucketEncode}/") + (string.IsNullOrWhiteSpace(keyEncode) ? "" : keyEncode);
-            resourcePath = filterSpecial(resourcePath);
+            resourcePath = FilterSpecial(resourcePath);
             return new KS3Signer<T>(httpMethod, resourcePath);
         }
 
@@ -1342,7 +1097,7 @@ namespace KS3
                 }
             }
 
-            IDictionary<String, String> userMetadata = metadata.GetUserMetadata();
+            var userMetadata = metadata.GetUserMetadata();
             if (userMetadata != null)
             {
                 foreach (String name in userMetadata.Keys)
@@ -1367,20 +1122,24 @@ namespace KS3
             }
         }
 
-        /*
-         * Adds the specified string list header, joined together separated with
-         * commas, to the specified request.
-         * This method will not add a string list header if the specified values
-         * are <code>null</code> or empty.
-         */
-        private static void AddStringListHeader<X>(IRequest<X> request, String header, IList<String> values)
+        /// <summary>
+        /// * Adds the specified string list header, joined together separated with commas, to the specified request.
+        /// * This method will not add a string list header if the specified values are <code>null</code> or empty.
+        /// </summary>
+        /// <typeparam name="X"></typeparam>
+        /// <param name="request"></param>
+        /// <param name="header"></param>
+        /// <param name="values"></param>
+        private static void AddStringListHeader<X>(IRequest<X> request, string header, IList<string> values)
         {
             if (values != null && values.Count > 0)
-                request.SetHeader(header, String.Join(", ", values));
+            {
+                request.SetHeader(header, string.Join(", ", values));
+            }
         }
-        private static string filterSpecial(string key)
+        private static string FilterSpecial(string key)
         {
-            if (!String.IsNullOrEmpty(key))
+            if (!key.IsNullOrEmpty())
             {
                 key = key.Replace("%5C", "/").Replace("//", "/%2F").Replace("%28", "(").Replace("%29", ")");
             }
@@ -1393,10 +1152,10 @@ namespace KS3
         /// <typeparam name="X"></typeparam>
         /// <param name="request"></param>
         /// <param name="acl"></param>
-        private static void addAclHeaders<X>(IRequest<X> request, AccessControlList acl) where X : KS3Request
+        private static void AddAclHeaders<X>(IRequest<X> request, AccessControlList acl) where X : KS3Request
         {
             var grants = acl.Grants;
-            IDictionary<String, IList<IGrantee>> grantsByPermission = new Dictionary<String, IList<IGrantee>>();
+            IDictionary<string, IList<IGrantee>> grantsByPermission = new Dictionary<string, IList<IGrantee>>();
             foreach (var grant in grants)
             {
                 if (!grantsByPermission.ContainsKey(grant.Permission))
@@ -1405,7 +1164,7 @@ namespace KS3
                 }
                 grantsByPermission[grant.Permission].Add(grant.Grantee);
             }
-            foreach (String permission in Permission.ListPermissions())
+            foreach (var permission in Permission.ListPermissions())
             {
                 if (grantsByPermission.ContainsKey(permission))
                 {
@@ -1415,9 +1174,13 @@ namespace KS3
                     foreach (IGrantee grantee in grantees)
                     {
                         if (first)
+                        {
                             first = false;
+                        }
                         else
+                        {
                             granteeString.Append(", ");
+                        }
                         granteeString.Append(grantee.GetTypeIdentifier() + "=\"" + grantee.GetIdentifier() + "\"");
                     }
                     request.SetHeader(Permission.GetHeaderName(permission), granteeString.ToString());
