@@ -90,6 +90,10 @@ namespace KS3
             SetEndpoint(Constants.KS3_HOSTNAME);
         }
 
+        /// <summary>
+        /// Overrides the default endpoint for this client.
+        /// </summary>
+        /// <param name="endpoint"></param>
         public void SetEndpoint(string endpoint)
         {
             if (!endpoint.Contains("://"))
@@ -99,6 +103,10 @@ namespace KS3
             _endpoint = new Uri(endpoint);
         }
 
+        /// <summary>
+        /// Set configuration
+        /// </summary>
+        /// <param name="clientConfiguration"></param>
         public void SetConfiguration(ClientConfiguration clientConfiguration)
         {
             _clientConfiguration = clientConfiguration;
@@ -141,28 +149,6 @@ namespace KS3
         }
 
         /// <summary>
-        /// Deletes the specified bucket. 
-        /// </summary>
-        /// <param name="deleteBucketRequest"></param>
-        public void DeleteBucket(DeleteBucketRequest deleteBucketRequest)
-        {
-            var request = CreateRequest(deleteBucketRequest.BucketName, null, deleteBucketRequest, HttpMethod.DELETE);
-            Invoke(request, _voidResponseHandler, deleteBucketRequest.BucketName, null);
-        }
-
-        /// <summary>
-        ///  Gets the AccessControlList (ACL) for the specified KS3 bucket.
-        /// </summary>
-        /// <param name="getBucketAclRequest"></param>
-        /// <returns></returns>
-        public AccessControlList GetBucketAcl(GetBucketAclRequest getBucketAclRequest)
-        {
-            var request = CreateRequest(getBucketAclRequest.BucketName, null, getBucketAclRequest, HttpMethod.GET);
-            request.SetParameter("acl", null);
-            return Invoke(request, new AccessControlListUnmarshaller(), getBucketAclRequest.BucketName, null);
-        }
-
-        /// <summary>
         /// Creates a new KS3 bucket. 
         /// </summary>
         /// <param name="createBucketRequest"></param>
@@ -187,6 +173,16 @@ namespace KS3
         }
 
         /// <summary>
+        /// Deletes the specified bucket. 
+        /// </summary>
+        /// <param name="deleteBucketRequest"></param>
+        public void DeleteBucket(DeleteBucketRequest deleteBucketRequest)
+        {
+            var request = CreateRequest(deleteBucketRequest.BucketName, null, deleteBucketRequest, HttpMethod.DELETE);
+            Invoke(request, _voidResponseHandler, deleteBucketRequest.BucketName, null);
+        }
+
+        /// <summary>
         /// This operation is useful to determine if a bucket exists and you have permission to access it
         /// </summary>
         /// <param name="headBucketRequest"></param>
@@ -195,6 +191,44 @@ namespace KS3
         {
             var request = CreateRequest(headBucketRequest.BucketName, null, headBucketRequest, HttpMethod.HEAD);
             return Invoke(request, new HeadBucketResponseHandler(), headBucketRequest.BucketName, null);
+        }
+
+        /// <summary>
+        ///  Gets the AccessControlList (ACL) for the specified KS3 bucket.
+        /// </summary>
+        /// <param name="getBucketAclRequest"></param>
+        /// <returns></returns>
+        public AccessControlList GetBucketAcl(GetBucketAclRequest getBucketAclRequest)
+        {
+            var request = CreateRequest(getBucketAclRequest.BucketName, null, getBucketAclRequest, HttpMethod.GET);
+            request.SetParameter("acl", null);
+            return Invoke(request, new AccessControlListUnmarshaller(), getBucketAclRequest.BucketName, null);
+        }
+
+        /// <summary>
+        /// Sets the AccessControlList for the specified KS3 bucket.
+        /// </summary>
+        /// <param name="setBucketAclRequest"></param>
+        public void SetBucketAcl(SetBucketAclRequest setBucketAclRequest)
+        {
+            var request = CreateRequest(setBucketAclRequest.BucketName, null, setBucketAclRequest, HttpMethod.PUT);
+            if (setBucketAclRequest.Acl != null)
+            {
+                var xml = AclXmlFactory.ConvertToXmlString(setBucketAclRequest.Acl);
+                var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(xml));
+
+                request.Content = memoryStream;
+                request.SetHeader(Headers.CONTENT_LENGTH, memoryStream.Length.ToString());
+            }
+            else if (setBucketAclRequest.CannedAcl != null)
+            {
+                request.SetHeader(Headers.KS3_CANNED_ACL, setBucketAclRequest.CannedAcl.CannedAclHeader);
+                request.SetHeader(Headers.CONTENT_LENGTH, "0");
+            }
+
+            request.SetParameter("acl", null);
+
+            Invoke(request, _voidResponseHandler, setBucketAclRequest.BucketName, null);
         }
 
         /// <summary>
@@ -262,32 +296,6 @@ namespace KS3
             request.Parameters.Add("logging", null);
             var result = Invoke(request, new GetBucketLoggingResultUnmarshaller(), getBucketLoggingRequest.BucketName, null);
             return result;
-        }
-
-        /// <summary>
-        /// Sets the AccessControlList for the specified KS3 bucket.
-        /// </summary>
-        /// <param name="setBucketAclRequest"></param>
-        public void SetBucketAcl(SetBucketAclRequest setBucketAclRequest)
-        {
-            var request = CreateRequest(setBucketAclRequest.BucketName, null, setBucketAclRequest, HttpMethod.PUT);
-            if (setBucketAclRequest.Acl != null)
-            {
-                var xml = AclXmlFactory.ConvertToXmlString(setBucketAclRequest.Acl);
-                var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(xml));
-
-                request.Content = memoryStream;
-                request.SetHeader(Headers.CONTENT_LENGTH, memoryStream.Length.ToString());
-            }
-            else if (setBucketAclRequest.CannedAcl != null)
-            {
-                request.SetHeader(Headers.KS3_CANNED_ACL, setBucketAclRequest.CannedAcl.CannedAclHeader);
-                request.SetHeader(Headers.CONTENT_LENGTH, "0");
-            }
-
-            request.SetParameter("acl", null);
-
-            Invoke(request, _voidResponseHandler, setBucketAclRequest.BucketName, null);
         }
 
         /// <summary>
@@ -390,12 +398,12 @@ namespace KS3
         /// <returns></returns>
         public PutObjectResult PutObject(PutObjectRequest putObjectRequest)
         {
-            string bucketName = putObjectRequest.BucketName;
-            string key = putObjectRequest.Key;
+            var bucketName = putObjectRequest.BucketName;
+            var key = putObjectRequest.Key;
             var metadata = putObjectRequest.Metadata ?? new ObjectMetadata();
 
-            Stream input = putObjectRequest.InputStream;
-            IProgressListener progressListener = putObjectRequest.ProgressListener;
+            var input = putObjectRequest.InputStream;
+            var progressListener = putObjectRequest.ProgressListener;
 
             // If a file is specified for upload, we need to pull some additional
             // information from it to auto-configure a few options
@@ -506,129 +514,6 @@ namespace KS3
             request.SetHeader(Headers.CONTENT_LENGTH, "0");
             var result = Invoke(request, new MultipartUploadResultUnmarshaller(), param.BucketName, param.ObjectKey);
             return result;
-        }
-
-        /// <summary>
-        /// This implementation of the PUT operation creates a copy of an object that is already stored in S3. A PUT copy operation is the same as performing a GET and then a PUT. Adding the request header, x-amz-copy-source, makes the PUT operation copy the source object into the destination bucket.
-        /// </summary>
-        /// <param name="copyObjectRequest"></param>
-        /// <returns></returns>
-        public CopyObjectResult CopyObject(CopyObjectRequest copyObjectRequest)
-        {
-            var request = CreateRequest(copyObjectRequest.DestinationBucket, copyObjectRequest.DestinationObject, copyObjectRequest, HttpMethod.PUT);
-            request.SetHeader(Headers.XKssCopySource, "/" + copyObjectRequest.SourceBucket + "/" + UrlEncoder.Encode(copyObjectRequest.SourceObject, Encoding.UTF8));
-            if (copyObjectRequest.AccessControlList != null)
-            {
-                AddAclHeaders(request, copyObjectRequest.AccessControlList);
-            }
-            else if (copyObjectRequest.CannedAcl != null)
-            {
-                request.SetHeader(Headers.KS3_CANNED_ACL, copyObjectRequest.CannedAcl.CannedAclHeader);
-            }
-            request.SetHeader(Headers.CONTENT_LENGTH, "0");
-            return Invoke(request, new CopyObjectResultUnmarshaller(), copyObjectRequest.DestinationBucket, copyObjectRequest.DestinationObject);
-        }
-
-        /// <summary>
-        ///  The HEAD operation retrieves metadata from an object without returning the object itself. This operation is useful if you are interested only in an object's metadata. To use HEAD, you must have READ access to the object.
-        /// </summary>
-        /// <param name="headObjectRequest"></param>
-        /// <returns></returns>
-        public HeadObjectResult HeadObject(HeadObjectRequest headObjectRequest)
-        {
-            var request = CreateRequest(headObjectRequest.BucketName, headObjectRequest.ObjectKey, headObjectRequest, HttpMethod.HEAD);
-            headObjectRequest.Validate();
-            if (headObjectRequest.MatchingETagConstraints.Count > 0)
-            {
-                var etags = new StringBuilder();
-                foreach (var etag in headObjectRequest.MatchingETagConstraints)
-                {
-                    etags.Append(etag);
-                    etags.Append(",");
-                }
-                request.SetHeader(Headers.GET_OBJECT_IF_MATCH, etags.ToString().TrimEnd(','));
-            }
-            if (headObjectRequest.NonmatchingEtagConstraints.Count > 0)
-            {
-                var noEtags = new StringBuilder();
-                foreach (String etag in headObjectRequest.NonmatchingEtagConstraints)
-                {
-                    noEtags.Append(etag);
-                    noEtags.Append(",");
-                }
-                request.SetHeader(Headers.GET_OBJECT_IF_NONE_MATCH, noEtags.ToString().TrimEnd(','));
-            }
-            if (!headObjectRequest.ModifiedSinceConstraint.Equals(DateTime.MinValue))
-            {
-                request.SetHeader(Headers.GET_OBJECT_IF_MODIFIED_SINCE, headObjectRequest.ModifiedSinceConstraint.ToUniversalTime().ToString("r"));
-            }
-            if (!headObjectRequest.UnmodifiedSinceConstraint.Equals(DateTime.MinValue))
-            {
-                request.SetHeader(Headers.GET_OBJECT_IF_UNMODIFIED_SINCE, headObjectRequest.UnmodifiedSinceConstraint.ToUniversalTime().ToString("r"));
-            }
-            if (!headObjectRequest.Overrides.CacheControl.IsNullOrWhiteSpace())
-            {
-                request.SetParameter("response-cache-control", headObjectRequest.Overrides.CacheControl);
-            }
-            if (!headObjectRequest.Overrides.ContentType.IsNullOrWhiteSpace())
-            {
-                request.SetParameter("&response-content-type", headObjectRequest.Overrides.ContentType);
-            }
-            if (!headObjectRequest.Overrides.ContentLanguage.IsNullOrWhiteSpace())
-            {
-                request.SetParameter("&response-content-language", headObjectRequest.Overrides.ContentLanguage);
-            }
-            if (!headObjectRequest.Overrides.Expires.IsNullOrWhiteSpace())
-            {
-                request.SetParameter("&response-expires", headObjectRequest.Overrides.Expires);
-            }
-            if (!headObjectRequest.Overrides.ContentDisposition.IsNullOrWhiteSpace())
-            {
-                request.SetParameter("&response-content-disposition", headObjectRequest.Overrides.ContentDisposition);
-            }
-            if (!headObjectRequest.Overrides.ContentEncoding.IsNullOrWhiteSpace())
-            {
-                request.SetParameter("&response-content-encoding", headObjectRequest.Overrides.ContentEncoding);
-            }
-            return Invoke(request, new HeadObjectResultHandler(), headObjectRequest.BucketName, headObjectRequest.ObjectKey);
-        }
-
-        /// <summary>
-        /// Deletes the specified object in the specified bucket.
-        /// </summary>
-        /// <param name="deleteObjectRequest"></param>
-        public void DeleteObject(DeleteObjectRequest deleteObjectRequest)
-        {
-            var request = CreateRequest(deleteObjectRequest.BucketName, deleteObjectRequest.Key, deleteObjectRequest, HttpMethod.DELETE);
-            Invoke(request, _voidResponseHandler, deleteObjectRequest.BucketName, deleteObjectRequest.Key);
-        }
-
-        /// <summary>
-        /// The Multi-Object Delete operation enables you to delete multiple objects from a bucket using a single HTTP request.
-        /// </summary>
-        /// <param name="deleteMultipleObjectsRequest"></param>
-        /// <returns></returns>
-        public DeleteMultipleObjectsResult DeleteMultiObjects(DeleteMultipleObjectsRequest deleteMultipleObjectsRequest)
-        {
-            var request = CreateRequest(deleteMultipleObjectsRequest.BucketName, null, deleteMultipleObjectsRequest, HttpMethod.POST);
-            request.SetParameter("delete", null);
-            request.SetHeader(Headers.CONTENT_LENGTH, deleteMultipleObjectsRequest.ToXmlAdapter().Length.ToString());
-            request.SetHeader(Headers.CONTENT_TYPE, "application/xml");
-            request.SetHeader(Headers.CONTENT_MD5, deleteMultipleObjectsRequest.GetMd5());
-            request.Content = (deleteMultipleObjectsRequest.ToXmlAdapter());
-            return Invoke(request, new DeleteMultipleObjectsResultUnmarshaller(), deleteMultipleObjectsRequest.BucketName, null);
-        }
-
-        /// <summary>
-        ///  Gets the metadata for the specified KS3 object without actually fetching the object itself.
-        /// </summary>
-        /// <param name="getObjectMetadataRequest"></param>
-        /// <returns></returns>
-        public ObjectMetadata GetObjectMetadata(GetObjectMetadataRequest getObjectMetadataRequest)
-        {
-            var request = CreateRequest(getObjectMetadataRequest.BucketName, getObjectMetadataRequest.Key, getObjectMetadataRequest, HttpMethod.HEAD);
-
-            return Invoke(request, new MetadataResponseHandler(), getObjectMetadataRequest.BucketName, getObjectMetadataRequest.Key);
         }
 
         /// <summary>
@@ -755,6 +640,131 @@ namespace KS3
         }
 
         /// <summary>
+        /// This implementation of the PUT operation creates a copy of an object that is already stored in S3. A PUT copy operation is the same as performing a GET and then a PUT. Adding the request header, x-amz-copy-source, makes the PUT operation copy the source object into the destination bucket.
+        /// </summary>
+        /// <param name="copyObjectRequest"></param>
+        /// <returns></returns>
+        public CopyObjectResult CopyObject(CopyObjectRequest copyObjectRequest)
+        {
+            var request = CreateRequest(copyObjectRequest.DestinationBucket, copyObjectRequest.DestinationObject, copyObjectRequest, HttpMethod.PUT);
+            request.SetHeader(Headers.XKssCopySource, "/" + copyObjectRequest.SourceBucket + "/" + UrlEncoder.Encode(copyObjectRequest.SourceObject, Encoding.UTF8));
+            if (copyObjectRequest.AccessControlList != null)
+            {
+                AddAclHeaders(request, copyObjectRequest.AccessControlList);
+            }
+            else if (copyObjectRequest.CannedAcl != null)
+            {
+                request.SetHeader(Headers.KS3_CANNED_ACL, copyObjectRequest.CannedAcl.CannedAclHeader);
+            }
+            request.SetHeader(Headers.CONTENT_LENGTH, "0");
+            return Invoke(request, new CopyObjectResultUnmarshaller(), copyObjectRequest.DestinationBucket, copyObjectRequest.DestinationObject);
+        }
+
+        /// <summary>
+        ///  The HEAD operation retrieves metadata from an object without returning the object itself. This operation is useful if you are interested only in an object's metadata. To use HEAD, you must have READ access to the object.
+        /// </summary>
+        /// <param name="headObjectRequest"></param>
+        /// <returns></returns>
+        public HeadObjectResult HeadObject(HeadObjectRequest headObjectRequest)
+        {
+            var request = CreateRequest(headObjectRequest.BucketName, headObjectRequest.ObjectKey, headObjectRequest, HttpMethod.HEAD);
+            headObjectRequest.Validate();
+            if (headObjectRequest.MatchingETagConstraints.Count > 0)
+            {
+                var etags = new StringBuilder();
+                foreach (var etag in headObjectRequest.MatchingETagConstraints)
+                {
+                    etags.Append(etag);
+                    etags.Append(",");
+                }
+                request.SetHeader(Headers.GET_OBJECT_IF_MATCH, etags.ToString().TrimEnd(','));
+            }
+            if (headObjectRequest.NonmatchingEtagConstraints.Count > 0)
+            {
+                var noEtags = new StringBuilder();
+                foreach (var etag in headObjectRequest.NonmatchingEtagConstraints)
+                {
+                    noEtags.Append(etag);
+                    noEtags.Append(",");
+                }
+                request.SetHeader(Headers.GET_OBJECT_IF_NONE_MATCH, noEtags.ToString().TrimEnd(','));
+            }
+            if (!headObjectRequest.ModifiedSinceConstraint.Equals(DateTime.MinValue))
+            {
+                request.SetHeader(Headers.GET_OBJECT_IF_MODIFIED_SINCE, headObjectRequest.ModifiedSinceConstraint.ToUniversalTime().ToString("r"));
+            }
+            if (!headObjectRequest.UnmodifiedSinceConstraint.Equals(DateTime.MinValue))
+            {
+                request.SetHeader(Headers.GET_OBJECT_IF_UNMODIFIED_SINCE, headObjectRequest.UnmodifiedSinceConstraint.ToUniversalTime().ToString("r"));
+            }
+            if (!headObjectRequest.Overrides.CacheControl.IsNullOrWhiteSpace())
+            {
+                request.SetParameter("response-cache-control", headObjectRequest.Overrides.CacheControl);
+            }
+            if (!headObjectRequest.Overrides.ContentType.IsNullOrWhiteSpace())
+            {
+                request.SetParameter("&response-content-type", headObjectRequest.Overrides.ContentType);
+            }
+            if (!headObjectRequest.Overrides.ContentLanguage.IsNullOrWhiteSpace())
+            {
+                request.SetParameter("&response-content-language", headObjectRequest.Overrides.ContentLanguage);
+            }
+            if (!headObjectRequest.Overrides.Expires.IsNullOrWhiteSpace())
+            {
+                request.SetParameter("&response-expires", headObjectRequest.Overrides.Expires);
+            }
+            if (!headObjectRequest.Overrides.ContentDisposition.IsNullOrWhiteSpace())
+            {
+                request.SetParameter("&response-content-disposition", headObjectRequest.Overrides.ContentDisposition);
+            }
+            if (!headObjectRequest.Overrides.ContentEncoding.IsNullOrWhiteSpace())
+            {
+                request.SetParameter("&response-content-encoding", headObjectRequest.Overrides.ContentEncoding);
+            }
+            return Invoke(request, new HeadObjectResultHandler(), headObjectRequest.BucketName, headObjectRequest.ObjectKey);
+        }
+
+        /// <summary>
+        /// Deletes the specified object in the specified bucket.
+        /// </summary>
+        /// <param name="deleteObjectRequest"></param>
+        public void DeleteObject(DeleteObjectRequest deleteObjectRequest)
+        {
+            var request = CreateRequest(deleteObjectRequest.BucketName, deleteObjectRequest.Key, deleteObjectRequest, HttpMethod.DELETE);
+            Invoke(request, _voidResponseHandler, deleteObjectRequest.BucketName, deleteObjectRequest.Key);
+        }
+
+        /// <summary>
+        /// The Multi-Object Delete operation enables you to delete multiple objects from a bucket using a single HTTP request.
+        /// </summary>
+        /// <param name="deleteMultipleObjectsRequest"></param>
+        /// <returns></returns>
+        public DeleteMultipleObjectsResult DeleteMultiObjects(DeleteMultipleObjectsRequest deleteMultipleObjectsRequest)
+        {
+            var request = CreateRequest(deleteMultipleObjectsRequest.BucketName, null, deleteMultipleObjectsRequest, HttpMethod.POST);
+            request.SetParameter("delete", null);
+            request.SetHeader(Headers.CONTENT_LENGTH, deleteMultipleObjectsRequest.ToXmlAdapter().Length.ToString());
+            request.SetHeader(Headers.CONTENT_TYPE, "application/xml");
+            request.SetHeader(Headers.CONTENT_MD5, deleteMultipleObjectsRequest.GetMd5());
+            request.Content = (deleteMultipleObjectsRequest.ToXmlAdapter());
+            return Invoke(request, new DeleteMultipleObjectsResultUnmarshaller(), deleteMultipleObjectsRequest.BucketName, null);
+        }
+
+        /// <summary>
+        ///  Gets the metadata for the specified KS3 object without actually fetching the object itself.
+        /// </summary>
+        /// <param name="getObjectMetadataRequest"></param>
+        /// <returns></returns>
+        public ObjectMetadata GetObjectMetadata(GetObjectMetadataRequest getObjectMetadataRequest)
+        {
+            var request = CreateRequest(getObjectMetadataRequest.BucketName, getObjectMetadataRequest.Key, getObjectMetadataRequest, HttpMethod.HEAD);
+
+            return Invoke(request, new MetadataResponseHandler(), getObjectMetadataRequest.BucketName, getObjectMetadataRequest.Key);
+        }
+
+      
+
+        /// <summary>
         /// Gets the AccessControlList (ACL) for the specified object in KS3.
         /// </summary>
         /// <param name="getObjectAclRequest"></param>
@@ -858,6 +868,18 @@ namespace KS3
         }
 
         /// <summary>
+        /// Get adp task
+        /// </summary>
+        /// <param name="getAdpRequest"></param>
+        /// <returns></returns>
+        public GetAdpResult GetAdpTask(GetAdpRequest getAdpRequest)
+        {
+            var request = CreateRequest(getAdpRequest.TaskId, null, getAdpRequest, HttpMethod.GET);
+            request.SetParameter("queryadp", null);
+            return Invoke(request, new GetAdpResultUnmarshaller(), null, null);
+        }
+
+        /// <summary>
         /// add Asynchronous Data Processing 可以通过adp执行图片缩略图处理、执行转码操作等
         /// </summary>
         /// <param name="putAdpRequest"></param>
@@ -869,21 +891,10 @@ namespace KS3
             request.SetHeader(Headers.AsynchronousProcessingList, putAdpRequest.ConvertAdpsToString());
             request.SetHeader(Headers.NotifyURL, putAdpRequest.NotifyURL);
             request.SetHeader(Headers.CONTENT_LENGTH, "0");
-            PutAdpResult result = Invoke(request, new PutAdpResponseHandler(), putAdpRequest.BucketName, putAdpRequest.ObjectKey);
+            var result = Invoke(request, new PutAdpResponseHandler(), putAdpRequest.BucketName, putAdpRequest.ObjectKey);
             return result.TaskId;
         }
 
-        /// <summary>
-        /// Get adp task
-        /// </summary>
-        /// <param name="getAdpRequest"></param>
-        /// <returns></returns>
-        public GetAdpResult GetAdpTask(GetAdpRequest getAdpRequest)
-        {
-            IRequest<GetAdpRequest> request = CreateRequest(getAdpRequest.TaskId, null, getAdpRequest, HttpMethod.GET);
-            request.SetParameter("queryadp", null);
-            return Invoke(request, new GetAdpResultUnmarshaller(), null, null);
-        }
         ////////////////////////////////////////////////////////////////////////////////////////
 
 

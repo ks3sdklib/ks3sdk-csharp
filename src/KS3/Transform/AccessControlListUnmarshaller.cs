@@ -61,8 +61,7 @@ namespace KS3.Transform
                     }
                     else if (xr.Name.Equals("Owner"))
                     {
-                        Owner owner = new Owner(ownerId, ownerDisplayName);
-                        acl.Owner = owner;
+                        acl.Owner = new Owner(ownerId, ownerDisplayName);
                     }
                     else if (xr.Name.Equals("Grantee"))
                     {

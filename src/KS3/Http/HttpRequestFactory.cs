@@ -44,11 +44,16 @@ namespace KS3.Http
             //For all non-POST requests, and any POST requests that already have a payload, we put the encoded params directly in the URI, otherwise,we'll put them in the POST request's payload.
             bool putParamsInUri = request.HttpMethod != HttpMethod.POST || request.Content != null;
 
-            if (encodedParams != null && (putParamsInUri || encodedParams.Contains("upload")))
-                uri += "?" + encodedParams;
 
-            if (request.HttpMethod == HttpMethod.POST && encodedParams != null && !putParamsInUri && !encodedParams.Contains("upload"))
+            if (!encodedParams.IsNullOrWhiteSpace() && (putParamsInUri || encodedParams.Contains("upload")))
+            {
+                uri += "?" + encodedParams;
+            }
+
+            if (request.HttpMethod == HttpMethod.POST && !encodedParams.IsNullOrWhiteSpace() && !putParamsInUri && !encodedParams.Contains("upload"))
+            {
                 request.Content = (new MemoryStream(Constants.DEFAULT_ENCODING.GetBytes(encodedParams)));
+            }
             HttpWebRequest httpRequest = (HttpWebRequest)WebRequest.Create(uri);
             httpRequest.Method = request.HttpMethod.ToString();
 
@@ -61,12 +66,12 @@ namespace KS3.Http
 
             if (request.Content != null)
             {
-                Stream inputStream = request.Content;
+                var inputStream = request.Content;
                 if (inputStream.CanSeek)
                 {
                     inputStream.Seek(0, SeekOrigin.Begin);
                 }
-                Stream requestStream = httpRequest.GetRequestStream();
+                var requestStream = httpRequest.GetRequestStream();
                 int bufferSize = Constants.DEFAULT_STREAM_BUFFER_SIZE;
                 byte[] buf = new byte[bufferSize];
 
@@ -81,7 +86,8 @@ namespace KS3.Http
                 }
 
                 requestStream.Flush();
-                requestStream.Close();
+                requestStream?.Close();
+                requestStream?.Dispose();
             }
 
             return httpRequest;

@@ -13,7 +13,7 @@ namespace KS3.Transform
         {
             ObjectSummary currObject = null;
             Owner currOwner = null;
-            StringBuilder currText = new StringBuilder();
+            var currText = new StringBuilder();
             bool insideCommonPrefixes = false;
 
             ObjectListing objectListing = new ObjectListing();

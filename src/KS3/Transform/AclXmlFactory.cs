@@ -43,7 +43,7 @@ namespace KS3.Transform
 
         private static string ConvertGrant(Grant grant)
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
             builder.Append("<Grant>");
             builder.Append(ConvertGrantee(grant.Grantee));
             builder.Append(ConvertPermission(grant.Permission));
@@ -67,7 +67,7 @@ namespace KS3.Transform
 
         private static string ConvertCanonicalGrantee(CanonicalGrantee grantee)
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
             builder.Append("<Grantee xmlns:xsi=\"" + _xmlns + "\" xsi:type=\"CanonicalUser\">");
             builder.Append("<DisplayName>" + grantee.GetDisplayName() + "</DisplayName>");
             builder.Append("<ID>" + grantee.GetIdentifier() + "</ID>");
@@ -78,7 +78,7 @@ namespace KS3.Transform
 
         private static string ConvertGroupGrantee(GroupGrantee grantee)
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
             builder.Append("<Grantee xmlns:xsi=\"" + _xmlns + "\" xsi:type=\"Group\">");
             builder.Append("<URI>" + grantee.GetIdentifier() + "</URI>");
             builder.Append("</Grantee>");

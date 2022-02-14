@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
+using KS3.Extensions;
 
 namespace KS3.Http
 {
@@ -24,7 +25,7 @@ namespace KS3.Http
         {
             _config = clientConfiguration;
             _errorResponseHandler = new ErrorResponseHandler(new ErrorResponseUnmarshaller());
-            this.Init();
+            Init();
         }
 
         private void Init()
@@ -39,11 +40,11 @@ namespace KS3.Http
             //String proxyHost = _config.ProxyHost;
             //int proxyPort = _config.ProxyPort;
 
-            if (!string.IsNullOrWhiteSpace(_config.ProxyHost) && _config.ProxyPort > 0)
+            if (!_config.ProxyHost.IsNullOrWhiteSpace() && _config.ProxyPort > 0)
             {
                 var webProxy = new WebProxy(_config.ProxyHost, _config.ProxyPort);
 
-                if (!string.IsNullOrWhiteSpace(_config.ProxyUsername) && !string.IsNullOrWhiteSpace(_config.ProxyPassword))
+                if (!_config.ProxyUsername.IsNullOrWhiteSpace() && !_config.ProxyPassword.IsNullOrWhiteSpace())
                 {
                     var credential = new NetworkCredential(_config.ProxyUsername, _config.ProxyPassword);
                     webProxy.Credentials = credential;
@@ -137,7 +138,7 @@ namespace KS3.Http
         /// <param name="request"></param>
         private void SetUserAgent<T>(IRequest<T> request) where T : KS3Request
         {
-            if (!string.IsNullOrWhiteSpace(_config.UserAgent))
+            if (!_config.UserAgent.IsNullOrWhiteSpace())
             {
                 request.SetHeader(Headers.USER_AGENT, _config.UserAgent);
             }

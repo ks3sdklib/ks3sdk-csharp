@@ -26,7 +26,7 @@ namespace KS3.Transform
             var parts = xml.Where(x => x.Name.LocalName == "Part").ToList();
             foreach (var item in parts)
             {
-                Part p = new Part
+                var p = new Part
                 {
                     PartNumber = Convert.ToInt32(item.Element("PartNumber").Value),
                     ETag = item.Element("ETag").Value,

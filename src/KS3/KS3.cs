@@ -24,17 +24,17 @@ namespace KS3
         IList<Bucket> ListBuckets(ListBucketsRequest listBucketRequest);
 
         /// <summary>
-        ///  Deletes the specified bucket. 
-        /// </summary>
-        /// <param name="deleteBucketRequest"></param>
-        void DeleteBucket(DeleteBucketRequest deleteBucketRequest);
-
-        /// <summary>
         /// Creates a new KS3 bucket. 
         /// </summary>
         /// <param name="createBucketRequest"></param>
         /// <returns></returns>
         Bucket CreateBucket(CreateBucketRequest createBucketRequest);
+
+        /// <summary>
+        ///  Deletes the specified bucket. 
+        /// </summary>
+        /// <param name="deleteBucketRequest"></param>
+        void DeleteBucket(DeleteBucketRequest deleteBucketRequest);
 
         /// <summary>
         /// This operation is useful to determine if a bucket exists and you have permission to access it
