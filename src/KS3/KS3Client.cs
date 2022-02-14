@@ -488,7 +488,6 @@ namespace KS3
             finally
             {
                 input?.Close();
-                input?.Dispose();
             }
 
             FireProgressEvent(progressListener, ProgressEvent.COMPLETED);
@@ -585,7 +584,6 @@ namespace KS3
             finally
             {
                 input?.Close();
-                input?.Dispose();
             }
 
             FireProgressEvent(progressListener, ProgressEvent.COMPLETED);

@@ -124,7 +124,6 @@ namespace KS3.Http
                 finally
                 {
                     httpResponse?.Close();
-                    httpResponse?.Dispose();
                 }
             }
             return result;

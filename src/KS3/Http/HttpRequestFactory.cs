@@ -87,7 +87,6 @@ namespace KS3.Http
 
                 requestStream.Flush();
                 requestStream?.Close();
-                requestStream?.Dispose();
             }
 
             return httpRequest;

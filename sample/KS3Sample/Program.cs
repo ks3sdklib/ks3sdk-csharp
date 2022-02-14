@@ -787,7 +787,6 @@ namespace KS3Sample
 
                 var obj = ks3Client.GetObject(getObjectRequest);
                 obj.ObjectContent.Close(); // The file was opened in [KS3ObjectResponseHandler], so I close it first. 
-                obj.ObjectContent.Dispose();
 
                 Console.WriteLine("Success. See the file downloaded at {0}", outFilePath);
                 Console.WriteLine("-----------------------\n");

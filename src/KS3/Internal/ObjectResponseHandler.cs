@@ -60,10 +60,7 @@ namespace KS3.Internal
             finally
             {
                 input?.Close();
-                input?.Dispose();
-
                 output?.Close();
-                output?.Dispose();
             }
 
             if (destinationFile != null)

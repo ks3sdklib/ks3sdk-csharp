@@ -31,7 +31,6 @@ namespace KS3.Model
         ~KS3Object()
         {
             ObjectContent?.Close();
-            ObjectContent?.Dispose();
         }
 
         public override string ToString()
